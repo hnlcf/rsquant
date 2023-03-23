@@ -1,2 +1,6 @@
 [workspace]
-members = ["binance_spot_connector_rust", "binance_connector_rust_examples"]
+members = [
+    "binance_spot_connector_rust",
+    "binance_connector_rust_examples",
+    "test-binan-api",
+]
