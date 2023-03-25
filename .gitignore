@@ -4,4 +4,4 @@ Cargo.lock
 **/*.rs.bk
 *.pdb
 
-*-api.json
+*-signature.json
