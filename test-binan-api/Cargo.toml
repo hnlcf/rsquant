@@ -2,8 +2,7 @@
 name = "test-binan-api"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
 
 [dependencies]
 binance_spot_connector_rust = { path = "../binance_spot_connector_rust", features = [
