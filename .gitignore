@@ -1,5 +1,14 @@
+### Rust
+*.pdb
+**/*.rs.bk
+Cargo.lock
+
 debug/
 target/
-Cargo.lock
-**/*.rs.bk
-*.pdb
+
+### IDE config
+.vscode/
+.idea/
+
+### Project
+*-signature.json

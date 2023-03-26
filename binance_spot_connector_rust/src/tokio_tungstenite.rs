@@ -1,4 +1,3 @@
-use crate::websocket::Stream;
 use futures_util::SinkExt;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpStream;
@@ -9,6 +8,8 @@ use tokio_tungstenite::{
 };
 use url::Url;
 
+use crate::websocket::Stream;
+
 /// Binance websocket client using Tungstenite.
 pub struct BinanceWebSocketClient;
 
@@ -16,7 +17,7 @@ impl BinanceWebSocketClient {
     pub async fn connect_async(
         url: &str,
     ) -> Result<(WebSocketState<MaybeTlsStream<TcpStream>>, Response), Error> {
-        let (socket, response) = connect_async(Url::parse(&url).unwrap()).await?;
+        let (socket, response) = connect_async(Url::parse(url).unwrap()).await?;
 
         log::info!("Connected to {}", url);
         log::debug!("Response HTTP code: {}", response.status());
@@ -55,7 +56,7 @@ impl<T: AsyncRead + AsyncWrite + Unpin> WebSocketState<T> {
             params_str = format!("\"params\": [{params}],", params = params_str)
         };
 
-        let id = self.id.clone();
+        let id = self.id;
         self.id += 1;
 
         let s = format!(

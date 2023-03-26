@@ -23,11 +23,3 @@ jobs:
 
       - name: Lint Check
         run: cargo clippy --all-targets -- -D clippy::all
-
-      - name: Examples Format Check
-        working-directory: ./examples
-        run: cargo fmt -- --check
-
-      - name: Examples Lint Check
-        working-directory: ./examples
-        run: cargo clippy --all-targets -- -D clippy::all
