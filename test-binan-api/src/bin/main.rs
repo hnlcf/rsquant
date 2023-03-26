@@ -4,9 +4,11 @@ use binance_spot_connector_rust::{
     http::{request::RequestBuilder, Method},
     hyper::{BinanceHttpClient, Error},
 };
+
 use test_binan_api::{credential::CredentialBuilder, res::AccountRes};
 
 static CREDENTIAL_FILE: &str = "binance-credential.json";
+
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -15,6 +17,7 @@ async fn main() -> Result<(), Error> {
         .init();
 
     let client = BinanceHttpClient::default();
+
     let credentials =
         CredentialBuilder::from_json(CREDENTIAL_FILE).expect("Can't parse signature file");
     let request = RequestBuilder::new(Method::Get, "/api/v3/account")
