@@ -1,41 +1,41 @@
 use std::fs;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use binance_spot_connector_rust::http::Credentials;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct CredentialBuilder {
     api_key: String,
     signature: Signature,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(tag = "signature_type")]
 enum Signature {
     Hmac(HmacSignature),
     Rsa(RsaSignature),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Deserialize)]
 struct HmacSignature {
     api_secret: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Deserialize)]
 struct RsaSignature {
     key: String,
     password: Option<String>,
 }
 
 impl CredentialBuilder {
-    /// # Get Credentials
+    /// Get Credentials from json file.
     ///
     /// Read your local credential json file passed in as `credential_file` and return a [`Credentials`].
     ///
     /// ## Examples
     ///
-    /// Your local signature file need to be as below.
+    /// Your local credential file need to be as below.
     ///
     /// ```json
     /// // Hmac

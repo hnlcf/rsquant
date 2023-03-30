@@ -1,15 +1,17 @@
 #![allow(unused)]
-use serde::{Deserialize, Serialize};
+
 use std::fmt;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use serde::Deserialize;
+
+#[derive(Deserialize)]
 pub struct AccountRes {
     #[serde(rename = "accountType")]
     account_type: String,
     balances: Vec<CoinInfo>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct CoinInfo {
     asset: String,
     free: String,
