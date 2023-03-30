@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use std::collections::HashMap;
 
-/// Unsuccesful response from the Binance API.
+/// Unsuccessful response from the Binance API.
 #[derive(Debug)]
 pub enum ClientError {
     /// API server error complying with the error schema.
