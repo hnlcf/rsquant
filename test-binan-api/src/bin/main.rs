@@ -1,14 +1,37 @@
 use env_logger::Builder;
+use hyper::client::HttpConnector;
+use hyper_tls::HttpsConnector;
+use lazy_static::lazy_static;
 
 use binance_spot_connector_rust::{
-    http::{request::RequestBuilder, Method},
+    http::{request::Request, Credentials},
     hyper::{BinanceHttpClient, Error},
+    trade::account::Account,
 };
-
 use test_binan_api::{credential::CredentialBuilder, res::AccountRes};
+
+type BinanHttpClient = BinanceHttpClient<HttpsConnector<HttpConnector>>;
 
 static CREDENTIAL_FILE: &str = "binance-credential.json";
 
+lazy_static! {
+    static ref CREDENTIALS: Credentials =
+        CredentialBuilder::from_json(CREDENTIAL_FILE).expect("Can't parse signature file.");
+    static ref CLIENT: BinanHttpClient = BinanceHttpClient::default();
+}
+
+async fn get_account_info(
+    client: &BinanHttpClient,
+    credentials: &Credentials,
+) -> Result<AccountRes, Error> {
+    let request: Request = Account::default()
+        .credentials(&credentials)
+        .recv_window(5000)
+        .into();
+
+    let data = client.send(request).await?.into_body_str().await?;
+    Ok(serde_json::from_str(&data).expect("Can't parse account info response."))
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -16,18 +39,8 @@ async fn main() -> Result<(), Error> {
         .filter(None, log::LevelFilter::Info)
         .init();
 
-    let client = BinanceHttpClient::default();
+    let account_info = get_account_info(&CLIENT, &CREDENTIALS).await?;
 
-    let credentials =
-        CredentialBuilder::from_json(CREDENTIAL_FILE).expect("Can't parse signature file");
-    let request = RequestBuilder::new(Method::Get, "/api/v3/account")
-        .params(vec![("recvWindow", "5000")])
-        .credentials(credentials)
-        .sign();
-
-    let data = client.send(request).await?.into_body_str().await?;
-    let json: AccountRes = serde_json::from_str(&data).expect("Can't parse response");
-
-    println!("{}", json);
+    println!("{}", account_info);
     Ok(())
 }
