@@ -1,6 +1,7 @@
-use crate::http::error::{ClientError, HttpError as BinanceHttpError};
 use http::{uri::InvalidUri, Error as HttpError};
 use hyper::Error as HyperError;
+
+use crate::http::error::{ClientError, HttpError as BinanceHttpError};
 
 /// Communication error with the server.
 #[derive(Debug)]
