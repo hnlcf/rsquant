@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
 
 [dependencies]
+async-trait = "0.1.68"
 binance_spot_connector_rust = { path = "../binance_spot_connector_rust", features = [
     "full",
 ] }

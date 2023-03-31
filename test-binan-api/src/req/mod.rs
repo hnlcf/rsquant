@@ -1,1 +1,1 @@
-pub trait Request {}
+pub trait BinanRequest {}
