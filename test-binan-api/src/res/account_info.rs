@@ -1,14 +1,6 @@
 use std::fmt;
 
-use async_trait::async_trait;
-use binance_spot_connector_rust::hyper::Error as BinanHyperError;
 use serde::Deserialize;
-
-use binance_spot_connector_rust::http::request::Request;
-use binance_spot_connector_rust::http::Credentials;
-use binance_spot_connector_rust::trade::account::Account;
-
-use crate::res::BinanHttpClient;
 
 #[derive(Deserialize)]
 pub struct AccountInfoRes {
@@ -24,19 +16,7 @@ pub struct CoinInfo {
     locked: String,
 }
 
-#[async_trait]
-impl super::BinanResponse for AccountInfoRes {
-    async fn get(client: &BinanHttpClient, credentials: &Credentials) -> Self {
-        let request: Request = Account::default()
-            .credentials(&credentials)
-            .recv_window(5000)
-            .into();
-
-        let res = client.send(request).await.map_err(BinanHyperError::Send);
-        let data = res.into_body_str().await.map_err(BinanHyperError::Parse);
-        serde_json::from_str(&data).expect("Can't parse account info response.")
-    }
-}
+impl super::BinanResponse for AccountInfoRes {}
 
 impl AccountInfoRes {
     pub fn account_type(&self) -> String {
