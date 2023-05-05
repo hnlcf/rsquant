@@ -11,10 +11,9 @@ use test_binan_api::res;
 
 type BinanHttpClient = BinanceHttpClient<HttpsConnector<HttpConnector>>;
 
-static CREDENTIAL_FILE: &str = "binance-credential.json";
 lazy_static! {
     static ref CREDENTIALS: Credentials =
-        CredentialBuilder::from_json(CREDENTIAL_FILE).expect("Failed to parse signature file.");
+        CredentialBuilder::from_env().expect("Failed to get credential from envs.");
     static ref CLIENT: BinanHttpClient = BinanceHttpClient::default();
 }
 
