@@ -24,16 +24,43 @@ impl CredentialBuilder {
     /// BINAN_SIG_PASSWD=xxx # Maybe absent
     /// ```
     pub fn from_env() -> Option<Credentials> {
-        let sig_type = env::var("BINAN_SIG_TYPE").ok()?;
-        let api_key = env::var("BINAN_API_KEY").ok()?;
+        let sig_type = env::var("BINAN_SIG_TYPE").ok().map_or_else(
+            || {
+                log::error!("Environment variable `BINAN_SIG_TYPE` is unset!");
+                None
+            },
+            Some,
+        )?;
+        let api_key = env::var("BINAN_API_KEY").ok().map_or_else(
+            || {
+                log::error!("Environment variable `BINAN_API_KEY` is unset!");
+                None
+            },
+            Some,
+        )?;
+
         match sig_type.as_str() {
             "HMAC" => {
-                let api_secret = env::var("BINAN_API_SECRET").ok()?;
+                let api_secret = env::var("BINAN_API_SECRET").ok().map_or_else(
+                    || {
+                        log::error!("Environment variable `BINAN_API_SECRET` is unset!");
+                        None
+                    },
+                    Some,
+                )?;
+
                 let hmac_credential = Credentials::from_hmac(api_key, api_secret);
                 Some(hmac_credential)
             }
             "RSA" => {
-                let sig_key = env::var("BINAN_SIG_KEY").ok()?;
+                let sig_key = env::var("BINAN_SIG_KEY").ok().map_or_else(
+                    || {
+                        log::error!("Environment variable `BINAN_SIG_KEY` is unset!");
+                        None
+                    },
+                    Some,
+                )?;
+
                 let sig_passwd = env::var("BINAN_SIG_PASSWD").ok();
                 let rsa_credential = match sig_passwd {
                     Some(sig_passwd) => {
