@@ -17,7 +17,7 @@ pub struct CoinInfo {
     locked: String,
 }
 
-impl super::BinanResponse for AccountInfoRes {}
+impl super::BinanResponse<'_> for AccountInfoRes {}
 
 impl AccountInfoRes {
     pub fn account_type(&self) -> String {
