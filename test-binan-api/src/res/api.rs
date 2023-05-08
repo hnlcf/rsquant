@@ -36,7 +36,7 @@ pub async fn get_kline(
     start_time: u64,
     end_time: u64,
     limit: u32,
-) -> Vec<kline::Kline> {
+) -> Vec<kline::KlineRes> {
     let request = market::klines(symbol, interval)
         .start_time(start_time)
         .end_time(end_time)

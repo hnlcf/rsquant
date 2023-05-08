@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-pub struct Kline {
+pub struct KlineRes {
     pub open_time: u64,
     pub open_price: String,
     pub high_price: String,
@@ -15,3 +15,5 @@ pub struct Kline {
     pub buy_quote_asset_volume: String,
     pub ignore_field: String,
 }
+
+impl super::BinanResponse<'_> for KlineRes {}
