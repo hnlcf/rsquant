@@ -8,6 +8,7 @@ authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
 binance_spot_connector_rust = { path = "../binance_spot_connector_rust", features = [
     "full",
 ] }
+chrono = "0.4.24"
 env_logger = "0.10.0"
 hyper = "0.14.25"
 hyper-tls = "0.5.0"
