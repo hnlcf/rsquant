@@ -1,4 +1,5 @@
 use std::fmt;
+use std::num;
 
 use serde::Deserialize;
 
@@ -26,6 +27,15 @@ impl AccountInfoRes {
     pub fn balances(&self) -> Vec<CoinInfo> {
         self.balances.to_owned()
     }
+
+    pub fn remove_blank_coin(self) -> Self {
+        let new_balances = self.balances.into_iter().filter(|c| c.is_zero()).collect();
+
+        AccountInfoRes {
+            account_type: self.account_type,
+            balances: new_balances,
+        }
+    }
 }
 
 impl fmt::Display for AccountInfoRes {
@@ -49,6 +59,15 @@ impl CoinInfo {
 
     pub fn locked(&self) -> String {
         self.locked.to_owned()
+    }
+
+    pub fn is_zero(&self) -> bool {
+        let free: Result<f64, num::ParseFloatError> = self.free.parse();
+        let locked: Result<f64, num::ParseFloatError> = self.locked.parse();
+        if free.is_ok() && locked.is_ok() && (free.unwrap() != 0.0 || locked.unwrap() != 0.0) {
+            return true;
+        }
+        false
     }
 }
 

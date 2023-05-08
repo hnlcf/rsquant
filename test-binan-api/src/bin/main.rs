@@ -23,7 +23,9 @@ async fn main() -> Result<(), BinanHyperError> {
         .filter(None, log::LevelFilter::Info)
         .init();
 
-    let account_info = res::get_account_info(&CLIENT, &CREDENTIALS).await;
+    let account_info = res::get_account_info(&CLIENT, &CREDENTIALS)
+        .await
+        .remove_blank_coin();
 
     println!("{}", account_info);
     Ok(())
