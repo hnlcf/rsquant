@@ -35,3 +35,17 @@ impl CurrentTime {
             .to_string()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::TimeConverter;
+
+    #[test]
+    fn test_time_converter() {
+        let expect_date_time = "1970-01-01 00:00:00";
+        let expect_unix_time = TimeConverter::date_to_unix_time(expect_date_time).unwrap_or(0);
+        let actual_date_time =
+            TimeConverter::unix_time_to_date(expect_unix_time).unwrap_or("".into());
+        assert_eq!(actual_date_time, expect_date_time);
+    }
+}
