@@ -5,15 +5,20 @@ use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct AccountInfoRes {
+    /// 账户类型
     #[serde(rename = "accountType")]
     account_type: String,
+    /// 资产
     balances: Vec<CoinInfo>,
 }
 
 #[derive(Clone, Deserialize)]
 pub struct CoinInfo {
+    /// 资产名称
     asset: String,
+    /// 可用余额
     free: String,
+    /// 不可用余额
     locked: String,
 }
 
