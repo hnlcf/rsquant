@@ -4,6 +4,7 @@ use serde::Deserialize;
 
 use super::account_info;
 use super::kline;
+use super::ticker_price::TickerPriceRes;
 
 use binance_spot_connector_rust::http::request::Request;
 use binance_spot_connector_rust::http::Credentials;
@@ -42,6 +43,12 @@ pub async fn get_kline(
         .end_time(end_time)
         .limit(limit);
 
+    let data = get_response(client, request).await;
+    decode_response(&data).await
+}
+
+pub async fn get_ticker_price(client: &BinanHttpClient, symbol: &str) -> TickerPriceRes {
+    let request = market::ticker_price().symbol(symbol);
     let data = get_response(client, request).await;
     decode_response(&data).await
 }

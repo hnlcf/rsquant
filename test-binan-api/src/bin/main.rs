@@ -66,6 +66,9 @@ async fn main() -> Result<(), BinanHyperError> {
     Ok(())
 }
 
+async fn get_ticker_price(symbol: &str) -> res::ticker_price::TickerPriceRes {
+    res::api::get_ticker_price(&CLIENT, symbol).await
+}
 async fn get_kline(
     symbol: &str,
     interval: KlineInterval,
