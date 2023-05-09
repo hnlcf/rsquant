@@ -9,7 +9,7 @@ binance_spot_connector_rust = { path = "../binance_spot_connector_rust", feature
     "full",
 ] }
 chrono = "0.4.24"
-env_logger = "0.10.0"
+fern = { version = "0.6.2", features = ["colored"] }
 hyper = "0.14.25"
 hyper-tls = "0.5.0"
 lazy_static = "1.4.0"
