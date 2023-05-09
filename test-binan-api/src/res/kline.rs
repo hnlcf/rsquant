@@ -16,4 +16,4 @@ pub struct KlineRes {
     pub ignore_field: String,
 }
 
-impl super::BinanResponse<'_> for KlineRes {}
+impl super::api::BinanResponse<'_> for KlineRes {}

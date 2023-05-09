@@ -1,4 +1,4 @@
-mod filters;
-mod public_def;
+pub mod filters;
+pub mod public_def;
 
 pub trait BinanRequest {}

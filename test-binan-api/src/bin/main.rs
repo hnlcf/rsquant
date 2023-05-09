@@ -4,13 +4,12 @@ use hyper::client::HttpConnector;
 use hyper_tls::HttpsConnector;
 use lazy_static::lazy_static;
 
-use binance_spot_connector_rust::http::Credentials;
-use binance_spot_connector_rust::hyper::BinanceHttpClient;
-use binance_spot_connector_rust::hyper::Error as BinanHyperError;
-use binance_spot_connector_rust::market::klines::KlineInterval;
-use test_binan_api::credential;
-use test_binan_api::res;
-use test_binan_api::util;
+use binance_spot_connector_rust::{
+    http::Credentials,
+    hyper::{BinanceHttpClient, Error as BinanHyperError},
+    market::klines::KlineInterval,
+};
+use test_binan_api::{credential, res, util};
 
 type BinanHttpClient = BinanceHttpClient<HttpsConnector<HttpConnector>>;
 
@@ -48,7 +47,7 @@ fn setup_logger() -> Result<(), fern::InitError> {
 async fn main() -> Result<(), BinanHyperError> {
     setup_logger().expect("Can't setup logger");
 
-    let account_info = res::get_account_info(&CLIENT, &CREDENTIALS)
+    let account_info = res::api::get_account_info(&CLIENT, &CREDENTIALS)
         .await
         .remove_blank_coin();
     log::info!("Account info:\n{}", account_info);
@@ -70,8 +69,8 @@ async fn get_kline(
     interval: KlineInterval,
     start_time: &str,
     end_time: &str,
-) -> Vec<res::KlineRes> {
-    let start_time = util::TimeConverter::date_to_unix_time(start_time).unwrap();
-    let end_time = util::TimeConverter::date_to_unix_time(end_time).unwrap();
-    res::get_kline(&CLIENT, symbol, interval, start_time, end_time, 1000).await
+) -> Vec<res::kline::KlineRes> {
+    let start_time = util::time::TimeConverter::date_to_unix_time(start_time).unwrap();
+    let end_time = util::time::TimeConverter::date_to_unix_time(end_time).unwrap();
+    res::api::get_kline(&CLIENT, symbol, interval, start_time, end_time, 1000).await
 }
