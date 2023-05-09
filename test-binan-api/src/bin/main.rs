@@ -26,6 +26,8 @@ fn setup_logger() -> Result<(), fern::InitError> {
         .debug(Color::White)
         .error(Color::Red)
         .trace(Color::Blue);
+    let log_file =
+        util::env::EnvManager::get_env_var("BINAN_LOG_FILE").unwrap_or("log/output.log".into());
     fern::Dispatch::new()
         .format(move |out, message, record| {
             out.finish(format_args!(
@@ -38,7 +40,7 @@ fn setup_logger() -> Result<(), fern::InitError> {
         })
         .level(log::LevelFilter::Trace)
         .chain(std::io::stdout())
-        .chain(fern::log_file("log/output.log")?)
+        .chain(fern::log_file(log_file)?)
         .apply()?;
     Ok(())
 }

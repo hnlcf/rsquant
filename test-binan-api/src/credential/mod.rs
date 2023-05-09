@@ -1,6 +1,6 @@
-use std::env;
-
 use binance_spot_connector_rust::http::Credentials;
+
+use crate::util;
 
 pub struct CredentialBuilder;
 
@@ -24,17 +24,17 @@ impl CredentialBuilder {
     /// BINAN_SIG_PASSWD=xxx # Maybe absent
     /// ```
     pub fn from_env() -> Option<Credentials> {
-        let sig_type = CredentialBuilder::get_env_var("BINAN_SIG_TYPE")?;
-        let api_key = CredentialBuilder::get_env_var("BINAN_API_KEY")?;
+        let sig_type = util::env::EnvManager::get_env_var("BINAN_SIG_TYPE")?;
+        let api_key = util::env::EnvManager::get_env_var("BINAN_API_KEY")?;
         match sig_type.as_str() {
             "HMAC" => {
-                let api_secret = CredentialBuilder::get_env_var("BINAN_API_SECRET")?;
+                let api_secret = util::env::EnvManager::get_env_var("BINAN_API_SECRET")?;
                 let hmac_credential = Credentials::from_hmac(api_key, api_secret);
                 Some(hmac_credential)
             }
             "RSA" => {
-                let sig_key = CredentialBuilder::get_env_var("BINAN_SIG_KEY")?;
-                let sig_passwd = CredentialBuilder::get_env_var("BINAN_SIG_PASSWD");
+                let sig_key = util::env::EnvManager::get_env_var("BINAN_SIG_KEY")?;
+                let sig_passwd = util::env::EnvManager::get_env_var("BINAN_SIG_PASSWD");
                 let rsa_credential = match sig_passwd {
                     Some(sig_passwd) => {
                         Credentials::from_rsa_protected(api_key, sig_key, sig_passwd)
@@ -46,15 +46,5 @@ impl CredentialBuilder {
             }
             _ => None,
         }
-    }
-
-    fn get_env_var(key: &str) -> Option<String> {
-        env::var(key).ok().map_or_else(
-            || {
-                log::error!("Environment variable `{}` is unset!", key);
-                None
-            },
-            Some,
-        )
     }
 }
