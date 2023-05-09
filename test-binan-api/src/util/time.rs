@@ -1,6 +1,6 @@
 extern crate chrono;
 
-use chrono::prelude::*;
+use chrono::{DateTime, FixedOffset, Local, NaiveDateTime};
 
 pub struct TimeConverter;
 
@@ -9,7 +9,8 @@ pub struct CurrentTime;
 impl TimeConverter {
     pub fn unix_time_to_date(unix_time: u64) -> Option<String> {
         let naive = NaiveDateTime::from_timestamp_opt(unix_time as i64, 0)?;
-        let datetime: DateTime<Utc> = DateTime::from_utc(naive, Utc);
+        let timezone_east = FixedOffset::east_opt(8 * 60 * 60)?;
+        let datetime: DateTime<Local> = DateTime::from_local(naive, timezone_east);
         Some(datetime.format("%Y-%m-%d %H:%M:%S").to_string())
     }
 
@@ -20,8 +21,8 @@ impl TimeConverter {
 }
 
 impl CurrentTime {
-    fn get_current() -> DateTime<Utc> {
-        chrono::offset::Utc::now()
+    fn get_current() -> DateTime<Local> {
+        chrono::offset::Local::now()
     }
 
     pub fn get_unix_time() -> u64 {
