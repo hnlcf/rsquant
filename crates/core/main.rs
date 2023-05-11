@@ -6,7 +6,6 @@ use fern::colors::{Color, ColoredLevelConfig};
 use hyper::client::HttpConnector;
 use hyper_tls::HttpsConnector;
 use lazy_static::lazy_static;
-use rusqlite::{Connection, Result};
 
 use binance_spot_connector_rust::{
     http::Credentials,
@@ -14,11 +13,10 @@ use binance_spot_connector_rust::{
     market::klines::KlineInterval,
 };
 use test_binan_api::{
-    credential, res,
-    util::{
-        self,
-        time::{CurrentTime, TimeConverter},
-    },
+    credential,
+    db::sqlite::SqliteConnection,
+    res,
+    util::{self, time::TimeConverter},
 };
 
 type BinanHttpClient = BinanceHttpClient<HttpsConnector<HttpConnector>>;
@@ -59,7 +57,7 @@ fn setup_logger() -> Result<(), fern::InitError> {
 async fn main() -> Result<(), BinanHyperError> {
     setup_logger().expect("Can't setup logger");
 
-    let conn = Connection::open("bitcoin.db").expect("Can't open database in sqlite");
+    let conn = SqliteConnection::create_connection("data/bitcoin.db");
     conn.execute(
         "CREATE TABLE IF NOT EXISTS assets_price (
             id          INTEGER PRIMARY KEY,
@@ -69,8 +67,7 @@ async fn main() -> Result<(), BinanHyperError> {
             date_time   TEXT NOT NULL
          )",
         (),
-    )
-    .expect("Can't create table in sqlite");
+    );
 
     let account_info = get_account_info().await;
     log::info!("Account info:\n{}", account_info);
@@ -97,10 +94,9 @@ async fn main() -> Result<(), BinanHyperError> {
                 &current_unix_time,
                 &current_date_time,
             ),
-        )
-        .expect("Can't insert ticker price into sqlite");
+        );
 
-        log::info!("{:?}", eth_price);
+        log::info!("{}", eth_price);
     }
 
     Ok(())

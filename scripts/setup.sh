@@ -20,7 +20,7 @@ function main ()
   setup_envs
   build_rs
 
-  env $BINAN_API_ENV proxychains4 "${ROOT}/target/debug/main"
+  env $BINAN_API_ENV proxychains4 "${ROOT}/target/debug/btc_trader"
 }
 
 main "$@"

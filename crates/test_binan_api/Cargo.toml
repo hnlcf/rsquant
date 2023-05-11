@@ -1,5 +1,5 @@
 [package]
-name = "test-binan-api"
+name = "test_binan_api"
 version = "0.1.0"
 edition = "2021"
 authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
