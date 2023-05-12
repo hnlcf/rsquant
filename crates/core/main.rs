@@ -27,35 +27,9 @@ lazy_static! {
     static ref CLIENT: BinanHttpClient = BinanceHttpClient::default();
 }
 
-fn setup_logger() -> Result<(), fern::InitError> {
-    let colors = ColoredLevelConfig::new()
-        .info(Color::Green)
-        .warn(Color::Yellow)
-        .debug(Color::White)
-        .error(Color::Red)
-        .trace(Color::Blue);
-    let log_file =
-        util::env::EnvManager::get_env_var("BINAN_LOG_FILE").unwrap_or("log/output.log".into());
-    fern::Dispatch::new()
-        .format(move |out, message, record| {
-            out.finish(format_args!(
-                "[{} {} {}] {}",
-                Local::now().format("%Y-%m-%d %H:%M:%S"),
-                colors.color(record.level()),
-                record.target(),
-                message
-            ))
-        })
-        .level(log::LevelFilter::Debug)
-        .chain(std::io::stdout())
-        .chain(fern::log_file(log_file)?)
-        .apply()?;
-    Ok(())
-}
-
 #[tokio::main]
-async fn main() -> Result<(), BinanHyperError> {
-    setup_logger().expect("Can't setup logger");
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    util::log::setup_logger()?;
 
     let conn = SqliteConnection::create_connection("data/bitcoin.db");
     conn.execute(
