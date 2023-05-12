@@ -1,22 +1,21 @@
 #![allow(dead_code)]
 use std::{thread, time::Duration};
 
-use chrono::Local;
-use fern::colors::{Color, ColoredLevelConfig};
 use hyper::client::HttpConnector;
 use hyper_tls::HttpsConnector;
 use lazy_static::lazy_static;
 
 use binance_spot_connector_rust::{
-    http::Credentials,
-    hyper::{BinanceHttpClient, Error as BinanHyperError},
-    market::klines::KlineInterval,
+    http::Credentials, hyper::BinanceHttpClient, market::klines::KlineInterval,
 };
 use test_binan_api::{
     credential,
     db::sqlite::SqliteConnection,
     res,
-    util::{self, time::TimeConverter},
+    util::{
+        self,
+        time::{CurrentTime, TimeConverter},
+    },
 };
 
 type BinanHttpClient = BinanceHttpClient<HttpsConnector<HttpConnector>>;
@@ -57,7 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         thread::sleep(seconds);
 
-        let current_date_time = Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+        let current_date_time = CurrentTime::get_date_time();
         let current_unix_time = TimeConverter::date_to_unix_time(&current_date_time).unwrap_or(0);
         let eth_price = get_ticker_price("ETHUSDT").await;
         conn.execute(
