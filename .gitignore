@@ -16,4 +16,4 @@ target/
 .env
 
 *.db
-data/
+database/
