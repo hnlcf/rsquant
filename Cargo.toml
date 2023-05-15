@@ -1,6 +1,26 @@
+[package]
+name = "btc_trader"
+version = "0.1.0"
+edition = "2021"
+authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
+
+
+[[bin]]
+bench = false
+path = "crates/core/main.rs"
+name = "btc_trader"
+
 [workspace]
 members = [
-    "binance_spot_connector_rust",
-    "binance_connector_rust_examples",
-    "test-binan-api",
+    "crates/binance_spot_connector_rust",
+    "crates/binance_connector_rust_examples",
+    "crates/test_binan_api",
 ]
+
+[dependencies]
+binance_spot_connector_rust = { path = "crates/binance_spot_connector_rust", features = [
+    "full",
+] }
+test_binan_api = { path = "crates/test_binan_api" }
+log = "0.4.17"
+tokio = { version = "1.26.0", features = ["time", "full"] }

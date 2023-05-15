@@ -10,5 +10,10 @@ target/
 .vscode/
 .idea/
 
+*.sublime-*
+
 ### Project
-*-signature.json
+.env
+
+*.db
+database/
