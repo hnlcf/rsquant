@@ -22,8 +22,5 @@ binance_spot_connector_rust = { path = "crates/binance_spot_connector_rust", fea
     "full",
 ] }
 test_binan_api = { path = "crates/test_binan_api" }
-hyper = "0.14.25"
-hyper-tls = "0.5.0"
-lazy_static = "1.4.0"
 log = "0.4.17"
 tokio = { version = "1.26.0", features = ["time", "full"] }
