@@ -1,12 +1,13 @@
-use hyper::client::HttpConnector;
-use hyper_tls::HttpsConnector;
+#![allow(dead_code)]
 
-use binance_spot_connector_rust::{
-    http::Credentials, hyper::BinanceHttpClient, market::klines::KlineInterval,
+use binance_spot_connector_rust::market::klines::KlineInterval;
+use test_binan_api::{
+    db::recorder::Recorder,
+    res::{account_info, kline, ticker_price},
+    util,
 };
-use test_binan_api::{credential, db::recorder::Recorder, res, util};
 
-type BinanHttpClient = BinanceHttpClient<HttpsConnector<HttpConnector>>;
+use crate::api::Api;
 
 pub struct Event;
 
@@ -15,22 +16,11 @@ pub struct Executor {
     events: Vec<Event>,
 }
 
+#[derive(Default)]
 pub struct Manager {
-    credentials: Credentials,
-    client: BinanHttpClient,
+    api: Api,
     recorder: Recorder,
     executor: Executor,
-}
-
-impl Default for Manager {
-    fn default() -> Self {
-        Self {
-            credentials: credential::CredentialBuilder::from_env().expect(""),
-            client: BinanHttpClient::default(),
-            recorder: Recorder::default(),
-            executor: Executor::default(),
-        }
-    }
 }
 
 impl Manager {
@@ -46,50 +36,23 @@ impl Manager {
         &self.recorder
     }
 
-    pub async fn get_ticker_price(&self, symbol: &str) -> res::ticker_price::TickerPriceRes {
-        let price = res::api::get_ticker_price(&self.client, symbol).await;
-
-        log::info!("{}", price);
-        price
+    pub async fn get_ticker_price(&self, symbol: &str) -> ticker_price::TickerPriceRes {
+        self.api.get_ticker_price(symbol).await
     }
 
-    /// # Get account information
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// let account_info = get_account_info().await;
-    /// println!("{:#?}", account_info);
-    /// ```
-    pub async fn get_account_info(&self) -> res::account_info::AccountInfoRes {
-        res::api::get_account_info(&self.client, &self.credentials)
-            .await
-            .remove_blank_coin()
+    pub async fn get_account_info(&self) -> account_info::AccountInfoRes {
+        self.api.get_account_info().await
     }
 
-    /// # Get Kline data
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// let kline = get_kline(
-    ///     "ETHUSDT",
-    ///     KlineInterval::Hours1,
-    ///     "2023-05-08 11:00:00",
-    ///     "2023-05-09 11:00:00",
-    /// )
-    /// .await;
-    /// println!("{:#?}", kline);
-    /// ```
     pub async fn get_kline(
         &self,
         symbol: &str,
         interval: KlineInterval,
         start_time: &str,
         end_time: &str,
-    ) -> Vec<res::kline::KlineRes> {
-        let start_time = util::time::TimeTool::convert_to_unix_time(start_time).unwrap();
-        let end_time = util::time::TimeTool::convert_to_unix_time(end_time).unwrap();
-        res::api::get_kline(&self.client, symbol, interval, start_time, end_time, 1000).await
+    ) -> Vec<kline::KlineRes> {
+        self.api
+            .get_kline(symbol, interval, start_time, end_time)
+            .await
     }
 }
