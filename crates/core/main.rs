@@ -1,3 +1,4 @@
+mod api;
 mod manager;
 mod time;
 
@@ -6,18 +7,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let manager = manager::Manager::default();
     manager.init()?;
 
-    let account_info = manager.get_account_info().await;
-    log::info!("Account info:\n{}", account_info);
+    manager.get_account_info().await;
 
     let seconds = std::time::Duration::from_secs(2);
-    let mut count = 0;
-
-    loop {
-        if count > 1000 {
-            break;
-        }
-        count += 1;
-
+    for _ in 0..2000 {
         std::thread::sleep(seconds);
 
         let (date_time, unix_time) = time::DateTime::get_current();
