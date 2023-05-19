@@ -20,7 +20,7 @@ impl GetResponse {
             .into();
 
         let data = HandleResponse::get_response(client, request).await;
-        HandleResponse::decode_response(&data).await
+        HandleResponse::decode_response(&data)
     }
 
     pub async fn get_kline(
@@ -37,12 +37,12 @@ impl GetResponse {
             .limit(limit);
 
         let data = HandleResponse::get_response(client, request).await;
-        HandleResponse::decode_response(&data).await
+        HandleResponse::decode_response(&data)
     }
 
     pub async fn get_ticker_price(client: &BinanHttpClient, symbol: &str) -> TickerPriceRes {
         let request = market::ticker_price().symbol(symbol);
         let data = HandleResponse::get_response(client, request).await;
-        HandleResponse::decode_response(&data).await
+        HandleResponse::decode_response(&data)
     }
 }

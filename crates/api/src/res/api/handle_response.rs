@@ -7,7 +7,7 @@ use crate::res::BinanHttpClient;
 pub struct HandleResponse;
 
 impl HandleResponse {
-    pub async fn decode_response<'a, T: Deserialize<'a>>(data: &'a str) -> T {
+    pub fn decode_response<'a, T: Deserialize<'a>>(data: &'a str) -> T {
         serde_json::from_str(data).expect("Failed to parse response.")
     }
 
