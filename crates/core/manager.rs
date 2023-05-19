@@ -21,6 +21,9 @@ pub struct Manager {
     executor: Executor,
 }
 
+unsafe impl Send for Manager {}
+unsafe impl Sync for Manager {}
+
 impl Manager {
     pub fn init(&self) -> Result<(), Box<dyn std::error::Error>> {
         log::Logger::setup_logger()?;
