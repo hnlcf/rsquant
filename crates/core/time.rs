@@ -1,4 +1,4 @@
-use test_binan_api::util::time::TimeTool;
+use quant_util::time::TimeTool;
 
 pub struct DateTime;
 

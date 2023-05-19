@@ -1,6 +1,7 @@
-use binance_spot_connector_rust::{http::Credentials, market::klines::KlineInterval};
-use test_binan_api::res::api::GetResponse;
-use test_binan_api::{credential, res, res::BinanHttpClient, util};
+use binan_spot::{http::Credentials, market::klines::KlineInterval};
+use quant_api::res::api::GetResponse;
+use quant_api::{credential, res, res::BinanHttpClient};
+use quant_util::time;
 
 pub struct Api {
     credentials: Credentials,
@@ -77,8 +78,8 @@ impl Api {
         start_time: &str,
         end_time: &str,
     ) -> Vec<res::kline::KlineRes> {
-        let start_time = util::time::TimeTool::convert_to_unix_time(start_time).unwrap();
-        let end_time = util::time::TimeTool::convert_to_unix_time(end_time).unwrap();
+        let start_time = time::TimeTool::convert_to_unix_time(start_time).unwrap();
+        let end_time = time::TimeTool::convert_to_unix_time(end_time).unwrap();
         GetResponse::get_kline(&self.client, symbol, interval, start_time, end_time, 1000).await
     }
 }

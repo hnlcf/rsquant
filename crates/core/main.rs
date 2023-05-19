@@ -1,6 +1,7 @@
 mod api;
 mod manager;
 mod time;
+mod trade;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

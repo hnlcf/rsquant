@@ -1,11 +1,9 @@
 #![allow(dead_code)]
 
-use binance_spot_connector_rust::market::klines::KlineInterval;
-use test_binan_api::{
-    db::recorder::Recorder,
-    res::{account_info, kline, ticker_price},
-    util,
-};
+use binan_spot::market::klines::KlineInterval;
+use quant_api::res::{account_info, kline, ticker_price};
+use quant_db::recorder::Recorder;
+use quant_util::log;
 
 use crate::api::Api;
 
@@ -25,7 +23,7 @@ pub struct Manager {
 
 impl Manager {
     pub fn init(&self) -> Result<(), Box<dyn std::error::Error>> {
-        util::log::Logger::setup_logger()?;
+        log::Logger::setup_logger()?;
 
         self.recorder.init();
 
