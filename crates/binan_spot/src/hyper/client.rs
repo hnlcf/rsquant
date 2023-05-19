@@ -52,6 +52,14 @@ impl BinanceHttpClient<HttpsConnector<HttpConnector>> {
     }
 }
 
+fn create_query_string(params: &[(String, String)]) -> String {
+    let mut serializer = url::form_urlencoded::Serializer::new(String::new());
+    for (k, v) in params.iter() {
+        serializer.append_pair(k, v);
+    }
+    serializer.finish()
+}
+
 impl<T> BinanceHttpClient<T>
 where
     T: Connect + Clone + Send + Sync + 'static,
@@ -66,13 +74,7 @@ where
         } = request.into();
         let mut url_parts = vec![self.base_url.to_owned(), path];
         let has_params = !params.is_empty();
-        let mut serializer = url::form_urlencoded::Serializer::new(String::new());
-        if has_params {
-            for (k, v) in params.iter() {
-                serializer.append_pair(k, v);
-            }
-        }
-        let mut query_string = serializer.finish();
+        let mut query_string = create_query_string(&params);
         let mut hyper_request = hyper::Request::builder().method(method);
         let client_credentials = self.credentials.as_ref();
         let request_credentials = credentials.as_ref();
