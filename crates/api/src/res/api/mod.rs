@@ -1,4 +1,5 @@
 use hyper::client::HttpConnector;
+use hyper_proxy::ProxyConnector;
 use hyper_tls::HttpsConnector;
 use serde::Deserialize;
 
@@ -10,4 +11,4 @@ pub mod handle_response;
 
 pub trait BinanResponse<'a>: Deserialize<'a> {}
 
-pub type BinanHttpClient = BinanceHttpClient<HttpsConnector<HttpConnector>>;
+pub type BinanHttpClient = BinanceHttpClient<ProxyConnector<HttpsConnector<HttpConnector>>>;

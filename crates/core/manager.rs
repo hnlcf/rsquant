@@ -10,23 +10,23 @@ use quant_util::{
 
 use crate::{api::Api, time};
 
-pub struct Event;
-
-#[derive(Default)]
-pub struct Executor {
-    events: Vec<Event>,
-}
-
-#[derive(Default)]
 pub struct Manager {
     api: Api,
     recorder: Recorder,
-    executor: Executor,
 }
 
 unsafe impl Send for Manager {}
 
 unsafe impl Sync for Manager {}
+
+impl Default for Manager {
+    fn default() -> Self {
+        Self {
+            api: Api::default_with_proxy(),
+            recorder: Recorder::default(),
+        }
+    }
+}
 
 impl Manager {
     pub fn init(&self) -> Result<(), Box<dyn std::error::Error>> {

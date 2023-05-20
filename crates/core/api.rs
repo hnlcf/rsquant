@@ -1,23 +1,23 @@
 use binan_spot::{http::Credentials, market::klines::KlineInterval};
 use quant_api::res::api::GetResponse;
 use quant_api::{credential, res, res::BinanHttpClient};
+use quant_util::env::EnvManager;
 
 pub struct Api {
     credentials: Credentials,
     client: BinanHttpClient,
 }
 
-impl Default for Api {
-    fn default() -> Self {
+impl Api {
+    pub fn default_with_proxy() -> Self {
+        let proxy = EnvManager::get_env_var("https_proxy").unwrap_or("".to_owned());
         Self {
             credentials: credential::CredentialBuilder::from_env()
                 .expect("Failed to create credential from envs."),
-            client: BinanHttpClient::default(),
+            client: BinanHttpClient::default_with_proxy(&proxy),
         }
     }
-}
 
-impl Api {
     pub async fn get_account_snapshot(&self) -> String {
         GetResponse::get_account_snapshot(&self.client).await
     }

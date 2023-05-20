@@ -1,6 +1,7 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use hyper::{client::connect::Connect, client::HttpConnector, Body, Client, Uri};
+use hyper_proxy::{Intercept, Proxy, ProxyConnector};
 use hyper_tls::HttpsConnector;
 
 use crate::http::{request::Request, Credentials, Method};
@@ -121,6 +122,23 @@ impl Default for BinanceHttpClient<HttpsConnector<HttpConnector>> {
     fn default() -> Self {
         Self::new(
             Client::builder().build::<_, hyper::Body>(HttpsConnector::new()),
+            "https://api.binance.com",
+        )
+    }
+}
+
+impl BinanceHttpClient<ProxyConnector<HttpsConnector<HttpConnector>>> {
+    pub fn default_with_proxy(proxy_uri: &str) -> Self {
+        let proxy = if proxy_uri.is_empty() {
+            ProxyConnector::new(HttpsConnector::new()).unwrap()
+        } else {
+            let proxy = Proxy::new(Intercept::All, proxy_uri.parse().unwrap());
+            let connector = HttpsConnector::new();
+            ProxyConnector::from_proxy(connector, proxy).unwrap()
+        };
+
+        Self::new(
+            Client::builder().build::<_, hyper::Body>(proxy),
             "https://api.binance.com",
         )
     }

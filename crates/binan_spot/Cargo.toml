@@ -12,12 +12,7 @@ enable-hyper = ["hyper", "hyper-tls", "serde_json", "futures-util", "tokio"]
 enable-ureq = ["ureq", "serde_json"]
 enable-tungstenite = ["tungstenite"]
 enable-tokio-tungstenite = ["tokio-tungstenite"]
-full = [
-    "enable-hyper",
-    "enable-tungstenite",
-    "enable-ureq",
-    "enable-tokio-tungstenite",
-]
+full = ["enable-hyper", "enable-tungstenite", "enable-ureq", "enable-tokio-tungstenite"]
 
 [dependencies]
 hmac = "0.12.0"
@@ -50,6 +45,7 @@ tungstenite = { version = "0.16.0", features = ["native-tls"], optional = true }
 tokio-tungstenite = { version = "0.17.1", features = [
     "native-tls",
 ], optional = true }
+hyper-proxy = "0.9.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
