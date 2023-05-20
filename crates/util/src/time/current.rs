@@ -1,6 +1,6 @@
 use chrono::{DateTime, Local, TimeZone, Utc};
 
-use super::{LocalTimeTool, UtcTimeTool};
+use super::{LocalTimeTool, UtcTimeTool, DATE_FORMAT_STR};
 
 pub trait CurrentTime<Tz: TimeZone>
 where
@@ -13,7 +13,7 @@ where
     }
 
     fn get_date_time() -> String {
-        Self::get_current().format("%Y-%m-%d %H:%M:%S").to_string()
+        Self::get_current().format(DATE_FORMAT_STR).to_string()
     }
 }
 

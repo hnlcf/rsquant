@@ -1,8 +1,6 @@
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, Utc};
 
-use super::{LocalTimeTool, UtcTimeTool};
-
-const DATE_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S";
+use super::{LocalTimeTool, UtcTimeTool, DATE_FORMAT_STR};
 
 pub trait TimeConverter {
     fn convert_to_date_time(unix_time: u64) -> Option<String>;
