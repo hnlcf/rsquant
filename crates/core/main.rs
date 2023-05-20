@@ -9,7 +9,7 @@ use manager::Manager;
 
 use clokwerk::{AsyncScheduler, TimeUnits};
 use lazy_static::lazy_static;
-use quant_util::time::TimeTool;
+use quant_util::time::TimeZoneConverter;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -38,8 +38,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .get_kline(
                 "ETHUSDT",
                 binan_spot::market::klines::KlineInterval::Minutes1,
-                TimeTool::convert_local_to_utc(start_unix_time),
-                TimeTool::convert_local_to_utc(end_unix_time),
+                TimeZoneConverter::convert_local_to_utc(start_unix_time),
+                TimeZoneConverter::convert_local_to_utc(end_unix_time),
             )
             .await;
     });

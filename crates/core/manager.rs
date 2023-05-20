@@ -5,7 +5,7 @@ use quant_api::res::{account_info, kline, ticker_price};
 use quant_db::recorder::Recorder;
 use quant_util::{
     log,
-    time::{LocalTimeTool, TimeTool},
+    time::{LocalTimeTool, TimeConverter, TimeZoneConverter},
 };
 
 use crate::{api::Api, time};
@@ -47,7 +47,7 @@ impl Manager {
     }
 
     pub async fn get_ticker_price(&self, symbol: &str) -> ticker_price::TickerPriceRes {
-        let (date_time, unix_time) = time::DateTime::get_current();
+        let (date_time, unix_time) = time::DateTime::get_local_current();
         let ticker_price = self.api.get_ticker_price(symbol).await;
 
         self.recorder.record_ticker_price_data(
@@ -75,12 +75,14 @@ impl Manager {
             .get_kline(symbol, interval, start_time, end_time)
             .await;
         for i in &klines {
-            let open_date_time =
-                LocalTimeTool::convert_to_date_time(TimeTool::convert_utc_to_local(i.open_time))
-                    .unwrap();
-            let close_date_time =
-                LocalTimeTool::convert_to_date_time(TimeTool::convert_utc_to_local(i.close_time))
-                    .unwrap();
+            let open_date_time = LocalTimeTool::convert_to_date_time(
+                TimeZoneConverter::convert_utc_to_local(i.open_time),
+            )
+            .unwrap();
+            let close_date_time = LocalTimeTool::convert_to_date_time(
+                TimeZoneConverter::convert_utc_to_local(i.close_time),
+            )
+            .unwrap();
             self.recorder.record_kline_data(
                 &[
                     "name",
