@@ -61,11 +61,14 @@ impl Api {
     ///
     /// ```
     /// let api = Api::default();
+    /// let start_time = time::TimeTool::convert_to_unix_time("2023-05-08 11:00:00").unwrap();
+    /// let end_time = time::TimeTool::convert_to_unix_time("2023-05-09 11:00:00").unwrap();
+    ///
     /// let kline = api.get_kline(
     ///     "ETHUSDT",
     ///     KlineInterval::Hours1,
-    ///     "2023-05-08 11:00:00",
-    ///     "2023-05-09 11:00:00",
+    ///     start_time,
+    ///     end_time,
     /// )
     /// .await;
     ///
@@ -75,11 +78,16 @@ impl Api {
         &self,
         symbol: &str,
         interval: KlineInterval,
-        start_time: &str,
-        end_time: &str,
+        start_time: u64,
+        end_time: u64,
     ) -> Vec<res::kline::KlineRes> {
-        let start_time = time::TimeTool::convert_to_unix_time(start_time).unwrap();
-        let end_time = time::TimeTool::convert_to_unix_time(end_time).unwrap();
-        GetResponse::get_kline(&self.client, symbol, interval, start_time, end_time, 1000).await
+        let klines =
+            GetResponse::get_kline(&self.client, symbol, interval, start_time, end_time, 1).await;
+
+        for i in &klines {
+            log::info!("{}", i);
+        }
+
+        klines
     }
 }
