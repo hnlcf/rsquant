@@ -18,6 +18,10 @@ impl Default for Api {
 }
 
 impl Api {
+    pub async fn get_account_snapshot(&self) -> String {
+        GetResponse::get_account_snapshot(&self.client).await
+    }
+
     /// # Get account information
     ///
     /// ## Examples

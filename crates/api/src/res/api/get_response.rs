@@ -2,6 +2,7 @@ use binan_spot::{
     http::{request::Request, Credentials},
     market::{self, klines::KlineInterval},
     trade::account::Account,
+    wallet,
 };
 
 use crate::res::api::handle_response::HandleResponse;
@@ -10,6 +11,13 @@ use crate::res::{account_info, kline, ticker_price::TickerPriceRes, BinanHttpCli
 pub struct GetResponse;
 
 impl GetResponse {
+    pub async fn get_account_snapshot(client: &BinanHttpClient) -> String {
+        let request = wallet::account_snapshot("SPOT");
+        let data = HandleResponse::get_response(client, request).await;
+        log::info!("{}", data);
+        data
+    }
+
     pub async fn get_account_info(
         client: &BinanHttpClient,
         credentials: &Credentials,

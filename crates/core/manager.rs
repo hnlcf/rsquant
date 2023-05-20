@@ -25,6 +25,7 @@ pub struct Manager {
 }
 
 unsafe impl Send for Manager {}
+
 unsafe impl Sync for Manager {}
 
 impl Manager {
@@ -40,6 +41,8 @@ impl Manager {
         &self.recorder
     }
 
+    pub async fn get_account_snapshot(&self) -> String {
+        self.api.get_account_snapshot().await
     }
 
     pub async fn get_account_info(&self) -> account_info::AccountInfoRes {
