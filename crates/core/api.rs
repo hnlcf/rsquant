@@ -1,7 +1,6 @@
 use binan_spot::{http::Credentials, market::klines::KlineInterval};
 use quant_api::res::api::GetResponse;
 use quant_api::{credential, res, res::BinanHttpClient};
-use quant_util::time;
 
 pub struct Api {
     credentials: Credentials,
@@ -82,7 +81,8 @@ impl Api {
         end_time: u64,
     ) -> Vec<res::kline::KlineRes> {
         let klines =
-            GetResponse::get_kline(&self.client, symbol, interval, start_time, end_time, 1).await;
+            GetResponse::get_kline(&self.client, symbol, interval, start_time, end_time, 1000)
+                .await;
 
         for i in &klines {
             log::info!("{}", i);

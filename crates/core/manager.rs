@@ -3,7 +3,10 @@
 use binan_spot::market::klines::KlineInterval;
 use quant_api::res::{account_info, kline, ticker_price};
 use quant_db::recorder::Recorder;
-use quant_util::{log, time::TimeTool};
+use quant_util::{
+    log,
+    time::{LocalTimeTool, TimeTool},
+};
 
 use crate::{api::Api, time};
 
@@ -72,8 +75,12 @@ impl Manager {
             .get_kline(symbol, interval, start_time, end_time)
             .await;
         for i in &klines {
-            let open_date_time = TimeTool::convert_to_date_time(i.open_time).unwrap();
-            let close_date_time = TimeTool::convert_to_date_time(i.close_time).unwrap();
+            let open_date_time =
+                LocalTimeTool::convert_to_date_time(TimeTool::convert_utc_to_local(i.open_time))
+                    .unwrap();
+            let close_date_time =
+                LocalTimeTool::convert_to_date_time(TimeTool::convert_utc_to_local(i.close_time))
+                    .unwrap();
             self.recorder.record_kline_data(
                 &[
                     "name",

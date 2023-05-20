@@ -31,14 +31,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     });
     scheduler.every(5.minutes()).run(|| async {
-        let end_unix_time = TimeTool::get_unix_time();
-        let start_unix_time = end_unix_time - 1000 * 60 * 5;
+        let (_, end_unix_time) = time::DateTime::get_local_current();
+        let start_unix_time = end_unix_time - 60000 * 5;
+
         MANAGER
             .get_kline(
                 "ETHUSDT",
                 binan_spot::market::klines::KlineInterval::Minutes1,
-                start_unix_time,
-                end_unix_time,
+                TimeTool::convert_local_to_utc(start_unix_time),
+                TimeTool::convert_local_to_utc(end_unix_time),
             )
             .await;
     });
