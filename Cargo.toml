@@ -15,12 +15,14 @@ members = [
     "crates/binan_spot_examples",
     "crates/binan_spot",
     "crates/api",
+    "crates/email",
     "crates/db",
 ]
 
 [dependencies]
 binan_spot = { path = "crates/binan_spot", features = ["full"] }
 quant_api = { path = "crates/api" }
+quant_email = { path = "crates/email" }
 quant_db = { path = "crates/db" }
 quant_util = { path = "crates/util" }
 log = "0.4.17"
