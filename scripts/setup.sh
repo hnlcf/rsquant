@@ -1,26 +1,54 @@
 #!/usr/bin/env bash
 
 ROOT=$(pwd)
-
-BINAN_API_ENV=""
+BIN_NAME="quant_trader"
+QUANT_ENVS=""
 
 function setup_envs() {
   local ENV_VARS=$(grep -v '^#' .env | xargs -d '\n')
 
-  BINAN_API_ENV="${BINAN_API_ENV} ${ENV_VARS}"
+  QUANT_ENVS="${QUANT_ENVS} ${ENV_VARS}"
 }
 
-function build_rs ()
+function build_release ()
 {
-  cargo build --all
+  cargo build --release
 }
 
-function main ()
+function build_debug ()
 {
+  cargo build 
+}
+
+function run ()
+{
+  build_release
+  env $QUANT_ENVS "${ROOT}/target/release/${BIN_NAME}"
+}
+
+function test ()
+{
+  build_debug 
+  cargo nextest run $@
+}
+
+function main(){
   setup_envs
-  build_rs
 
-  env $BINAN_API_ENV proxychains4 "${ROOT}/target/debug/quant_trader"
+  local cmd="$1"
+  local extra_args="${@:2}"
+
+  case $cmd in
+      "run")
+         run
+        ;;
+      "build")
+         build_release
+        ;;
+      "test")
+         test "${extra_args}"
+        ;;
+   esac
 }
 
 main "$@"
