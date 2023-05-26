@@ -1,18 +1,18 @@
-#![feature(async_closure)]
+/// #![feature(async_closure)]
+use std::sync::Arc;
+use std::time::Duration;
+
+use clokwerk::{AsyncScheduler, TimeUnits};
+use lazy_static::lazy_static;
+
+use manager::Manager;
+use quant_util::time::TimeZoneConverter;
+
 mod api;
 mod manager;
 mod task;
 mod time;
 mod trade;
-
-use manager::Manager;
-
-use clokwerk::{AsyncScheduler, TimeUnits};
-use lazy_static::lazy_static;
-use quant_util::time::TimeZoneConverter;
-
-use std::sync::Arc;
-use std::time::Duration;
 
 lazy_static! {
     static ref MANAGER: Arc<Manager> = Arc::new(Manager::default());

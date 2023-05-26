@@ -13,17 +13,17 @@ pub struct EmailManager {
 }
 
 #[derive(Default)]
-pub struct EmailManagerConfig {
+pub struct EmailBuilder {
     from_email: String,
     to_emails: Vec<String>,
     from_passwd: String,
     smtp_addr: String,
 }
 
-impl EmailManagerConfig {
+impl EmailBuilder {
     pub fn from_config() -> Self {
         // TODO: Create from config file object
-        EmailManagerConfig::default()
+        EmailBuilder::default()
     }
 
     pub fn sender(mut self, email: &str, passwd: &str, smtp_addr: &str) -> Self {
@@ -70,8 +70,8 @@ impl EmailManagerConfig {
 }
 
 impl EmailManager {
-    pub fn builder() -> EmailManagerConfig {
-        EmailManagerConfig::default()
+    pub fn builder() -> EmailBuilder {
+        EmailBuilder::default()
     }
 
     fn create_msg(
