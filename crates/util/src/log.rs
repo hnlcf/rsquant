@@ -1,9 +1,8 @@
 use chrono::Local;
 use fern::colors::{Color, ColoredLevelConfig};
 
+use crate::constants::DEFAULT_LOG_FILE;
 use crate::env;
-
-const DEFAULT_LOG_FILE: &str = "log/output.log";
 
 pub struct Logger(());
 

@@ -1,8 +1,7 @@
+use quant_util::constants::DEFAULT_SQLITE_DB_FILE;
 use rusqlite::Params;
 
 use super::sqlite::SqliteConnection;
-
-const DEFAULT_SQLITE_DB_FILE: &str = "database/bitcoin.db";
 
 pub struct Recorder {
     conn: SqliteConnection,
