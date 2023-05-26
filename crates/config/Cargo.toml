@@ -7,4 +7,6 @@ edition = "2021"
 
 [dependencies]
 quant_util = { path = "../util" }
+log = "0.4.17"
+toml = "0.7.4"
 serde = { version = "1.0.156", features = ["derive"] }
