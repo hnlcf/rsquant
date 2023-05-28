@@ -51,11 +51,11 @@ impl ConfigBuilder {
 
 #[derive(Serialize, Deserialize)]
 pub struct QuantConfig {
-    api_credentials: CredentialsConfig,
-    email: EmailConfig,
-    network: NetworkConfig,
-    log: LogConfig,
-    database: DatabaseConfig,
+    pub api_credentials: CredentialsConfig,
+    pub email: EmailConfig,
+    pub network: NetworkConfig,
+    pub log: LogConfig,
+    pub database: DatabaseConfig,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -66,32 +66,32 @@ pub enum CredentialsConfig {
 
 #[derive(Serialize, Deserialize)]
 pub struct BinanCredentialsConfig {
-    signature_type: String,
-    api_key: String,
-    api_secret: Option<String>,
+    pub signature_type: String,
+    pub api_key: String,
+    pub api_secret: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct EmailConfig {
-    from_email: String,
-    to_emails: Vec<String>,
-    from_passwd: String,
-    smtp_addr: String,
+    pub from_email: String,
+    pub to_emails: Vec<String>,
+    pub from_passwd: String,
+    pub smtp_addr: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct NetworkConfig {
-    proxy: Option<ProxyConfig>,
+    pub proxy: Option<ProxyConfig>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct ProxyConfig {
-    https_proxy: Option<String>,
+    pub https_proxy: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct LogConfig {
-    log_path: Option<String>,
+    pub log_path: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -103,10 +103,10 @@ pub enum DatabaseConfig {
 
 #[derive(Serialize, Deserialize)]
 pub struct PostgresqlConfig {
-    pg_addr: String,
+    pub pg_addr: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct SqliteConfig {
-    db_path: Option<String>,
+    pub db_path: String,
 }
