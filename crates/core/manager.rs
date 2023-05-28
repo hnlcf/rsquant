@@ -2,17 +2,17 @@
 
 use binan_spot::market::klines::KlineInterval;
 use quant_api::res::{account_info, kline, ticker_price};
+use quant_config::ConfigBuilder;
 use quant_db::recorder::Recorder;
-use quant_util::{
-    log,
-    time::{LocalTimeTool, TimeConverter, TimeZoneConverter},
-};
+use quant_log::Logger;
+use quant_util::time::{LocalTimeTool, TimeConverter, TimeZoneConverter};
 
 use crate::{api::Api, time};
 
 pub struct Manager {
     api: Api,
     recorder: Recorder,
+    logger: Logger,
 }
 
 unsafe impl Send for Manager {}
@@ -24,14 +24,31 @@ impl Default for Manager {
         Self {
             api: Api::default_with_proxy(),
             recorder: Recorder::default(),
+            logger: Logger::default(),
         }
     }
 }
 
 impl Manager {
-    pub fn init(&self) -> Result<(), Box<dyn std::error::Error>> {
-        log::Logger::setup_logger()?;
+    pub fn from_config() -> Self {
+        if let Some(config) = ConfigBuilder::build() {
+            let api_config = config.api_credentials;
+            let net_config = config.network;
+            let db_config = config.database;
+            let log_config = config.log;
 
+            Self {
+                api: Api::from_config(api_config, net_config),
+                recorder: Recorder::from_config(db_config),
+                logger: Logger::from_config(log_config),
+            }
+        } else {
+            Manager::default()
+        }
+    }
+
+    pub fn init(&self) -> Result<(), Box<dyn std::error::Error>> {
+        self.logger.init()?;
         self.recorder.init();
 
         Ok(())

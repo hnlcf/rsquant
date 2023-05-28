@@ -1,9 +1,20 @@
 use binan_spot::http::Credentials;
+use quant_config::BinanCredentialsConfig;
 use quant_util::env;
 
 pub struct CredentialBuilder;
 
 impl CredentialBuilder {
+    pub fn from_config(config: BinanCredentialsConfig) -> Option<Credentials> {
+        let sig_type = config.signature_type;
+        let api_key = config.api_key;
+        let api_secret = config.api_secret?;
+        match sig_type.as_str() {
+            "HMAC" => Some(Credentials::from_hmac(api_key, api_secret)),
+            _ => None,
+        }
+    }
+
     /// Get Credentials from environment varibales.
     ///
     /// ## Examples

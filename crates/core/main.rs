@@ -15,7 +15,7 @@ mod time;
 mod trade;
 
 lazy_static! {
-    static ref MANAGER: Arc<Manager> = Arc::new(Manager::default());
+    static ref MANAGER: Arc<Manager> = Arc::new(Manager::from_config());
 }
 
 #[tokio::main]

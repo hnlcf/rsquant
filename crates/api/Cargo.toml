@@ -6,6 +6,7 @@ authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
 
 [dependencies]
 binan_spot = { path = "../binan_spot", features = [ "full" ] }
+quant_config = { path = "../config" }
 quant_util = { path = "../util" }
 hyper = "0.14.25"
 hyper-tls = "0.5.0"

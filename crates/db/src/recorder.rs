@@ -1,3 +1,4 @@
+use quant_config::DatabaseConfig;
 use quant_util::constants::DEFAULT_SQLITE_DB_FILE;
 use rusqlite::Params;
 
@@ -8,6 +9,16 @@ pub struct Recorder {
 }
 
 impl Recorder {
+    pub fn from_config(config: DatabaseConfig) -> Self {
+        if let DatabaseConfig::Sqlite(config) = config {
+            Self {
+                conn: SqliteConnection::create_connection(&config.db_path),
+            }
+        } else {
+            Recorder::default()
+        }
+    }
+
     pub fn new(conn: SqliteConnection) -> Self {
         Self { conn }
     }

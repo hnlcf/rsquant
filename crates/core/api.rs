@@ -1,6 +1,7 @@
 use binan_spot::{http::Credentials, market::klines::KlineInterval};
 use quant_api::res::api::GetResponse;
 use quant_api::{credential, res, res::BinanHttpClient};
+use quant_config::{CredentialsConfig, NetworkConfig};
 use quant_util::env::EnvManager;
 
 pub struct Api {
@@ -9,6 +10,24 @@ pub struct Api {
 }
 
 impl Api {
+    pub fn from_config(credentials: CredentialsConfig, network: NetworkConfig) -> Self {
+        if let CredentialsConfig::Binance(binan_credentials) = credentials {
+            let credentials =
+                credential::CredentialBuilder::from_config(binan_credentials).expect("");
+            if let Some(proxy_config) = network.proxy {
+                let proxy_uri = proxy_config.https_proxy.unwrap_or("".into());
+                let client = BinanHttpClient::default_with_proxy(&proxy_uri);
+
+                return Self {
+                    credentials,
+                    client,
+                };
+            }
+        }
+
+        Api::default_with_proxy()
+    }
+
     pub fn default_with_proxy() -> Self {
         let proxy = EnvManager::get_env_var("https_proxy").unwrap_or("".to_owned());
         Self {
