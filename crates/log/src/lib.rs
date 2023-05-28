@@ -1,21 +1,28 @@
 use chrono::Local;
 use fern::colors::{Color, ColoredLevelConfig};
 
-use crate::constants::DEFAULT_LOG_FILE;
-use crate::env;
+use quant_config::LogConfig;
+use quant_util::constants::DEFAULT_LOG_FILE;
 
-pub struct Logger(());
+#[derive(Default)]
+pub struct Logger {
+    log_path: String,
+}
 
 impl Logger {
-    pub fn setup_logger() -> Result<(), fern::InitError> {
+    pub fn from_config(config: LogConfig) -> Self {
+        let log_path = config.log_path.unwrap_or(DEFAULT_LOG_FILE.into());
+        Self { log_path }
+    }
+
+    pub fn init(&self) -> Result<(), fern::InitError> {
         let colors = ColoredLevelConfig::new()
             .info(Color::Green)
             .warn(Color::Yellow)
             .debug(Color::White)
             .error(Color::Red)
             .trace(Color::Blue);
-        let log_file =
-            env::EnvManager::get_env_var("BINAN_LOG_FILE").unwrap_or(DEFAULT_LOG_FILE.into());
+
         fern::Dispatch::new()
             .format(move |out, message, record| {
                 out.finish(format_args!(
@@ -28,7 +35,7 @@ impl Logger {
             })
             .level(log::LevelFilter::Debug)
             .chain(std::io::stdout())
-            .chain(fern::log_file(log_file)?)
+            .chain(fern::log_file(&self.log_path)?)
             .apply()?;
         Ok(())
     }

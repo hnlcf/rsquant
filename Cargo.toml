@@ -18,6 +18,8 @@ members = [
     "crates/config",
     "crates/email",
     "crates/db",
+    "crates/log",
+    "crates/util",
 ]
 
 [dependencies]
@@ -26,6 +28,7 @@ quant_api = { path = "crates/api" }
 quant_config = { path = "crates/config" }
 quant_email = { path = "crates/email" }
 quant_db = { path = "crates/db" }
+quant_log = { path = "crates/log" }
 quant_util = { path = "crates/util" }
 log = "0.4.17"
 tokio = { version = "1.26.0", features = ["time", "full"] }
