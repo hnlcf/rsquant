@@ -14,8 +14,13 @@ target/
 
 ### Project
 .env
-quant.toml
 */.venv
+quant.toml
 
 *.db
 database/
+migrations/
+
+### Build and Run
+core.*
+nohup.out
