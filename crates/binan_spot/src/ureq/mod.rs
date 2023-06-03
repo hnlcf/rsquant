@@ -37,7 +37,7 @@
 //!   .timeout(Duration::from_secs(5))
 //!   .build();
 //!
-//! let client = BinanceHttpClient::new(agent, "https://api.binance.com");
+//! let client = BinanceHttpClient::new(agent, "https://api1.binance.com");
 //! ```
 
 mod client;

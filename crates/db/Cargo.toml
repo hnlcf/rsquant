@@ -9,4 +9,5 @@ edition = "2021"
 quant_config = { path = "../config" }
 quant_util = { path = "../util" }
 rusqlite = "0.29.0"
+diesel =  { version = "2.1.0", features = ["postgres", "sqlite"] }
 log = "0.4.17"

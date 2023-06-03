@@ -117,7 +117,7 @@ impl BinanceHttpClient {
 
 impl Default for BinanceHttpClient {
     fn default() -> Self {
-        Self::new(AgentBuilder::new().build(), "https://api.binance.com")
+        Self::new(AgentBuilder::new().build(), "https://api1.binance.com")
     }
 }
 

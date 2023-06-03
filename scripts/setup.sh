@@ -23,7 +23,7 @@ function build_debug ()
 function run ()
 {
   build_release
-  env $QUANT_ENVS "${ROOT}/target/release/${BIN_NAME}"
+  env $QUANT_ENVS "${ROOT}/target/release/${BIN_NAME}" > "${ROOT}/quant_dev.log" 2>&1 &
 }
 
 function test ()

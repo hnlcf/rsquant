@@ -62,7 +62,7 @@
 //!
 //! Generated logs.
 //! ```ignore
-//! [2022-01-01T00:00:01Z INFO  binance_spot_connector_rust::ureq::client] https://api.binance.com/api/v3/avgPrice?symbol=BNBUSDT
+//! [2022-01-01T00:00:01Z INFO  binance_spot_connector_rust::ureq::client] https://api1.binance.com/api/v3/avgPrice?symbol=BNBUSDT
 //! [2022-01-01T00:00:01Z INFO  binance_spot_connector_rust::ureq::client] 200
 //! [2022-01-01T00:00:01Z INFO  market_current_avg_price] {"mins":5,"price":"306.08482159"}
 //! ```

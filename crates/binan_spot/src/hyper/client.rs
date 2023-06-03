@@ -122,7 +122,7 @@ impl Default for BinanceHttpClient<HttpsConnector<HttpConnector>> {
     fn default() -> Self {
         Self::new(
             Client::builder().build::<_, hyper::Body>(HttpsConnector::new()),
-            "https://api.binance.com",
+            "https://api1.binance.com",
         )
     }
 }
@@ -139,7 +139,7 @@ impl BinanceHttpClient<ProxyConnector<HttpsConnector<HttpConnector>>> {
 
         Self::new(
             Client::builder().build::<_, hyper::Body>(proxy),
-            "https://api.binance.com",
+            "https://api1.binance.com",
         )
     }
 }
