@@ -62,6 +62,7 @@ pub struct QuantConfig {
 #[serde(rename_all = "snake_case")]
 pub enum CredentialsConfig {
     Binance(BinanCredentialsConfig),
+    Okx,
 }
 
 #[derive(Serialize, Deserialize)]

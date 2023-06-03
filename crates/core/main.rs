@@ -10,9 +10,7 @@ use quant_util::time::TimeZoneConverter;
 
 mod api;
 mod manager;
-mod task;
 mod time;
-mod trade;
 
 lazy_static! {
     static ref MANAGER: Arc<Manager> = Arc::new(Manager::from_config());
@@ -32,7 +30,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
     scheduler.every(5.minutes()).run(|| async {
         let (_, end_unix_time) = time::DateTime::get_local_current();
-        let start_unix_time = end_unix_time - 60000 * 5;
+        let start_unix_time = end_unix_time.to_owned() - 60000 * 5;
 
         MANAGER
             .get_kline(
