@@ -1,0 +1,21 @@
+[package]
+name = "test_binan_api"
+version = "0.1.0"
+edition = "2021"
+authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
+
+[dependencies]
+binance_spot_connector_rust = { path = "../binance_spot_connector_rust", features = [
+    "full",
+] }
+chrono = "0.4.24"
+fern = { version = "0.6.2", features = ["colored"] }
+hyper = "0.14.25"
+hyper-tls = "0.5.0"
+lazy_static = "1.4.0"
+log = "0.4.17"
+plotter = "0.1.0"
+rusqlite = "0.29.0"
+serde = { version = "1.0.156", features = ["derive"] }
+serde_json = "1.0.94"
+tokio = { version = "1.26.0", features = ["time", "full"] }

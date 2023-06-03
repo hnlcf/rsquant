@@ -2,7 +2,7 @@
 
 ROOT=$(pwd)
 BIN_NAME="quant_trader"
-export $(grep -v '^#' .env | xargs)
+
 function build_release ()
 {
   cargo build --release
