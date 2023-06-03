@@ -1,5 +1,5 @@
 [package]
-name = "btc_trader"
+name = "quant_trader"
 version = "0.1.0"
 edition = "2021"
 authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
@@ -8,19 +8,37 @@ authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
 [[bin]]
 bench = false
 path = "crates/core/main.rs"
-name = "btc_trader"
+name = "quant_trader"
 
 [workspace]
 members = [
-    "crates/binance_spot_connector_rust",
-    "crates/binance_connector_rust_examples",
-    "crates/test_binan_api",
+    "crates/binan_spot_examples",
+    "crates/binan_spot",
+    "crates/api",
+    "crates/config",
+    "crates/email",
+    "crates/db",
+    "crates/log",
+    "crates/util",
 ]
 
 [dependencies]
-binance_spot_connector_rust = { path = "crates/binance_spot_connector_rust", features = [
-    "full",
-] }
-test_binan_api = { path = "crates/test_binan_api" }
+binan_spot = { path = "crates/binan_spot", features = ["full"] }
+quant_api = { path = "crates/api" }
+quant_config = { path = "crates/config" }
+quant_email = { path = "crates/email" }
+quant_db = { path = "crates/db" }
+quant_log = { path = "crates/log" }
+quant_util = { path = "crates/util" }
 log = "0.4.17"
 tokio = { version = "1.26.0", features = ["time", "full"] }
+clokwerk = "0.4.0"
+chrono = "0.4.24"
+lazy_static = "1.4.0"
+
+[profile.release]
+panic = 'abort'
+lto = true
+strip = true
+opt-level = 'z'
+codegen-units = 1

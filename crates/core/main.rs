@@ -1,25 +1,54 @@
+/// #![feature(async_closure)]
+use std::sync::Arc;
+use std::time::Duration;
+
+use clokwerk::{AsyncScheduler, TimeUnits};
+use lazy_static::lazy_static;
+
+use manager::Manager;
+use quant_util::time::TimeZoneConverter;
+
 mod api;
 mod manager;
 mod time;
 
+lazy_static! {
+    static ref MANAGER: Arc<Manager> = Arc::new(Manager::from_config());
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let manager = manager::Manager::default();
-    manager.init()?;
+    let mut scheduler = AsyncScheduler::with_tz(chrono::Local);
 
-    manager.get_account_info().await;
+    MANAGER.init()?;
 
-    let seconds = std::time::Duration::from_secs(2);
-    for _ in 0..2000 {
-        std::thread::sleep(seconds);
+    scheduler.every(5.seconds()).run(|| async {
+        let assets = vec!["ETHUSDT", "BTCUSDT"];
+        for i in assets {
+            MANAGER.get_ticker_price(i).await;
+        }
+    });
+    scheduler.every(5.minutes()).run(|| async {
+        let (_, end_unix_time) = time::DateTime::get_local_current();
+        let start_unix_time = end_unix_time.to_owned() - 60000 * 5;
 
-        let (date_time, unix_time) = time::DateTime::get_current();
-        let eth_price = manager.get_ticker_price("ETHUSDT").await;
-        manager.recorder().record_ticker_price_data(
-            &["name", "price", "unix_time", "date_time"],
-            (&eth_price.symbol, &eth_price.price, &unix_time, &date_time),
-        );
-    }
+        MANAGER
+            .get_kline(
+                "ETHUSDT",
+                binan_spot::market::klines::KlineInterval::Minutes1,
+                TimeZoneConverter::convert_local_to_utc(start_unix_time),
+                TimeZoneConverter::convert_local_to_utc(end_unix_time),
+            )
+            .await;
+    });
+
+    let task = tokio::spawn(async move {
+        loop {
+            scheduler.run_pending().await;
+            tokio::time::sleep(Duration::from_millis(100)).await;
+        }
+    });
+    task.await?;
 
     Ok(())
 }

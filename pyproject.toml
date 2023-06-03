@@ -1,0 +1,22 @@
+[tool.pyright]
+include = ["visualize/src"]
+exclude = [
+    ".venv",
+    "**/__pycache__",
+]
+
+ignore = [""]
+defineConstant = { DEBUG = true }
+
+venvPath = "visualize"
+venv = ".venv"
+
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+pythonVersion = "3.10"
+pythonPlatform = "Linux"
+
+executionEnvironments = [
+  { root = "visualize/src" }
+]

@@ -1,23 +1,50 @@
-use binance_spot_connector_rust::{http::Credentials, market::klines::KlineInterval};
-use test_binan_api::res::api::GetResponse;
-use test_binan_api::{credential, res, res::BinanHttpClient, util};
+use binan_spot::{http::Credentials, market::klines::KlineInterval};
+use quant_api::res::api::GetResponse;
+use quant_api::{credential, res, res::BinanHttpClient};
+use quant_config::{CredentialsConfig, NetworkConfig};
+use quant_util::env::EnvManager;
 
 pub struct Api {
     credentials: Credentials,
     client: BinanHttpClient,
 }
 
-impl Default for Api {
-    fn default() -> Self {
+impl Api {
+    pub fn from_config(credentials: CredentialsConfig, network: NetworkConfig) -> Self {
+        match credentials {
+            CredentialsConfig::Binance(binan_credentials) => {
+                let credentials = credential::CredentialBuilder::from_config(binan_credentials)
+                    .expect("Failed to get credentials from config file.");
+                match network.proxy {
+                    Some(proxy_config) => {
+                        let proxy_uri = proxy_config.https_proxy.unwrap_or("".into());
+                        let client = BinanHttpClient::default_with_proxy(&proxy_uri);
+
+                        Self {
+                            credentials,
+                            client,
+                        }
+                    }
+                    None => Api::default_with_proxy(),
+                }
+            }
+            _ => Api::default_with_proxy(),
+        }
+    }
+
+    pub fn default_with_proxy() -> Self {
+        let proxy = EnvManager::get_env_var("https_proxy").unwrap_or("".to_owned());
         Self {
             credentials: credential::CredentialBuilder::from_env()
                 .expect("Failed to create credential from envs."),
-            client: BinanHttpClient::default(),
+            client: BinanHttpClient::default_with_proxy(&proxy),
         }
     }
-}
 
-impl Api {
+    pub async fn get_account_snapshot(&self) -> String {
+        GetResponse::get_account_snapshot(&self.client).await
+    }
+
     /// # Get account information
     ///
     /// ## Examples
@@ -60,11 +87,14 @@ impl Api {
     ///
     /// ```
     /// let api = Api::default();
+    /// let start_time = time::TimeTool::convert_to_unix_time("2023-05-08 11:00:00").unwrap();
+    /// let end_time = time::TimeTool::convert_to_unix_time("2023-05-09 11:00:00").unwrap();
+    ///
     /// let kline = api.get_kline(
     ///     "ETHUSDT",
     ///     KlineInterval::Hours1,
-    ///     "2023-05-08 11:00:00",
-    ///     "2023-05-09 11:00:00",
+    ///     start_time,
+    ///     end_time,
     /// )
     /// .await;
     ///
@@ -74,11 +104,17 @@ impl Api {
         &self,
         symbol: &str,
         interval: KlineInterval,
-        start_time: &str,
-        end_time: &str,
+        start_time: u64,
+        end_time: u64,
     ) -> Vec<res::kline::KlineRes> {
-        let start_time = util::time::TimeTool::convert_to_unix_time(start_time).unwrap();
-        let end_time = util::time::TimeTool::convert_to_unix_time(end_time).unwrap();
-        GetResponse::get_kline(&self.client, symbol, interval, start_time, end_time, 1000).await
+        let klines =
+            GetResponse::get_kline(&self.client, symbol, interval, start_time, end_time, 1000)
+                .await;
+
+        for i in &klines {
+            log::info!("{}", i);
+        }
+
+        klines
     }
 }
