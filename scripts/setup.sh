@@ -39,6 +39,7 @@ function main(){
          run
         ;;
       "build")
+         build_debug
          build_release
         ;;
       "test")
