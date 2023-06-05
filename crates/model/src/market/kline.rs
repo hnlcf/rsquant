@@ -3,7 +3,7 @@ use core::fmt;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-pub struct KlineRes {
+pub struct Kline {
     /// 开始时间
     pub open_time: u64,
     /// 开盘价
@@ -26,9 +26,7 @@ pub struct KlineRes {
     pub ignore_field: String,
 }
 
-impl super::api::BinanResponse<'_> for KlineRes {}
-
-impl fmt::Display for KlineRes {
+impl fmt::Display for Kline {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,

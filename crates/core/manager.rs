@@ -1,10 +1,10 @@
 #![allow(dead_code)]
 
 use binan_spot::market::klines::KlineInterval;
-use quant_api::res::{account_info, kline, ticker_price};
 use quant_config::ConfigBuilder;
 use quant_db::recorder::Recorder;
 use quant_log::Logger;
+use quant_model::{account_info, kline, ticker_price};
 use quant_util::time::{LocalTimeTool, TimeConverter, TimeZoneConverter};
 
 use crate::{api::Api, time};
@@ -62,11 +62,11 @@ impl Manager {
         self.api.get_account_snapshot().await
     }
 
-    pub async fn get_account_info(&self) -> account_info::AccountInfoRes {
+    pub async fn get_account_info(&self) -> account_info::AccountInfo {
         self.api.get_account_info().await
     }
 
-    pub async fn get_ticker_price(&self, symbol: &str) -> ticker_price::TickerPriceRes {
+    pub async fn get_ticker_price(&self, symbol: &str) -> ticker_price::TickerPrice {
         let (date_time, unix_time) = time::DateTime::get_local_current();
         let ticker_price = self.api.get_ticker_price(symbol).await;
 
@@ -89,7 +89,7 @@ impl Manager {
         interval: KlineInterval,
         start_time: u64,
         end_time: u64,
-    ) -> Vec<kline::KlineRes> {
+    ) -> Vec<kline::Kline> {
         let klines = self
             .api
             .get_kline(symbol, interval, start_time, end_time)

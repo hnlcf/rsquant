@@ -4,9 +4,9 @@ use binan_spot::{
     trade::account::Account,
     wallet,
 };
+use quant_model::{account_info::AccountInfo, kline::Kline, market::ticker_price::TickerPrice};
 
-use crate::res::api::handle_response::HandleResponse;
-use crate::res::{account_info, kline, ticker_price::TickerPriceRes, BinanHttpClient};
+use super::{BinanHttpClient, HandleResponse};
 
 pub struct GetResponse;
 
@@ -21,7 +21,7 @@ impl GetResponse {
     pub async fn get_account_info(
         client: &BinanHttpClient,
         credentials: &Credentials,
-    ) -> account_info::AccountInfoRes {
+    ) -> AccountInfo {
         let request: Request = Account::default()
             .credentials(credentials)
             .recv_window(5000)
@@ -38,7 +38,7 @@ impl GetResponse {
         start_time: u64,
         end_time: u64,
         limit: u32,
-    ) -> Vec<kline::KlineRes> {
+    ) -> Vec<Kline> {
         let request = market::klines(symbol, interval)
             .start_time(start_time)
             .end_time(end_time)
@@ -48,7 +48,7 @@ impl GetResponse {
         HandleResponse::decode_response(&data)
     }
 
-    pub async fn get_ticker_price(client: &BinanHttpClient, symbol: &str) -> TickerPriceRes {
+    pub async fn get_ticker_price(client: &BinanHttpClient, symbol: &str) -> TickerPrice {
         let request = market::ticker_price().symbol(symbol);
         let data = HandleResponse::get_response(client, request).await;
         HandleResponse::decode_response(&data)

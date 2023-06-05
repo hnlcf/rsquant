@@ -1,7 +1,8 @@
 use binan_spot::{http::Credentials, market::klines::KlineInterval};
-use quant_api::res::api::GetResponse;
-use quant_api::{credential, res, res::BinanHttpClient};
+use quant_api::res::GetResponse;
+use quant_api::{credential, res::BinanHttpClient};
 use quant_config::{CredentialsConfig, NetworkConfig};
+use quant_model::{account_info, kline, ticker_price};
 use quant_util::env::EnvManager;
 
 pub struct Api {
@@ -55,7 +56,7 @@ impl Api {
     ///
     /// println!("{:#?}", account_info);
     /// ```
-    pub async fn get_account_info(&self) -> res::account_info::AccountInfoRes {
+    pub async fn get_account_info(&self) -> account_info::AccountInfo {
         let account_info = GetResponse::get_account_info(&self.client, &self.credentials)
             .await
             .remove_blank_coin();
@@ -74,7 +75,7 @@ impl Api {
     ///
     /// println!("{:#?}", price);
     /// ```
-    pub async fn get_ticker_price(&self, symbol: &str) -> res::ticker_price::TickerPriceRes {
+    pub async fn get_ticker_price(&self, symbol: &str) -> ticker_price::TickerPrice {
         let price = GetResponse::get_ticker_price(&self.client, symbol).await;
 
         log::info!("Get ticker price of {}: {}", symbol, price);
@@ -106,7 +107,7 @@ impl Api {
         interval: KlineInterval,
         start_time: u64,
         end_time: u64,
-    ) -> Vec<res::kline::KlineRes> {
+    ) -> Vec<kline::Kline> {
         let klines =
             GetResponse::get_kline(&self.client, symbol, interval, start_time, end_time, 1000)
                 .await;
