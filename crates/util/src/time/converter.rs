@@ -1,30 +1,36 @@
+use chrono::TimeZone;
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, Utc};
 
 use super::{LocalTimeTool, UtcTimeTool, DATE_FORMAT_STR};
 
-pub trait TimeConverter {
-    fn convert_to_date_time(unix_time: u64) -> Option<String>;
+pub trait TimeConverter<Tz: TimeZone>
+where
+    Tz::Offset: std::fmt::Display,
+{
+    fn to_date_time(unix_time: i64) -> Option<DateTime<Tz>>;
 
-    fn convert_to_unix_time(date_time: &str) -> Option<u64> {
+    fn convert_to_date_time(unix_time: i64) -> Option<String> {
+        Self::to_date_time(unix_time).map(|t| t.format(DATE_FORMAT_STR).to_string())
+    }
+
+    fn convert_to_unix_time(date_time: &str) -> Option<i64> {
         let date_time = NaiveDateTime::parse_from_str(date_time, DATE_FORMAT_STR).ok()?;
-        Some(date_time.timestamp_millis() as u64)
+        Some(date_time.timestamp_millis())
     }
 }
 
-impl TimeConverter for LocalTimeTool {
-    fn convert_to_date_time(unix_time: u64) -> Option<String> {
-        let naive = NaiveDateTime::from_timestamp_millis(unix_time as i64)?;
+impl TimeConverter<Local> for LocalTimeTool {
+    fn to_date_time(unix_time: i64) -> Option<DateTime<Local>> {
+        let naive = NaiveDateTime::from_timestamp_millis(unix_time)?;
         let timezone_east = FixedOffset::east_opt(8 * 60 * 60)?;
-        let datetime: DateTime<Local> = DateTime::from_local(naive, timezone_east);
-        Some(datetime.format(DATE_FORMAT_STR).to_string())
+        Some(DateTime::from_local(naive, timezone_east))
     }
 }
-impl TimeConverter for UtcTimeTool {
-    fn convert_to_date_time(unix_time: u64) -> Option<String> {
-        let naive = NaiveDateTime::from_timestamp_millis(unix_time as i64)?;
 
-        let datetime: DateTime<Utc> = DateTime::from_utc(naive, Utc);
-        Some(datetime.format(DATE_FORMAT_STR).to_string())
+impl TimeConverter<Utc> for UtcTimeTool {
+    fn to_date_time(unix_time: i64) -> Option<DateTime<Utc>> {
+        let naive = NaiveDateTime::from_timestamp_millis(unix_time)?;
+        Some(DateTime::from_utc(naive, Utc))
     }
 }
 
