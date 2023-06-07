@@ -6,10 +6,10 @@
 
 - **System**: Ubuntu 22.04
 - **Language**: Rust 1.65
-- **Library**: libssl-dev, libsqlite3-dev
+- **Library**: pkg-config, libssl-dev, libsqlite3-dev
 
 ### Build commands
 
 ```bash
-$ ./quant_trader.sh build
+./quant_trader.sh build
 ```
