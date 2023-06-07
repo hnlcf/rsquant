@@ -16,11 +16,9 @@ function build_debug ()
 function run ()
 {
   if [ "$BUILD_DEBUG" = 'ON' ]; then
-    build_debug
-    "${ROOT}/target/debug/${BIN_NAME}" >> "${ROOT}/log/quant_dev.log" 2>&1 &
+    "${ROOT}/target/debug/${BIN_NAME}" > /dev/null 2>&1 &
   else
-    build_release
-    "${ROOT}/target/release/${BIN_NAME}" >> "${ROOT}/log/quant_dev.log" 2>&1 &
+    "${ROOT}/target/release/${BIN_NAME}" > /dev/null 2>&1 &
   fi
 }
 
