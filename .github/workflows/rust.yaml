@@ -7,15 +7,16 @@ on:
     branches: [master, fix-**, feat-**]
 
 jobs:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v3
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-    - name: Fix Rust Version
-      run: rustup install 1.65
+      - name: Fix Rust Version
+        run: rustup install 1.65
 
-    - name: Test
-      run: cargo test
+      - name: Test
+        run: cargo test
 
-    - name: Lint Check
-      run: cargo clippy --all-targets -- -D clippy::all
+      - name: Lint Check
+        run: cargo clippy --all-targets -- -D clippy::all
