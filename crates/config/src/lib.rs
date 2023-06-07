@@ -21,10 +21,16 @@ impl ConfigBuilder {
 
     fn read_config_file(path: PathBuf) -> Option<String> {
         if !path.exists() {
-            let config_dir = path.parent()?;
-            std::fs::create_dir_all(config_dir).ok()?;
-            File::create(path).ok()?;
-            None
+            let mut curr_config_path = std::env::current_dir().unwrap();
+            curr_config_path.push("quant.toml");
+            if !curr_config_path.exists() {
+                let config_dir = path.parent()?;
+                std::fs::create_dir_all(config_dir).ok()?;
+                File::create(path).ok()?;
+                None
+            } else {
+                read_to_string(curr_config_path).ok()
+            }
         } else {
             read_to_string(path).ok()
         }
