@@ -4,7 +4,7 @@
 docker container create -it --name quant-db -e POSTGRES_PASSWORD=postgres -p 5433:5432 postgres:latest
 
 ## Create build docker
-docker container create -it --name quant-dev -v $(pwd):/app/quant_trader:z --network=host ubuntu:latest
+docker container create -it --name quant-dev -v "$(pwd)":/app/quant_trader:z --network=host ubuntu:latest
 docker exec -it quant-dev /bin/bash
 
 ## Install dependency
@@ -26,11 +26,10 @@ echo " \
 replace-with = 'mirror' \
 [source.mirror] \
 registry = \"https://mirrors.tuna.tsinghua.edu.cn/git/crates.io-index.git\" \
-" >> ~/.cargo/config
+" >>~/.cargo/config
 
 ## Build project
 ./quant_trader build
 
-
 #!!! Run in host for set use privilige
-sudo chown -R $USER target/
+sudo chown -R "$USER" target/

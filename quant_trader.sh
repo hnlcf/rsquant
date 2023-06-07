@@ -3,7 +3,7 @@
 ROOT=$(pwd)
 
 function setup_envs() {
-  export $(grep -v '^#' .env | xargs -d '\n')
+    export "$(grep -v '^#' .env | xargs -d '\n')"
 }
 
 function main() {
@@ -15,18 +15,18 @@ function main() {
     local check_sh="${ROOT}/scripts/check.sh"
 
     case $cmd in
-        "run")
-          bash "${setup_sh}" run
-          ;;
-        "build")
-          bash "${setup_sh}" build
-          ;;
-        "test")
-          bash "${setup_sh}" test "${extra_args}"
-          ;;
-        "lint")
-          bash "${check_sh}"
-          ;;
+    "run")
+        bash "${setup_sh}" run
+        ;;
+    "build")
+        bash "${setup_sh}" build
+        ;;
+    "test")
+        bash "${setup_sh}" test "${extra_args}"
+        ;;
+    "lint")
+        bash "${check_sh}"
+        ;;
     esac
 }
 
