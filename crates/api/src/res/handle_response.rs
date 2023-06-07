@@ -11,7 +11,7 @@ impl HandleResponse {
     pub fn decode_response<'a, T: Deserialize<'a>>(data: &'a str) -> T {
         match serde_json::from_str(data) {
             Ok(t) => {
-                log::info!("Deserialize response string to data structure.");
+                log::debug!("Deserialize response string to data structure.");
                 t
             }
             Err(e) => {
@@ -29,7 +29,7 @@ impl HandleResponse {
         loop {
             match client.send(request.clone()).await {
                 Ok(res) => {
-                    log::info!("Send request from client.");
+                    log::debug!("Send request from client.");
                     return Self::response_to_string(res).await;
                 }
                 Err(e) => {
@@ -43,7 +43,7 @@ impl HandleResponse {
     pub async fn response_to_string(res: Response) -> String {
         match res.into_body_str().await {
             Ok(s) => {
-                log::info!("Convert response into body string.");
+                log::debug!("Convert response into body string.");
                 s
             }
             Err(e) => {
