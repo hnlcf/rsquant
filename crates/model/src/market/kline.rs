@@ -94,18 +94,18 @@ impl fmt::Display for Kline {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{{ 
-open_time: {}, 
-open_price: {}, 
-high_price: {}, 
-low_price: {}, 
-close_price: {}, 
-volume: {}, 
-close_time: {}, 
-quote_asset_volume: {}, 
-trades_num: {}, 
-buy_base_asset_volume: {}, 
-buy_quote_asset_volume: {}, 
+            "{{
+open_time: {},
+open_price: {},
+high_price: {},
+low_price: {},
+close_price: {},
+volume: {},
+close_time: {},
+quote_asset_volume: {},
+trades_num: {},
+buy_base_asset_volume: {},
+buy_quote_asset_volume: {},
 ignore_field: {}
 }}",
             self.open_time,
