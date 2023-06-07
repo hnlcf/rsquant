@@ -5,9 +5,8 @@ use quant_config::ConfigBuilder;
 use quant_db::recorder::Recorder;
 use quant_log::Logger;
 use quant_model::{account_info, kline, ticker_price};
-use quant_util::time::{LocalTimeTool, TimeConverter, TimeZoneConverter};
 
-use crate::{api::Api, time};
+use crate::api::Api;
 
 pub struct Manager {
     api: Api,
@@ -67,18 +66,10 @@ impl Manager {
     }
 
     pub async fn get_ticker_price(&self, symbol: &str) -> ticker_price::TickerPrice {
-        let (date_time, unix_time) = time::DateTime::get_local_current();
         let ticker_price = self.api.get_ticker_price(symbol).await;
 
-        self.recorder.record_ticker_price_data(
-            &["name", "price", "unix_time", "date_time"],
-            (
-                &ticker_price.symbol,
-                &ticker_price.price,
-                &unix_time,
-                &date_time,
-            ),
-        );
+        self.recorder
+            .record_ticker_price_data(ticker_price.to_owned());
 
         ticker_price
     }
@@ -94,44 +85,8 @@ impl Manager {
             .api
             .get_kline(symbol, interval, start_time, end_time)
             .await;
-        for i in &klines {
-            let open_date_time = LocalTimeTool::convert_to_date_time(
-                TimeZoneConverter::convert_utc_to_local(i.open_time),
-            )
-            .unwrap();
-            let close_date_time = LocalTimeTool::convert_to_date_time(
-                TimeZoneConverter::convert_utc_to_local(i.close_time),
-            )
-            .unwrap();
-            self.recorder.record_kline_data(
-                &[
-                    "name",
-                    "open_price",
-                    "high_price",
-                    "low_price",
-                    "close_price",
-                    "volume",
-                    "quote_asset_volume",
-                    "open_date_time",
-                    "close_date_time",
-                    "open_unix_time",
-                    "close_unix_time",
-                ],
-                (
-                    &symbol,
-                    &i.open_price,
-                    &i.high_price,
-                    &i.low_price,
-                    &i.close_price,
-                    &i.volume,
-                    &i.quote_asset_volume,
-                    &open_date_time,
-                    &close_date_time,
-                    &i.open_time,
-                    &i.close_time,
-                ),
-            );
-        }
+
+        self.recorder.record_kline_data(symbol, &klines);
 
         klines
     }

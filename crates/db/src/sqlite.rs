@@ -1,3 +1,5 @@
+use quant_config::SqliteConfig;
+use quant_util::constants::DEFAULT_SQLITE_DB_FILE;
 use rusqlite::{Connection, Params};
 
 use super::DBConnection;
@@ -7,15 +9,45 @@ pub struct SqliteConnection {
 }
 
 impl SqliteConnection {
-    pub fn create_connection(db_file: &str) -> SqliteConnection {
-        let conn = Connection::open(db_file);
+    pub fn from_config(config: SqliteConfig) -> Self {
+        let conn = Connection::open(config.db_path);
         match conn {
             Ok(conn) => Self { conn: Some(conn) },
             Err(e) => {
-                log::warn!("{}", e);
+                log::error!("{}", e);
                 Self { conn: None }
             }
         }
+    }
+
+    pub fn init(&self) {
+        self.execute(
+            "CREATE TABLE IF NOT EXISTS assets_ticker_price (
+            id          INTEGER PRIMARY KEY,
+            name        TEXT NOT NULL,
+            price       TEXT NOT NULL,
+            unix_time   INTEGER NOT NULL,
+            date_time   TEXT NOT NULL
+         )",
+            (),
+        );
+        self.execute(
+            "CREATE TABLE IF NOT EXISTS assets_kline_data (
+            id                  INTEGER PRIMARY KEY,
+            name                TEXT NOT NULL,
+            open_price          TEXT NOT NULL,
+            high_price          TEXT NOT NULL,
+            low_price           TEXT NOT NULL,
+            close_price         TEXT NOT NULL,
+            volume              TEXT NOT NULL,
+            quote_asset_volume  TEXT NOT NULL,
+            open_date_time      TEXT NOT NULL,
+            close_date_time     TEXT NOT NULL,
+            open_unix_time      INTEGER NOT NULL,
+            close_unix_time     INTEGER NOT NULL
+         )",
+            (),
+        );
     }
 
     pub fn insert_data<V: Params>(&self, table_name: &str, fields: &[&str], data: V) {
@@ -43,6 +75,13 @@ impl SqliteConnection {
                 log::warn!("{}", e);
             }
         }
+    }
+}
+
+impl Default for SqliteConnection {
+    fn default() -> Self {
+        let conn = Connection::open(DEFAULT_SQLITE_DB_FILE).unwrap();
+        Self { conn: Some(conn) }
     }
 }
 
