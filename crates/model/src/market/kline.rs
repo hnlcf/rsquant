@@ -1,8 +1,52 @@
 use core::fmt;
 
+use chrono::{DateTime, Utc};
+use diesel::prelude::*;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+use quant_util::time::{TimeConverter, UtcTimeTool};
+
+use crate::schema::assets_kline_data;
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = assets_kline_data)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct KlineQueryEntry {
+    pub id: i32,
+    pub symbol: String,
+    pub open_time: DateTime<Utc>,
+    pub open_price: String,
+    pub high_price: String,
+    pub low_price: String,
+    pub close_price: String,
+    pub volume: String,
+    pub close_time: DateTime<Utc>,
+    pub quote_asset_volume: String,
+    pub trades_num: DateTime<Utc>,
+    pub buy_base_asset_volume: String,
+    pub buy_quote_asset_volume: String,
+    pub ignore_field: String,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = assets_kline_data)]
+pub struct KlineInsertEntry {
+    pub symbol: String,
+    pub open_time: DateTime<Utc>,
+    pub open_price: String,
+    pub high_price: String,
+    pub low_price: String,
+    pub close_price: String,
+    pub volume: String,
+    pub close_time: DateTime<Utc>,
+    pub quote_asset_volume: String,
+    pub trades_num: DateTime<Utc>,
+    pub buy_base_asset_volume: String,
+    pub buy_quote_asset_volume: String,
+    pub ignore_field: String,
+}
+
+#[derive(Clone, Deserialize)]
 pub struct Kline {
     /// 开始时间
     pub open_time: u64,
@@ -24,6 +68,26 @@ pub struct Kline {
     pub buy_base_asset_volume: String,
     pub buy_quote_asset_volume: String,
     pub ignore_field: String,
+}
+
+impl KlineInsertEntry {
+    pub fn from_kline(symbol: &str, value: Kline) -> Self {
+        KlineInsertEntry {
+            symbol: symbol.into(),
+            open_time: UtcTimeTool::to_date_time(value.open_time as i64).unwrap(),
+            open_price: value.open_price,
+            high_price: value.high_price,
+            low_price: value.low_price,
+            close_price: value.close_price,
+            volume: value.volume,
+            close_time: UtcTimeTool::to_date_time(value.close_time as i64).unwrap(),
+            quote_asset_volume: value.quote_asset_volume,
+            trades_num: UtcTimeTool::to_date_time(value.trades_num as i64).unwrap(),
+            buy_base_asset_volume: value.buy_base_asset_volume,
+            buy_quote_asset_volume: value.buy_quote_asset_volume,
+            ignore_field: value.ignore_field,
+        }
+    }
 }
 
 impl fmt::Display for Kline {
