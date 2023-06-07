@@ -12,7 +12,7 @@ diesel::table! {
         volume -> Varchar,
         close_time -> Timestamptz,
         quote_asset_volume -> Varchar,
-        trades_num -> Timestamptz,
+        trades_num -> Int8,
         buy_base_asset_volume -> Varchar,
         buy_quote_asset_volume -> Varchar,
         ignore_field -> Varchar,
