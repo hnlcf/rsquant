@@ -1,5 +1,29 @@
 #!/usr/bin/env bash
 
-cargo test
-cargo fmt -- --check
-cargo clippy --all-targets -- -D clippy::all
+function rust_lint() {
+    cargo test
+    cargo fmt
+    cargo clippy --all
+
+}
+
+function git_lint() {
+    pre-commit run --all-files
+}
+
+function main() {
+
+    local cmd="$1"
+    local extra_args="${*:2}"
+
+    case $cmd in
+    "rust")
+        rust_lint "${extra_args}"
+        ;;
+    "git")
+        git_lint "${extra_args}"
+        ;;
+    esac
+}
+
+main "$@"

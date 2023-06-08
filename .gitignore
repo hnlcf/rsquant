@@ -14,7 +14,8 @@ target/
 
 ### Project
 .env
-*/.venv
+.venv
+__pycache__
 quant.toml
 
 *.db

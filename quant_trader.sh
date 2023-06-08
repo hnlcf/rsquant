@@ -11,21 +11,28 @@ function main() {
 
     local cmd="$1"
     local extra_args="${*:2}"
-    local setup_sh="${ROOT}/scripts/setup.sh"
+    local web_sh="${ROOT}/scripts/web.sh"
+    local rust_sh="${ROOT}/scripts/rust.sh"
     local check_sh="${ROOT}/scripts/check.sh"
 
     case $cmd in
+    "web")
+        bash "${web_sh}" run
+        ;;
     "run")
-        bash "${setup_sh}" run
+        bash "${rust_sh}" run
         ;;
     "build")
-        bash "${setup_sh}" build
+        bash "${rust_sh}" build
         ;;
     "test")
-        bash "${setup_sh}" test "${extra_args}"
+        bash "${rust_sh}" test "${extra_args}"
         ;;
-    "lint")
-        bash "${check_sh}"
+    "lint-rs")
+        bash "${check_sh}" rust
+        ;;
+    "lint-git")
+        bash "${check_sh}" git
         ;;
     esac
 }

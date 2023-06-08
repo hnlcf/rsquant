@@ -12,7 +12,7 @@ function build_debug() {
 }
 
 function run() {
-    if [ "$BUILD_DEBUG" = 'ON' ]; then
+    if [ "$RUST_BUILD_DEBUG" = 'ON' ]; then
         "${ROOT}/target/debug/${BIN_NAME}" >/dev/null 2>&1 &
     else
         "${ROOT}/target/release/${BIN_NAME}" >/dev/null 2>&1 &
