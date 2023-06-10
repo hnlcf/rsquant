@@ -38,6 +38,6 @@ def setup_postgres() -> PgConnection:
         db_user="postgres",
         db_passwd="postgres",
         db_host="localhost",
-        db_port="5433",
+        db_port="5432",
     )
     return PgConnection(pg_option)
