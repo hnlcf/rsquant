@@ -12,7 +12,7 @@ class Service:
             SELECT id, symbol, interval, open_price, high_price, low_price, close_price, volume, open_time, close_time
             FROM assets_kline_data
             WHERE symbol = '{symbol}' and interval = '{interval}'
-            ORDER BY id DESC
+            ORDER BY open_time DESC
             LIMIT 500
             """
         )

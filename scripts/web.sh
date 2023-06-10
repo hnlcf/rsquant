@@ -17,6 +17,9 @@ function main() {
     local extra_args="${*:2}"
 
     case $cmd in
+    "setup")
+        setup "${extra_args}"
+        ;;
     "run")
         run "${extra_args}"
         ;;

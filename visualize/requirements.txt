@@ -1,0 +1,9 @@
+flask
+pyecharts
+psycopg2
+markupsafe
+gevent
+python-dotenv
+pre-commit
+numpy
+pandas
