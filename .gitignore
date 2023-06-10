@@ -20,7 +20,6 @@ quant.toml
 
 *.db
 database/
-migrations/
 
 ### Build and Run
 core.*
