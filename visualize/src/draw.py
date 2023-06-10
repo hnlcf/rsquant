@@ -4,7 +4,7 @@ from pyecharts.charts import Grid, Kline
 
 
 class Drawer:
-    def draw_kline(klines: list[KlineEntry], symbol: str) -> Grid:
+    def draw_kline(klines: list[KlineEntry], symbol: str, interval: str) -> Grid:
         time = []
         data = []
         for i in klines:
@@ -20,7 +20,16 @@ class Drawer:
         kline = (
             Kline()
             .add_xaxis(time)
-            .add_yaxis("kline", data)
+            .add_yaxis(
+                "kline",
+                data,
+                itemstyle_opts=opts.ItemStyleOpts(
+                    color="#46a95e",
+                    border_color="#46a95e",
+                    color0="#d95050",
+                    border_color0="#d95050",
+                ),
+            )
             .set_global_opts(
                 xaxis_opts=opts.AxisOpts(is_scale=True),
                 yaxis_opts=opts.AxisOpts(
@@ -31,7 +40,8 @@ class Drawer:
                 ),
                 datazoom_opts=[opts.DataZoomOpts(range_start=70, range_end=100)],
                 tooltip_opts=opts.TooltipOpts(trigger="axis", axis_pointer_type="cross"),
-                title_opts=opts.TitleOpts(title=f"{symbol} - 1min"),
+                toolbox_opts=opts.ToolboxOpts(),
+                title_opts=opts.TitleOpts(title=f"{symbol} - {interval}"),
             )
         )
         grid_chart = Grid(

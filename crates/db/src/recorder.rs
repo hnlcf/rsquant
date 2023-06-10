@@ -35,7 +35,10 @@ impl Recorder {
         self.conn.lock().unwrap().insert_ticker_price(ticker_price);
     }
 
-    pub fn record_kline_data(&self, symbol: &str, kline: &[Kline]) {
-        self.conn.lock().unwrap().insert_kline(symbol, kline);
+    pub fn record_kline_data(&self, symbol: &str, interval: &str, kline: &[Kline]) {
+        self.conn
+            .lock()
+            .unwrap()
+            .insert_kline(symbol, interval, kline);
     }
 }

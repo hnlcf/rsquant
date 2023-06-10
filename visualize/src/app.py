@@ -6,7 +6,7 @@ from postgresql import setup_postgres
 from service import Service
 
 APP = Flask(__name__)
-PG_CONN = setup_postgres()
+SERVICE = Service()
 
 
 def launch_server():
@@ -19,10 +19,14 @@ def hello_world():
     return "<h1>This is quant trader!</1>"
 
 
-@APP.route("/kline/<symbol>")
-def show_kline(symbol):
-    klines = Service.get_kline(conn=PG_CONN, symbol=symbol)
-    grid = Drawer.draw_kline(klines=klines, symbol=symbol)
+@APP.route("/kline/<symbol>/<interval>")
+def show_kline(symbol, interval):
+    """
+    symbol: 'BTCUSDT', 'ETHUSDT' ...
+    interval: '1m', '5m', '30m', '1h', '4h', '1d'
+    """
+    klines = SERVICE.get_kline(symbol=symbol, interval=interval)
+    grid = Drawer.draw_kline(klines=klines, symbol=symbol, interval=interval)
     return Markup(grid.render_embed())
 
 

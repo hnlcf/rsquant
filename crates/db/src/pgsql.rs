@@ -28,13 +28,13 @@ impl PostgresConnection {
 
     pub fn init(&self) {}
 
-    pub fn insert_kline(&mut self, symbol: &str, klines: &[Kline]) {
+    pub fn insert_kline(&mut self, symbol: &str, interval: &str, klines: &[Kline]) {
         use quant_model::market::kline::KlineInsertEntry;
         use quant_model::schema::assets_kline_data;
 
         let klines: Vec<KlineInsertEntry> = klines
             .iter()
-            .map(|k| KlineInsertEntry::from_kline(symbol, k.clone()))
+            .map(|k| KlineInsertEntry::from_kline(symbol, interval, k.clone()))
             .collect();
 
         diesel::insert_into(assets_kline_data::table)

@@ -14,6 +14,7 @@ use crate::schema::assets_kline_data;
 pub struct KlineQueryEntry {
     pub id: i32,
     pub symbol: String,
+    pub interval: String,
     pub open_time: DateTime<Utc>,
     pub open_price: String,
     pub high_price: String,
@@ -32,6 +33,7 @@ pub struct KlineQueryEntry {
 #[diesel(table_name = assets_kline_data)]
 pub struct KlineInsertEntry {
     pub symbol: String,
+    pub interval: String,
     pub open_time: DateTime<Utc>,
     pub open_price: String,
     pub high_price: String,
@@ -71,9 +73,10 @@ pub struct Kline {
 }
 
 impl KlineInsertEntry {
-    pub fn from_kline(symbol: &str, value: Kline) -> Self {
+    pub fn from_kline(symbol: &str, interval: &str, value: Kline) -> Self {
         KlineInsertEntry {
             symbol: symbol.into(),
+            interval: interval.into(),
             open_time: UtcTimeTool::to_date_time(value.open_time as i64).unwrap(),
             open_price: value.open_price,
             high_price: value.high_price,

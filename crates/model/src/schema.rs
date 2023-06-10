@@ -4,6 +4,7 @@ diesel::table! {
     assets_kline_data (id) {
         id -> Int4,
         symbol -> Varchar,
+        interval -> Varchar,
         open_time -> Timestamptz,
         open_price -> Varchar,
         high_price -> Varchar,

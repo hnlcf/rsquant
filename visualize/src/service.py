@@ -1,14 +1,17 @@
 from model import KlineEntry
-from postgresql import PgConnection
+from postgresql import setup_postgres
 
 
 class Service:
-    def get_kline(conn: PgConnection, symbol: str) -> list[KlineEntry]:
-        entrys = conn.execute(
+    def __init__(self):
+        self.conn = setup_postgres()
+
+    def get_kline(self, symbol: str, interval: str) -> list[KlineEntry]:
+        entrys = self.conn.execute(
             f"""
-            SELECT id, symbol, open_price, high_price, low_price, close_price, volume, open_time, close_time
+            SELECT id, symbol, interval, open_price, high_price, low_price, close_price, volume, open_time, close_time
             FROM assets_kline_data
-            WHERE symbol = '{symbol}'
+            WHERE symbol = '{symbol}' and interval = '{interval}'
             ORDER BY id DESC
             LIMIT 500
             """

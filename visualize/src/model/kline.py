@@ -6,6 +6,7 @@ class KlineEntry:
         (
             entry_id,
             symbol,
+            interval,
             open_price,
             high_price,
             low_price,
@@ -15,6 +16,7 @@ class KlineEntry:
             close_time,
         ) = entry
         self.symbol = symbol
+        self.interval = interval
         self.open_time = open_time.astimezone().strftime("%Y-%d-%m %H:%M:%S")
         self.close_time = close_time.astimezone().strftime("%Y-%d-%m %H:%M:%S")
         self.open_price = float(open_price)
@@ -26,6 +28,7 @@ class KlineEntry:
     def __str__(self) -> str:
         return f"""Kline(
         symbol: {self.symbol},
+        interval: {self.interval},
         open_time: {self.open_time},
         close_time: {self.close_time},
         open_price: {self.open_price},

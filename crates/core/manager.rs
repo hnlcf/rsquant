@@ -86,7 +86,8 @@ impl Manager {
             .get_kline(symbol, interval, start_time, end_time)
             .await;
 
-        self.recorder.record_kline_data(symbol, &klines);
+        self.recorder
+            .record_kline_data(symbol, &interval.to_string(), &klines);
 
         klines
     }
