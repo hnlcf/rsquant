@@ -3,12 +3,9 @@
 ROOT=$(pwd)
 BIN_NAME="quant_trader"
 
-function build_release() {
-    cargo build --release
-}
-
-function build_debug() {
+function build() {
     cargo build
+    cargo build --release
 }
 
 function run() {
@@ -20,8 +17,13 @@ function run() {
 }
 
 function test() {
-    build_debug
+    build
     cargo nextest run "$@"
+}
+
+function setup() {
+    mkdir -p log
+    build
 }
 
 function main() {
@@ -29,12 +31,14 @@ function main() {
     local extra_args="${*:2}"
 
     case $cmd in
+    "setup")
+        setup
+        ;;
     "run")
         run
         ;;
     "build")
-        build_debug
-        build_release
+        build
         ;;
     "test")
         test "${extra_args}"

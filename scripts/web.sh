@@ -3,19 +3,16 @@
 ROOT=$(pwd)
 PY_DIR="${ROOT}/visualize"
 PY_SRC_DIR="${PY_DIR}/src"
-PY_ENV_DIR="${PY_DIR}/.venv"
 
 function setup() {
-    source "${PY_ENV_DIR}/bin/activate"
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r "${ROOT}/visualize/requirements.txt"
 }
 
 function run() {
-    python "${PY_SRC_DIR}/app.py"
+    python3 "${PY_SRC_DIR}/app.py"
 }
 
 function main() {
-    setup
-
     local cmd="$1"
     local extra_args="${*:2}"
 
