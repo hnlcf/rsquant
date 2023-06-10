@@ -18,29 +18,113 @@ lazy_static! {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut scheduler = AsyncScheduler::with_tz(chrono::Local);
-
     MANAGER.init()?;
 
-    scheduler.every(5.seconds()).run(|| async {
-        let assets = vec!["ETHUSDT", "BTCUSDT"];
-        for i in assets {
-            MANAGER.get_ticker_price(i).await;
-        }
-    });
-    scheduler.every(5.minutes()).run(|| async {
-        let (_, end_unix_time) = time::DateTime::get_local_current();
-        let start_unix_time = end_unix_time.to_owned() - 60000 * 5;
+    let assets = [
+        "BTCUSDT",
+        "ETHUSDT",
+        "BNBUSDT",
+        "XRPUSDT",
+        "MDTUSDT",
+        "DOGEUSDT",
+        "GALAUSDT",
+        "MATICUSDT",
+        "PERLUSDT",
+        "TRUUSDT",
+        "CFXUSDT",
+        "ARBUSDT",
+    ];
 
-        MANAGER
-            .get_kline(
-                "ETHUSDT",
-                binan_spot::market::klines::KlineInterval::Minutes1,
-                TimeZoneConverter::convert_local_to_utc(start_unix_time),
-                TimeZoneConverter::convert_local_to_utc(end_unix_time),
-            )
-            .await;
-    });
+    let mut scheduler = AsyncScheduler::with_tz(chrono::Local);
+    for i in assets {
+        scheduler.every(5.seconds()).run(|| async {
+            MANAGER.get_ticker_price(i).await;
+        });
+        // 1m
+        scheduler.every(5.minutes()).run(|| async {
+            let (_, end_unix_time) = time::DateTime::get_local_current();
+            let start_unix_time = end_unix_time.to_owned() - 60000 * 5;
+
+            MANAGER
+                .get_kline(
+                    i,
+                    binan_spot::market::klines::KlineInterval::Minutes1,
+                    TimeZoneConverter::convert_local_to_utc(start_unix_time),
+                    TimeZoneConverter::convert_local_to_utc(end_unix_time),
+                )
+                .await;
+        });
+        // 5m
+        scheduler.every(5.minutes()).run(|| async {
+            let (_, end_unix_time) = time::DateTime::get_local_current();
+            let start_unix_time = end_unix_time.to_owned() - 60000 * 5;
+
+            MANAGER
+                .get_kline(
+                    i,
+                    binan_spot::market::klines::KlineInterval::Minutes5,
+                    TimeZoneConverter::convert_local_to_utc(start_unix_time),
+                    TimeZoneConverter::convert_local_to_utc(end_unix_time),
+                )
+                .await;
+        });
+        // 30m
+        scheduler.every(30.minutes()).run(|| async {
+            let (_, end_unix_time) = time::DateTime::get_local_current();
+            let start_unix_time = end_unix_time.to_owned() - 60000 * 30;
+
+            MANAGER
+                .get_kline(
+                    i,
+                    binan_spot::market::klines::KlineInterval::Minutes30,
+                    TimeZoneConverter::convert_local_to_utc(start_unix_time),
+                    TimeZoneConverter::convert_local_to_utc(end_unix_time),
+                )
+                .await;
+        });
+        // 1h
+        scheduler.every(1.hours()).run(|| async {
+            let (_, end_unix_time) = time::DateTime::get_local_current();
+            let start_unix_time = end_unix_time.to_owned() - 60000 * 60;
+
+            MANAGER
+                .get_kline(
+                    i,
+                    binan_spot::market::klines::KlineInterval::Hours1,
+                    TimeZoneConverter::convert_local_to_utc(start_unix_time),
+                    TimeZoneConverter::convert_local_to_utc(end_unix_time),
+                )
+                .await;
+        });
+        // 4h
+        scheduler.every(4.hours()).run(|| async {
+            let (_, end_unix_time) = time::DateTime::get_local_current();
+            let start_unix_time = end_unix_time.to_owned() - 60000 * 60 * 4;
+
+            MANAGER
+                .get_kline(
+                    i,
+                    binan_spot::market::klines::KlineInterval::Hours4,
+                    TimeZoneConverter::convert_local_to_utc(start_unix_time),
+                    TimeZoneConverter::convert_local_to_utc(end_unix_time),
+                )
+                .await;
+        });
+        // 1d
+        scheduler.every(1.days()).run(|| async {
+            let (_, end_unix_time) = time::DateTime::get_local_current();
+            let start_unix_time = end_unix_time.to_owned() - 60000 * 60 * 24;
+
+            MANAGER
+                .get_kline(
+                    i,
+                    binan_spot::market::klines::KlineInterval::Days1,
+                    TimeZoneConverter::convert_local_to_utc(start_unix_time),
+                    TimeZoneConverter::convert_local_to_utc(end_unix_time),
+                )
+                .await;
+        });
+    }
 
     let task = tokio::spawn(async move {
         loop {
