@@ -37,13 +37,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut scheduler = AsyncScheduler::with_tz(chrono::Local);
     for i in assets {
+        // Ticker price
         scheduler.every(5.seconds()).run(|| async {
             MANAGER.get_ticker_price(i).await;
         });
-        // 1m
-        scheduler.every(5.minutes()).run(|| async {
+        // Kline - 1m
+        scheduler.every(1.minutes()).run(|| async {
             let (_, end_unix_time) = time::DateTime::get_local_current();
-            let start_unix_time = end_unix_time.to_owned() - 60000 * 5;
+            let start_unix_time = end_unix_time.to_owned() - 60000;
 
             MANAGER
                 .get_kline(
@@ -54,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 )
                 .await;
         });
-        // 5m
+        // Kline - 5m
         scheduler.every(5.minutes()).run(|| async {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000 * 5;
@@ -68,7 +69,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 )
                 .await;
         });
-        // 30m
+        // Kline - 30m
         scheduler.every(30.minutes()).run(|| async {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000 * 30;
@@ -82,7 +83,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 )
                 .await;
         });
-        // 1h
+        // Kline - 1h
         scheduler.every(1.hours()).run(|| async {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000 * 60;
@@ -96,7 +97,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 )
                 .await;
         });
-        // 4h
+        // Kline - 4h
         scheduler.every(4.hours()).run(|| async {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000 * 60 * 4;
@@ -110,7 +111,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 )
                 .await;
         });
-        // 1d
+        // Kline - 1d
         scheduler.every(1.days()).run(|| async {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000 * 60 * 24;
