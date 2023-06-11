@@ -15,6 +15,7 @@ function main() {
     local web_sh="${ROOT}/scripts/web.sh"
     local rust_sh="${ROOT}/scripts/rust.sh"
     local check_sh="${ROOT}/scripts/check.sh"
+    local docker_sh="${ROOT}/scripts/docker.sh"
 
     case $cmd in
     "setup")
@@ -33,6 +34,12 @@ function main() {
         ;;
     "test")
         bash "${rust_sh}" test "${extra_args}"
+        ;;
+    "docker-build")
+        bash "${docker_sh}" build
+        ;;
+    "docker-into")
+        bash "${docker_sh}" into
         ;;
     "lint-rs")
         bash "${check_sh}" rust
