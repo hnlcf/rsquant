@@ -19,12 +19,12 @@ where
 
 impl CurrentTime<Local> for LocalTimeTool {
     fn get_current() -> DateTime<Local> {
-        chrono::offset::Local::now()
+        Local::now()
     }
 }
 
 impl CurrentTime<Utc> for UtcTimeTool {
     fn get_current() -> DateTime<Utc> {
-        chrono::offset::Utc::now()
+        Utc::now()
     }
 }

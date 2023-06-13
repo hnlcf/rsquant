@@ -5,6 +5,7 @@ use std::time::Duration;
 use clokwerk::{AsyncScheduler, TimeUnits};
 use lazy_static::lazy_static;
 
+use binan_spot::market::klines::KlineInterval;
 use manager::Manager;
 use quant_util::time::TimeZoneConverter;
 
@@ -49,7 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             MANAGER
                 .get_kline(
                     i,
-                    binan_spot::market::klines::KlineInterval::Minutes1,
+                    KlineInterval::Minutes1,
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
@@ -63,7 +64,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             MANAGER
                 .get_kline(
                     i,
-                    binan_spot::market::klines::KlineInterval::Minutes5,
+                    KlineInterval::Minutes5,
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
@@ -77,7 +78,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             MANAGER
                 .get_kline(
                     i,
-                    binan_spot::market::klines::KlineInterval::Minutes30,
+                    KlineInterval::Minutes30,
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
@@ -91,7 +92,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             MANAGER
                 .get_kline(
                     i,
-                    binan_spot::market::klines::KlineInterval::Hours1,
+                    KlineInterval::Hours1,
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
@@ -105,7 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             MANAGER
                 .get_kline(
                     i,
-                    binan_spot::market::klines::KlineInterval::Hours4,
+                    KlineInterval::Hours4,
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
@@ -119,7 +120,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             MANAGER
                 .get_kline(
                     i,
-                    binan_spot::market::klines::KlineInterval::Days1,
+                    KlineInterval::Days1,
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
