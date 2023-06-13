@@ -1,10 +1,12 @@
+use std::process::abort;
 use std::{
     fs::{read_to_string, File},
     path::PathBuf,
 };
 
-use quant_util::{constants::DEFAULT_APP_NAME, env::EnvManager};
 use serde::{Deserialize, Serialize};
+
+use quant_util::{constants::DEFAULT_APP_NAME, env::EnvManager};
 
 pub struct ConfigBuilder;
 
@@ -49,7 +51,7 @@ impl ConfigBuilder {
             Ok(c) => Some(c),
             Err(e) => {
                 log::error!("Failed to parse config file with {}", e);
-                None
+                abort();
             }
         }
     }
