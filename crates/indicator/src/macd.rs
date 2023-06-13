@@ -1,24 +1,26 @@
 use ta::{
     indicators::{
-        MovingAverageConvergenceDivergence as Macd, MovingAverageConvergenceDivergenceOutput,
+        MovingAverageConvergenceDivergence as Macd,
+        MovingAverageConvergenceDivergenceOutput as MacdOutput,
     },
-    DataItem, Next, Open,
+    Close, DataItem, Next,
 };
 
-pub struct MacdOutput {
-    output: Vec<MovingAverageConvergenceDivergenceOutput>,
+#[derive(Default)]
+pub struct MacdOutputBuilder {
+    output: Vec<MacdOutput>,
 }
 
-impl MacdOutput {
-    pub fn compute(data: Vec<DataItem>) -> Self {
+impl MacdOutputBuilder {
+    pub fn compute(self, data: &[DataItem]) -> Self {
         let mut macd = Macd::default();
-        let f = |v: DataItem| macd.next(v.open());
+        let f = |v: &DataItem| macd.next(v.close());
         Self {
-            output: data.into_iter().map(f).collect(),
+            output: data.iter().map(f).collect(),
         }
     }
 
-    pub fn output(&self) -> Vec<MovingAverageConvergenceDivergenceOutput> {
-        self.output.to_owned()
+    pub fn build(self) -> Vec<MacdOutput> {
+        self.output
     }
 }
