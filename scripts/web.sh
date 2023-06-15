@@ -5,11 +5,11 @@ PY_DIR="${ROOT}/visualize"
 PY_SRC_DIR="${PY_DIR}/src"
 
 function setup() {
-    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r "${ROOT}/visualize/requirements.txt"
+    poetry install
 }
 
 function run() {
-    python3 "${PY_SRC_DIR}/app.py"
+    poetry run python3 "${PY_SRC_DIR}/app.py"
 }
 
 function main() {

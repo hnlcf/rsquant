@@ -13,13 +13,10 @@ target/
 *.sublime-*
 
 ### Project
-.env
 .venv
 __pycache__
+poetry.lock
 quant.toml
-
-*.db
-database/
 
 ### Build and Run
 core.*

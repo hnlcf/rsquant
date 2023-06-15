@@ -1,3 +1,29 @@
+[tool.poetry]
+name = "quant-trader-web"
+version = "0.1.0"
+description = ""
+authors = ["Changfeng <louchangfeng@outlook.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "visualize"}]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "*"
+pyecharts = "*"
+psycopg2 = "*"
+markupsafe = "*"
+gevent = "*"
+python-dotenv = "*"
+pre-commit = "*"
+numpy = "*"
+pandas = "*"
+stockstats = "*"
+
 [tool.pyright]
 include = ["visualize/src"]
 exclude = [
