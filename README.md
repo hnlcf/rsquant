@@ -1,21 +1,26 @@
-# Quant Trader
+<div align="center">
+    <h1> Quant Trader </h1>
+    <i> A quanting trade system of the cryptocurrency based on Rust. </i>
+</div>
 
-<!--toc:start-->
+## Contents
 
-- [Quant Trader](#quant-trader)
-  - [Build in Host](#build-in-host)
-    - [Requirements](#requirements)
-    - [Commands](#commands)
-  - [Build in Docker](#build-in-docker)
-    - [Requirements](#requirements)
-    - [Commands](#commands)
-  - [Configuration](#configuration)
-    - [Examples](#examples)
-    - [Description](#description)
-  - [Run](#run) - [Launch data server](#launch-data-server) - [Launch web server](#launch-web-server)
-  <!--toc:end-->
+- [Introduction](#introduction)
+- [Build in Host](#build-in-host)
+  - [Requirements](#requirements)
+  - [Commands](#commands)
+- [Build in Docker](#build-in-docker)
+  - [Requirements](#requirements)
+  - [Commands](#commands)
+- [Configuration](#configuration)
+  - [Examples](#examples)
+  - [Description](#description)
+- [Run](#run)
+  - [Launch data server](#launch-data-server)
+  - [Launch web server](#launch-web-server)
+- [License](#license)
 
-A quanting trade system of the cryptocurrency based on Rust.
+## Introduction
 
 Due to the direct use of [Binance Public API Connector Rust](https://github.com/binance/binance-spot-connector-rust), only [Binance](https://www.binance.com) is currently supported.
 
@@ -107,3 +112,7 @@ pg_addr="postgres://postgres:postgres@localhost:5432/quant_trader_db"
 ```bash
 ./quant_trader.sh web
 ```
+
+## License
+
+[MIT](./LICENSE)
