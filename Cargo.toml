@@ -12,7 +12,6 @@ name = "quant_trader"
 
 [workspace]
 members = [
-    "crates/binan_spot_examples",
     "crates/binan_spot",
     "crates/api",
     "crates/config",
