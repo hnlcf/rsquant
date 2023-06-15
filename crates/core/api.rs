@@ -76,10 +76,10 @@ impl Api {
     /// println!("{:#?}", price);
     /// ```
     pub async fn get_ticker_price(&self, symbol: &str) -> ticker_price::TickerPrice {
-        let price = GetResponse::get_ticker_price(&self.client, symbol).await;
+        let ticker_price = GetResponse::get_ticker_price(&self.client, symbol).await;
 
-        log::info!("Get ticker price of {}: {}", symbol, price);
-        price
+        log::info!("Get ticker price of {}: {}", symbol, ticker_price.price);
+        ticker_price
     }
 
     /// # Get Kline data
