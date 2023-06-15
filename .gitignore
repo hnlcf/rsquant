@@ -21,3 +21,6 @@ quant.toml
 ### Build and Run
 core.*
 nohup.out
+
+### Documentations
+*.excalidraw
