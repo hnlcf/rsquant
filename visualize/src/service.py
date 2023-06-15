@@ -1,4 +1,5 @@
 from model import KlineEntry
+from pandas import DataFrame
 from postgresql import setup_postgres
 
 
@@ -13,8 +14,24 @@ class Service:
             FROM assets_kline_data
             WHERE symbol = '{symbol}' and interval = '{interval}'
             ORDER BY open_time DESC
-            LIMIT 500
+            LIMIT 200
             """
         )
         entrys.reverse()
         return map(lambda e: KlineEntry(e), entrys)
+
+
+class Converter:
+    def klines_to_dataframe(entrys: list[KlineEntry]) -> DataFrame:
+        for i in entrys:
+            print(i)
+        data = map(lambda e: e.to_data(), entrys)
+        price = []
+        time = []
+        for p, t in data:
+            price.append(p)
+            time.append(t)
+        df = DataFrame(data=data, columns=["open", "close", "low", "high", "volume"])
+        # print(df)
+
+        return df

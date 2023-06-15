@@ -25,6 +25,10 @@ def show_kline(symbol, interval):
     symbol: 'BTCUSDT', 'ETHUSDT' ...
     interval: '1m', '5m', '30m', '1h', '4h', '1d'
     """
+    return wrap_kline_grid(symbol=symbol, interval=interval)
+
+
+def wrap_kline_grid(symbol: str, interval: str) -> Markup:
     klines = SERVICE.get_kline(symbol=symbol, interval=interval)
     grid = Drawer.draw_kline(klines=klines, symbol=symbol, interval=interval)
     return Markup(grid.render_embed())

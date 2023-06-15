@@ -37,3 +37,15 @@ class KlineEntry:
         close_price: {self.close_price},
         volume: {self.volume}
         )"""
+
+    def to_data(self) -> tuple[str, list[float]]:
+        return (
+            self.open_time,
+            [
+                self.open_price,
+                self.close_price,
+                self.low_price,
+                self.high_price,
+                self.volume,
+            ],
+        )
