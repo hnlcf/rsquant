@@ -17,27 +17,29 @@ lazy_static! {
     static ref MANAGER: Arc<Manager> = Arc::new(Manager::from_config());
 }
 
+static ASSETS: [&str; 13] = [
+    "BTCUSDT",
+    "ETHUSDT",
+    "BNBUSDT",
+    "XRPUSDT",
+    "MDTUSDT",
+    "DOGEUSDT",
+    "GALAUSDT",
+    "MATICUSDT",
+    "PERLUSDT",
+    "TRUUSDT",
+    "CFXUSDT",
+    "ARBUSDT",
+    "LINAUSDT",
+];
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     MANAGER.init()?;
 
-    let assets = [
-        "BTCUSDT",
-        "ETHUSDT",
-        "BNBUSDT",
-        "XRPUSDT",
-        "MDTUSDT",
-        "DOGEUSDT",
-        "GALAUSDT",
-        "MATICUSDT",
-        "PERLUSDT",
-        "TRUUSDT",
-        "CFXUSDT",
-        "ARBUSDT",
-    ];
-
     let mut scheduler = AsyncScheduler::with_tz(chrono::Local);
-    for i in assets {
+
+    for i in ASSETS {
         // Ticker price
         scheduler.every(5.seconds()).run(|| async {
             MANAGER.get_ticker_price(i).await;
