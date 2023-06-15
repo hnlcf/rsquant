@@ -5,11 +5,15 @@ PY_DIR="${ROOT}/visualize"
 PY_SRC_DIR="${PY_DIR}/src"
 
 function setup() {
-    poetry install
+    if ! [ -x "${HOME}/.local/bin/poetry" ]; then
+        curl -sSL https://install.python-poetry.org | python3 -
+    fi
+
+    "${HOME}/.local/bin/poetry" install
 }
 
 function run() {
-    poetry run python3 "${PY_SRC_DIR}/app.py"
+    "${HOME}/.local/bin/poetry" run python3 "${PY_SRC_DIR}/app.py"
 }
 
 function main() {

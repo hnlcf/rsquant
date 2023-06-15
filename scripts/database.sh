@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 
-ROOT="$HOME"
-
 function setup() {
-    if ! [ -x "${ROOT}/.cargo/bin/diesel" ]; then
+    if ! [ -x "${HOME}/.cargo/bin/diesel" ]; then
         cargo install diesel_cli --force --no-default-features --features postgres
     fi
 
-    "${ROOT}/.cargo/bin/diesel" database reset
+    "${HOME}/.cargo/bin/diesel" database reset
 }
 
 function main() {

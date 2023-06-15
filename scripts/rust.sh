@@ -4,14 +4,19 @@ ROOT=$(pwd)
 BIN_NAME="quant_trader"
 
 function build() {
-    cargo build
-    cargo build --release
+    if [ "$1" = "-d" ] || [ "$1" = "--debug" ]; then
+        cargo build
+    else
+        cargo build --release
+    fi
 }
 
 function run() {
-    if [ "$RUST_BUILD_DEBUG" = 'ON' ]; then
+    if [ "$1" = "-d" ] || [ "$1" = "--debug" ]; then
+        build "--debug"
         "${ROOT}/target/debug/${BIN_NAME}" >/dev/null 2>&1 &
     else
+        build "--release"
         "${ROOT}/target/release/${BIN_NAME}" >/dev/null 2>&1 &
     fi
 }
@@ -35,10 +40,10 @@ function main() {
         setup
         ;;
     "run")
-        run
+        run "${extra_args}"
         ;;
     "build")
-        build
+        build "${extra_args}"
         ;;
     "test")
         test "${extra_args}"

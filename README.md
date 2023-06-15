@@ -1,32 +1,25 @@
 # Quant Trader
 
-## Build in Host
+## Build
 
-### Requirements
+### Requirements of Host
 
 - **System**: Ubuntu 22.04
-- **Language**: Rust 1.65, Python 3.10
-- **Dependencies**: pkg-config, libssl-dev, libsqlite3-dev, libpq, postgresql
+- **Language**: Rust 1.65
+- **Dependencies**: pkg-config, libssl-dev, libpq, postgresql, poetry
 
-### Commands
-
-```bash
-./quant_trader.sh setup
-```
-
-## Build in Docker
-
-### Requirements
+### Requirements of Docker
 
 - **Images**: Ubuntu 22.04
 
 ### Commands
 
 ```bash
-./quant_trader.sh docker-build
-./quant_trader.sh docker-into
+./quant_trader.sh setup-docker
 
 ./quant_trader.sh setup
+
+./quant_trader.sh build
 ```
 
 ## Run

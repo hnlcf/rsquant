@@ -27,18 +27,16 @@ function main() {
         bash "${web_sh}" run
         ;;
     "run")
-        bash "${rust_sh}" run
+        bash "${rust_sh}" run "${extra_args}"
         ;;
     "build")
-        bash "${rust_sh}" build
+        bash "${rust_sh}" build "${extra_args}"
         ;;
     "test")
         bash "${rust_sh}" test "${extra_args}"
         ;;
-    "docker-build")
+    "setup-docker")
         bash "${docker_sh}" build
-        ;;
-    "docker-into")
         bash "${docker_sh}" into
         ;;
     "lint-rs")
