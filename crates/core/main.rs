@@ -40,7 +40,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for i in ASSETS {
         // Ticker price
-        scheduler.every(5.seconds()).run(|| async {
+        scheduler.every(1.seconds()).run(|| async {
             MANAGER.get_ticker_price(i).await;
         });
         // Kline - 1m
