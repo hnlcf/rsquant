@@ -1,13 +1,12 @@
-/// #![feature(async_closure)]
 use std::sync::Arc;
 use std::time::Duration;
 
+use binan_spot::market::klines::KlineInterval;
 use clokwerk::{AsyncScheduler, TimeUnits};
 use lazy_static::lazy_static;
-
-use binan_spot::market::klines::KlineInterval;
-use manager::Manager;
 use quant_util::time::TimeZoneConverter;
+
+use manager::Manager;
 
 mod api;
 mod manager;
