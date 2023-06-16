@@ -1,4 +1,4 @@
-use std::process::abort;
+use std::process;
 
 use crate::DBConnection;
 
@@ -21,7 +21,7 @@ impl PostgresConnection {
             }
             Err(e) => {
                 log::error!("Failed to connect database: {} with {}.", config.pg_addr, e);
-                abort();
+                process::abort();
             }
         }
     }

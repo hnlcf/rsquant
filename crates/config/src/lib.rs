@@ -1,8 +1,4 @@
-use std::process::abort;
-use std::{
-    fs::{read_to_string, File},
-    path::PathBuf,
-};
+use std::{fs, path, process};
 
 use serde::{Deserialize, Serialize};
 
@@ -11,7 +7,7 @@ use quant_util::{constants::DEFAULT_APP_NAME, env::EnvManager};
 pub struct ConfigBuilder;
 
 impl ConfigBuilder {
-    fn get_config_path() -> PathBuf {
+    fn get_config_path() -> path::PathBuf {
         let home_dir = EnvManager::get_env_var_or("HOME", "/root");
         let xdg_config_home =
             EnvManager::get_env_var_or("XDG_CONFIG_HOME", format!("{}/.config", home_dir));
@@ -21,20 +17,20 @@ impl ConfigBuilder {
             .collect()
     }
 
-    fn read_config_file(path: PathBuf) -> Option<String> {
+    fn read_config_file(path: path::PathBuf) -> Option<String> {
         if !path.exists() {
             let mut curr_config_path = std::env::current_dir().unwrap();
             curr_config_path.push("quant.toml");
             if !curr_config_path.exists() {
                 let config_dir = path.parent()?;
                 std::fs::create_dir_all(config_dir).ok()?;
-                File::create(path).ok()?;
+                fs::File::create(path).ok()?;
                 None
             } else {
-                read_to_string(curr_config_path).ok()
+                fs::read_to_string(curr_config_path).ok()
             }
         } else {
-            read_to_string(path).ok()
+            fs::read_to_string(path).ok()
         }
     }
 
@@ -51,7 +47,7 @@ impl ConfigBuilder {
             Ok(c) => Some(c),
             Err(e) => {
                 log::error!("Failed to parse config file with {}", e);
-                abort();
+                process::abort();
             }
         }
     }
@@ -112,10 +108,10 @@ pub enum DatabaseConfig {
 
 #[derive(Serialize, Deserialize)]
 pub struct PostgresqlConfig {
-    pub pg_addr: String,
+    pub pg_addr: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct SqliteConfig {
-    pub db_path: String,
+    pub db_path: Option<String>,
 }

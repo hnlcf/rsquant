@@ -1,6 +1,9 @@
 use chrono::{DateTime, Local, TimeZone, Utc};
 
-use super::{LocalTimeTool, UtcTimeTool, DATE_FORMAT_STR};
+use crate::{
+    constants::DEFAULT_DATETIME_FORMAT_STR,
+    time::{LocalTimeTool, UtcTimeTool},
+};
 
 pub trait CurrentTime<Tz: TimeZone>
 where
@@ -13,7 +16,9 @@ where
     }
 
     fn get_date_time() -> String {
-        Self::get_current().format(DATE_FORMAT_STR).to_string()
+        Self::get_current()
+            .format(DEFAULT_DATETIME_FORMAT_STR)
+            .to_string()
     }
 }
 

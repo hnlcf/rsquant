@@ -3,7 +3,7 @@ use crate::res::BinanHttpClient;
 use binan_spot::{http::request::Request, hyper::Response};
 use serde::Deserialize;
 
-use std::process::abort;
+use std::process;
 
 pub struct HandleResponse;
 
@@ -19,7 +19,7 @@ impl HandleResponse {
                     "Failed to deserialize response string to data structure: {}.",
                     e
                 );
-                abort();
+                process::abort();
             }
         }
     }
@@ -48,7 +48,7 @@ impl HandleResponse {
             }
             Err(e) => {
                 log::error!("Failed to convert response body into string: {}.", e);
-                abort();
+                process::abort();
             }
         }
     }
