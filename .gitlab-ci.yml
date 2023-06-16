@@ -1,36 +1,36 @@
-image: "rust:latest"
-
 stages:
   - lint
   - build
 
-services:
-  - postgres:latest
+lint-rust:
+  stage: lint
+  image: rust:latest
+  before_script:
+    - rustc --version
+    - cargo --version
+    - rustup component add clippy rustfmt
+    - cargo install diesel_cli
+  script:
+    - cargo fmt -- --check
+    - cargo clippy --all-targets -- -D clippy::all
+    - cargo test
 
-variables:
-  POSTGRES_DB: quant_trader
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: "postgres"
-
-before_script:
-  - rustc --version
-  - cargo --version
-  - rustup component add clippy rustfmt
-  - cargo install diesel_cli
+lint-python:
+  stage: lint
+  image: python:3.11
+  script:
+    - pip install poetry
+    - poetry install
+    - poetry run black visualize
 
 build-rust:
   when: manual
   stage: build
   image: rust:latest
+  services:
+    - postgres:latest
   variables:
     DATABASE_URL: "postgres://postgres@postgres/quant_trader"
   script:
     - diesel migration run
     - cargo build --release --verbose --jobs 1
-
-lint-rust:
-  stage: lint
-  script:
-    - cargo fmt -- --check
-    - cargo clippy --all-targets -- -D clippy::all
-    - cargo test
