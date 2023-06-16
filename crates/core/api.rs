@@ -34,7 +34,7 @@ impl Api {
     }
 
     pub fn default_with_proxy() -> Self {
-        let proxy = EnvManager::get_env_var("https_proxy").unwrap_or("".to_owned());
+        let proxy = EnvManager::get_env_var_or("https_proxy", "");
         Self {
             credentials: credential::CredentialBuilder::from_env()
                 .expect("Failed to create credential from envs."),

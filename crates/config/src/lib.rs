@@ -12,9 +12,9 @@ pub struct ConfigBuilder;
 
 impl ConfigBuilder {
     fn get_config_path() -> PathBuf {
-        let home_dir = EnvManager::get_env_var("HOME").unwrap_or("/home/changfeng".into());
+        let home_dir = EnvManager::get_env_var_or("HOME", "/root");
         let xdg_config_home =
-            EnvManager::get_env_var("XDG_CONFIG_HOME").unwrap_or(format!("{}/.config", home_dir));
+            EnvManager::get_env_var_or("XDG_CONFIG_HOME", format!("{}/.config", home_dir));
 
         [&xdg_config_home, DEFAULT_APP_NAME, "config.toml"]
             .iter()

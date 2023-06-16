@@ -12,6 +12,13 @@ impl EnvManager {
             Some,
         )
     }
+
+    pub fn get_env_var_or(key: &str, default: impl Into<String>) -> String {
+        match env::var(key) {
+            Ok(v) => v,
+            Err(_) => default.into(),
+        }
+    }
 }
 
 #[cfg(test)]
