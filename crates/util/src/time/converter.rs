@@ -1,7 +1,10 @@
 use chrono::TimeZone;
 use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, Utc};
 
-use super::{LocalTimeTool, UtcTimeTool, DATE_FORMAT_STR};
+use crate::{
+    constants::DEFAULT_DATETIME_FORMAT_STR,
+    time::{LocalTimeTool, UtcTimeTool},
+};
 
 pub trait TimeConverter<Tz: TimeZone>
 where
@@ -10,11 +13,12 @@ where
     fn to_date_time(unix_time: i64) -> Option<DateTime<Tz>>;
 
     fn convert_to_date_time(unix_time: i64) -> Option<String> {
-        Self::to_date_time(unix_time).map(|t| t.format(DATE_FORMAT_STR).to_string())
+        Self::to_date_time(unix_time).map(|t| t.format(DEFAULT_DATETIME_FORMAT_STR).to_string())
     }
 
     fn convert_to_unix_time(date_time: &str) -> Option<i64> {
-        let date_time = NaiveDateTime::parse_from_str(date_time, DATE_FORMAT_STR).ok()?;
+        let date_time =
+            NaiveDateTime::parse_from_str(date_time, DEFAULT_DATETIME_FORMAT_STR).ok()?;
         Some(date_time.timestamp_millis())
     }
 }
