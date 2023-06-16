@@ -1,0 +1,36 @@
+image: "rust:latest"
+
+stages:
+  - lint
+  - build
+
+services:
+  - postgres:latest
+
+variables:
+  POSTGRES_DB: quant_trader
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: "postgres"
+
+before_script:
+  - rustc --version
+  - cargo --version
+  - rustup component add clippy rustfmt
+  - cargo install diesel_cli
+
+build-rust:
+  when: manual
+  stage: build
+  image: rust:latest
+  variables:
+    DATABASE_URL: "postgres://postgres@postgres/quant_trader"
+  script:
+    - diesel migration run
+    - cargo build --release --verbose --jobs 1
+
+lint-rust:
+  stage: lint
+  script:
+    - cargo fmt -- --check
+    - cargo clippy --all-targets -- -D clippy::all
+    - cargo test
