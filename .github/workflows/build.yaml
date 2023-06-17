@@ -10,7 +10,6 @@ on:
 
 jobs:
   build-rs:
-    needs: check-rs
     runs-on: ubuntu-latest
 
     services:
