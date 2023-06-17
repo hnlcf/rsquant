@@ -1,4 +1,5 @@
 <div align="center">
+    <img class="fit-picture" src="docs/assets/quant-trader-avatar.png" width=120px alt="Project Avatar" >
     <h1> Quant Trader </h1>
     <i> A quanting trade system of the cryptocurrency based on Rust. </i>
 </div>
