@@ -13,16 +13,17 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-flask = "*"
-pyecharts = "*"
-psycopg2 = "*"
-markupsafe = "*"
-gevent = "*"
-python-dotenv = "*"
-pre-commit = "*"
-numpy = "*"
-pandas = "*"
-stockstats = "*"
+flask = "^2.3.2"
+pyecharts = "^2.0.3"
+psycopg2 = "^2.9.6"
+markupsafe = "^2.1.3"
+gevent = "^22.10.2"
+python-dotenv = "^1.0.0"
+pre-commit = "^3.3.3"
+numpy = "^1.24.3"
+pandas = "^2.0.2"
+stockstats = "^0.5.4"
+black = "^23.3.0"
 
 [tool.pyright]
 include = ["visualize/src"]
