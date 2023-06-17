@@ -14,7 +14,6 @@ lint-rust:
   script:
     - cargo fmt -- --check
     - cargo clippy --all-targets -- -D clippy::all
-    - cargo test
 
 lint-python:
   stage: lint
@@ -31,6 +30,7 @@ test-rust:
     - cargo install cargo-nextest
   script:
     - cargo nextest run --all
+  parallel: 4
 
 postgres-auth:
   stage: setup-db
@@ -44,6 +44,8 @@ postgres-auth:
   script:
     - export PGPASSWORD=$POSTGRES_PASSWORD
     - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 'OK' AS status;"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 build-rust:
   stage: build
@@ -62,3 +64,6 @@ build-rust:
   script:
     - DATABASE_URL=$DATABASE_URL diesel database reset
     - cargo build --release --verbose --jobs 1
+  parallel: 4
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
