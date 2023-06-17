@@ -14,23 +14,6 @@ jobs:
   build-rs:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_DB: quant_trader
-          POSTGRES_PORT: 5432
-          POSTGRES_HOST: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - uses: actions/checkout@v3
 
@@ -40,14 +23,18 @@ jobs:
       - name: Install diesel
         run: cargo install diesel_cli --force --no-default-features --features postgres
 
+      - name: Install postgresql
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev postgresql
+          echo "host    all             all             127.0.0.1/32            md5" > sudo tee -a /etc/postgresql/10/main/pg_hba.conf
+          sudo service postgresql restart && sleep 3
+          sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+          sudo service postgresql restart && sleep 3
+          echo "PG_DATABASE_URL=postgres://postgres:postgres@localhost/" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost/quant_trader" >> $GITHUB_ENV
+
       - name: Build
         run: |
-          DATABASE_URL=$DATABASE_URL diesel database reset
+          diesel database reset
           cargo build --release --verbose --jobs 1
-        env:
-          POSTGRES_DB: quant_trader
-          POSTGRES_PORT: 5432
-          POSTGRES_HOST: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          DATABASE_URL: "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB"
