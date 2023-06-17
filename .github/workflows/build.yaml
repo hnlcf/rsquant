@@ -42,7 +42,7 @@ jobs:
 
       - name: Build
         run: |
-          DATABASE_URL=$DATABASE_URL diesel database reset
+          diesel database reset
           cargo build --release --verbose --jobs 1
         env:
           POSTGRES_DB: quant_trader
