@@ -23,17 +23,15 @@ impl EnvManager {
 
 #[cfg(test)]
 mod tests {
+    use std::env;
+
     use super::EnvManager;
 
+    #[allow(deprecated)]
     #[test]
     fn test_get_env_var() {
-        let expect = EnvManager::get_env_var("HOME").unwrap_or("".into());
-        let mut actual = "/home/".to_string();
-        actual.push_str(
-            EnvManager::get_env_var("USER")
-                .unwrap_or("".into())
-                .as_str(),
-        );
+        let actual = EnvManager::get_env_var("HOME").unwrap_or("".into());
+        let expect = env::home_dir().unwrap().display().to_string();
         assert_eq!(actual, expect);
     }
 }

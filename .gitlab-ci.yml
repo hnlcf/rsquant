@@ -1,7 +1,8 @@
 stages:
   - lint
-  - build
   - test
+  - setup-db
+  - build
 
 lint-rust:
   stage: lint
@@ -23,19 +24,6 @@ lint-python:
     - poetry install
     - poetry run black visualize
 
-build-rust:
-  stage: build
-  image: rust:latest
-  services:
-    - postgres:latest
-  variables:
-    DATABASE_URL: "postgres://postgres@postgres/quant_trader"
-  before_script:
-    - cargo install diesel_cli
-  script:
-    - diesel database reset
-    - cargo build --release --verbose --jobs 1
-
 test-rust:
   stage: test
   image: rust:latest
@@ -43,3 +31,34 @@ test-rust:
     - cargo install cargo-nextest
   script:
     - cargo nextest run --all
+
+postgres-auth:
+  stage: setup-db
+  services:
+    - postgres:latest
+  variables:
+    POSTGRES_DB: quant_trader
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  image: postgres
+  script:
+    - export PGPASSWORD=$POSTGRES_PASSWORD
+    - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 'OK' AS status;"
+
+build-rust:
+  stage: build
+  image: rust:latest
+  services:
+    - postgres:latest
+  variables:
+    POSTGRES_DB: quant_trader
+    POSTGRES_PORT: 5432
+    POSTGRES_HOST: postgres
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    DATABASE_URL: "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB"
+  before_script:
+    - cargo install diesel_cli
+  script:
+    - DATABASE_URL=$DATABASE_URL diesel database reset
+    - cargo build --release --verbose --jobs 1
