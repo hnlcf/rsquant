@@ -1,4 +1,4 @@
-name: Rust Build
+name: Check and Build
 
 on:
   push:
@@ -7,16 +7,78 @@ on:
     branches: [master, fix-**, feat-**]
 
 jobs:
-  build:
+  check-rs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Fix Rust Version
+      - name: Setup Rust
         run: rustup install 1.65
 
-      - name: Test
-        run: cargo test
+      - name: Format
+        run: cargo fmt -- --check
 
-      - name: Lint Check
+      - name: Lint
         run: cargo clippy --all-targets -- -D clippy::all
+
+      - name: Test
+        run: |
+          cargo install cargo-nextest
+          cargo test
+
+  check-py:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Format
+        run: |
+          pip install poetry
+          poetry install
+          poetry run black visualize
+
+  build-rs:
+    needs: check-rs
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: quant_trader
+          POSTGRES_PORT: 5432
+          POSTGRES_HOST: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Test Postgres
+        run: |
+          psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 'OK' AS status;"
+
+      - name: Setup Rust
+        run: rustup install 1.65
+
+      - name: Install diesel
+        run: cargo install diesel_cli
+
+      - name: Build
+        run: |
+          DATABASE_URL=$DATABASE_URL diesel database reset
+          cargo build --release --verbose --jobs 1
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@postgres:5432/quant_trader"
