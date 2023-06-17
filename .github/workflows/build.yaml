@@ -6,7 +6,9 @@ on:
   pull_request:
     branches: [master, fix-**, feat-**]
   workflow_run:
-    workflows: ["Lint"]
+    workflows: [Lint]
+    types:
+      - completed
 
 jobs:
   build-rs:
@@ -43,4 +45,9 @@ jobs:
           DATABASE_URL=$DATABASE_URL diesel database reset
           cargo build --release --verbose --jobs 1
         env:
+          POSTGRES_DB: quant_trader
+          POSTGRES_PORT: 5432
+          POSTGRES_HOST: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
           DATABASE_URL: "postgres://postgres:postgres@postgres:5432/quant_trader"
