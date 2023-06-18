@@ -4,7 +4,10 @@ use lettre::{
     transport::smtp::authentication::Credentials,
     Message, SmtpTransport, Transport,
 };
+
 use std::error::Error as StdError;
+
+use quant_config::EmailConfig;
 
 pub struct EmailManager {
     from_email: Mailbox,
@@ -21,9 +24,13 @@ pub struct EmailBuilder {
 }
 
 impl EmailBuilder {
-    pub fn from_config() -> Self {
-        // TODO: Create from config file object
-        EmailBuilder::default()
+    pub fn from_config(config: EmailConfig) -> Self {
+        Self {
+            from_email: config.from_email,
+            to_emails: config.to_emails,
+            from_passwd: config.from_passwd,
+            smtp_addr: config.smtp_addr,
+        }
     }
 
     pub fn sender(mut self, email: &str, passwd: &str, smtp_addr: &str) -> Self {
