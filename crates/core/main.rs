@@ -1,9 +1,8 @@
-use std::sync::Arc;
+use std::sync::OnceLock;
 use std::time::Duration;
 
 use binan_spot::market::klines::KlineInterval;
 use clokwerk::{AsyncScheduler, TimeUnits};
-use lazy_static::lazy_static;
 use quant_util::time::TimeZoneConverter;
 
 use manager::Manager;
@@ -12,9 +11,7 @@ mod api;
 mod manager;
 mod time;
 
-lazy_static! {
-    static ref MANAGER: Arc<Manager> = Arc::new(Manager::from_config());
-}
+static MANAGER: OnceLock<Manager> = OnceLock::new();
 
 static ASSETS: [&str; 13] = [
     "BTCUSDT",
@@ -34,21 +31,25 @@ static ASSETS: [&str; 13] = [
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    MANAGER.init()?;
+    let manager = MANAGER.get_or_init(|| {
+        let m = Manager::from_config();
+        let _ = m.init();
+        m
+    });
 
     let mut scheduler = AsyncScheduler::with_tz(chrono::Local);
 
     for i in ASSETS {
         // Ticker price
         scheduler.every(1.seconds()).run(|| async {
-            MANAGER.get_ticker_price(i).await;
+            manager.get_ticker_price(i).await;
         });
         // Kline - 1m
         scheduler.every(1.minutes()).run(|| async {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000;
 
-            MANAGER
+            manager
                 .get_kline(
                     i,
                     KlineInterval::Minutes1,
@@ -62,7 +63,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000 * 5;
 
-            MANAGER
+            manager
                 .get_kline(
                     i,
                     KlineInterval::Minutes5,
@@ -76,7 +77,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000 * 30;
 
-            MANAGER
+            manager
                 .get_kline(
                     i,
                     KlineInterval::Minutes30,
@@ -90,7 +91,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000 * 60;
 
-            MANAGER
+            manager
                 .get_kline(
                     i,
                     KlineInterval::Hours1,
@@ -104,7 +105,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000 * 60 * 4;
 
-            MANAGER
+            manager
                 .get_kline(
                     i,
                     KlineInterval::Hours4,
@@ -118,7 +119,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let (_, end_unix_time) = time::DateTime::get_local_current();
             let start_unix_time = end_unix_time.to_owned() - 60000 * 60 * 24;
 
-            MANAGER
+            manager
                 .get_kline(
                     i,
                     KlineInterval::Days1,

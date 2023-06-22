@@ -35,10 +35,9 @@ quant_model         = { path = "crates/model" }
 quant_util          = { path = "crates/util" }
 
 log = "0.4.17"
-tokio = { version = "1.26.0", features = ["time", "full"] }
+tokio = { version = "1.26.0", features = ["macros", "rt", "time"] }
 clokwerk = "0.4.0"
 chrono = "0.4.24"
-lazy_static = "1.4.0"
 
 [profile.release]
 panic = 'abort'
