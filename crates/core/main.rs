@@ -1,5 +1,5 @@
-use std::time::Duration;
 use std::sync::OnceLock;
+use std::time::Duration;
 
 use binan_spot::market::klines::KlineInterval;
 use clokwerk::{AsyncScheduler, TimeUnits};
