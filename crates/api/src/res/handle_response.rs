@@ -1,36 +1,24 @@
 use crate::res::BinanHttpClient;
 
 use binan_spot::{http::request::Request, hyper::Response};
-use serde::Deserialize;
 
 use std::process;
 
-pub struct HandleResponse;
+pub trait AsyncGetResp: Clone {
+    async fn get_response(&self, client: &BinanHttpClient) -> String;
+}
 
-impl HandleResponse {
-    pub fn decode_response<'a, T: Deserialize<'a>>(data: &'a str) -> T {
-        match serde_json::from_str(data) {
-            Ok(t) => {
-                log::debug!("Deserialize response string to data structure.");
-                t
-            }
-            Err(e) => {
-                log::error!(
-                    "Failed to deserialize response string to data structure: {}.",
-                    e
-                );
-                process::abort();
-            }
-        }
-    }
+pub trait AsyncToString {
+    async fn async_to_string(self) -> String;
+}
 
-    pub async fn get_response(client: &BinanHttpClient, request: impl Into<Request>) -> String {
-        let request = request.into();
+impl AsyncGetResp for Request {
+    async fn get_response(&self, client: &BinanHttpClient) -> String {
         loop {
-            match client.send(request.clone()).await {
+            match client.send(self.to_owned()).await {
                 Ok(res) => {
                     log::debug!("Send request from client.");
-                    return Self::response_to_string(res).await;
+                    return res.async_to_string().await;
                 }
                 Err(e) => {
                     log::error!("Failed to send request: {}. Resend it.", e);
@@ -39,9 +27,11 @@ impl HandleResponse {
             }
         }
     }
+}
 
-    pub async fn response_to_string(res: Response) -> String {
-        match res.into_body_str().await {
+impl AsyncToString for Response {
+    async fn async_to_string(self) -> String {
+        match self.into_body_str().await {
             Ok(s) => {
                 log::debug!("Convert response into body string.");
                 s

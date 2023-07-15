@@ -4,16 +4,18 @@ use binan_spot::{
     trade::account::Account,
     wallet,
 };
-use quant_model::{account_info::AccountInfo, kline::Kline, market::ticker_price::TickerPrice};
+use quant_model::{
+    account_info::AccountInfo, kline::Kline, market::ticker_price::TickerPrice, DecodeFromStr,
+};
 
-use super::{BinanHttpClient, HandleResponse};
+use super::{handle_response::AsyncGetResp, BinanHttpClient};
 
 pub struct GetResponse;
 
 impl GetResponse {
     pub async fn get_account_snapshot(client: &BinanHttpClient) -> String {
-        let request = wallet::account_snapshot("SPOT");
-        let data = HandleResponse::get_response(client, request).await;
+        let request: Request = wallet::account_snapshot("SPOT").into();
+        let data = request.get_response(client).await;
         log::info!("{}", data);
         data
     }
@@ -27,8 +29,7 @@ impl GetResponse {
             .recv_window(5000)
             .into();
 
-        let data = HandleResponse::get_response(client, request).await;
-        HandleResponse::decode_response(&data)
+        AccountInfo::decode_from_str(&request.get_response(client).await).unwrap()
     }
 
     pub async fn get_kline(
@@ -39,18 +40,17 @@ impl GetResponse {
         end_time: u64,
         limit: u32,
     ) -> Vec<Kline> {
-        let request = market::klines(symbol, interval)
+        let request: Request = market::klines(symbol, interval)
             .start_time(start_time)
             .end_time(end_time)
-            .limit(limit);
+            .limit(limit)
+            .into();
 
-        let data = HandleResponse::get_response(client, request).await;
-        HandleResponse::decode_response(&data)
+        Vec::decode_from_str(&request.get_response(client).await).unwrap()
     }
 
     pub async fn get_ticker_price(client: &BinanHttpClient, symbol: &str) -> TickerPrice {
-        let request = market::ticker_price().symbol(symbol);
-        let data = HandleResponse::get_response(client, request).await;
-        HandleResponse::decode_response(&data)
+        let request: Request = market::ticker_price().symbol(symbol).into();
+        TickerPrice::decode_from_str(&request.get_response(client).await).unwrap()
     }
 }

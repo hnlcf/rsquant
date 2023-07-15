@@ -7,6 +7,7 @@ use serde::Deserialize;
 use quant_util::time::{TimeConverter, UtcTimeTool};
 
 use crate::schema::assets_kline_data;
+use crate::DecodeFromStr;
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = assets_kline_data)]
@@ -71,6 +72,8 @@ pub struct Kline {
     pub buy_quote_asset_volume: String,
     pub ignore_field: String,
 }
+
+impl DecodeFromStr<'_, Vec<Kline>> for Vec<Kline> {}
 
 impl KlineInsertEntry {
     pub fn from_kline(symbol: &str, interval: &str, value: Kline) -> Self {

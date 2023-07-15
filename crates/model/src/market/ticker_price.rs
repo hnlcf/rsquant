@@ -5,6 +5,7 @@ use diesel::prelude::*;
 use serde::Deserialize;
 
 use crate::schema::assets_ticker_price_data;
+use crate::DecodeFromStr;
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = assets_ticker_price_data)]
@@ -29,6 +30,8 @@ pub struct TickerPrice {
     pub symbol: String,
     pub price: String,
 }
+
+impl DecodeFromStr<'_, TickerPrice> for TickerPrice {}
 
 impl From<TickerPrice> for TickerPriceInsertEntry {
     fn from(value: TickerPrice) -> Self {
