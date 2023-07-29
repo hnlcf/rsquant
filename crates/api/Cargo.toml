@@ -9,7 +9,6 @@ log = { workspace = true }
 tokio = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-lazy_static = { workspace = true }
 
 binan_spot      = { path = "../binan_spot", features = [ "full" ] }
 quant_config    = { path = "../config" }
