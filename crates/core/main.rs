@@ -29,8 +29,7 @@ static ASSETS: [&str; 13] = [
     "LINAUSDT",
 ];
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
     let manager = MANAGER.get_or_init(|| {
         let m = Manager::from_config();
         let _ = m.init();
@@ -138,5 +137,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
     task.await?;
 
+    Ok(())
+}
+
+use actix_web::{get, web, App, HttpServer, Responder};
+
+#[get("/hello/{name}")]
+async fn greet(name: web::Path<String>) -> impl Responder {
+    format!("Hello {name}!")
+}
+
+async fn launch_web_server() -> Result<(), std::io::Error> {
+    HttpServer::new(|| App::new().service(greet))
+        .bind(("127.0.0.1", 8080))?
+        .run()
+        .await
+}
+
+#[tokio::main(flavor = "multi_thread", worker_threads = 2)]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tokio::spawn(async {
+        let _ = launch_data_server().await;
+    });
+
+    let _ = launch_web_server().await;
     Ok(())
 }
