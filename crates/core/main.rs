@@ -13,21 +13,7 @@ mod time;
 
 static MANAGER: OnceLock<Manager> = OnceLock::new();
 
-static ASSETS: [&str; 13] = [
-    "BTCUSDT",
-    "ETHUSDT",
-    "BNBUSDT",
-    "XRPUSDT",
-    "MDTUSDT",
-    "DOGEUSDT",
-    "GALAUSDT",
-    "MATICUSDT",
-    "PERLUSDT",
-    "TRUUSDT",
-    "CFXUSDT",
-    "ARBUSDT",
-    "LINAUSDT",
-];
+static ASSETS: [&str; 2] = ["BTCUSDT", "ETHUSDT"];
 
 async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
     let manager = MANAGER.get_or_init(|| {
@@ -129,13 +115,12 @@ async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
         });
     }
 
-    let task = tokio::spawn(async move {
+    let _task = tokio::spawn(async move {
         loop {
             scheduler.run_pending().await;
             tokio::time::sleep(Duration::from_millis(100)).await;
         }
     });
-    task.await?;
 
     Ok(())
 }
@@ -156,10 +141,16 @@ async fn launch_web_server() -> Result<(), std::io::Error> {
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 2)]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tokio::spawn(async {
-        let _ = launch_data_server().await;
+    tokio::task::spawn(async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("Failed to listen for event");
+
+        tracing::info!("Ctrl-C received, shutting down");
     });
 
+    let _ = launch_data_server().await;
     let _ = launch_web_server().await;
+
     Ok(())
 }

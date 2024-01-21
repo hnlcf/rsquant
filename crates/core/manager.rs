@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use binan_spot::market::klines::KlineInterval;
-use quant_config::ConfigBuilder;
+use quant_config::{ConfigBuilder, QuantConfig};
 use quant_db::recorder::Recorder;
 use quant_log::Logger;
 use quant_model::{account_info, kline, ticker_price};
@@ -31,15 +31,18 @@ impl Default for Manager {
 impl Manager {
     pub fn from_config() -> Self {
         if let Some(config) = ConfigBuilder::build() {
-            let api_config = config.api_credentials;
-            let net_config = config.network;
-            let db_config = config.database;
-            let log_config = config.log;
+            let QuantConfig {
+                api_credentials,
+                network,
+                database,
+                log,
+                ..
+            } = config;
 
             Self {
-                api: Api::from_config(api_config, net_config),
-                recorder: Recorder::from_config(db_config),
-                logger: Logger::from_config(log_config),
+                api: Api::from_config(api_credentials, network),
+                recorder: Recorder::from_config(database),
+                logger: Logger::from_config(log),
             }
         } else {
             Manager::default()
