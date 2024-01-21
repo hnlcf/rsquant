@@ -1,5 +1,5 @@
 [package]
-name = "quant_trader"
+name = "rsquant"
 version = "0.1.0"
 edition = "2021"
 authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
@@ -8,7 +8,7 @@ authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
 [[bin]]
 bench = false
 path = "crates/core/main.rs"
-name = "quant_trader"
+name = "rsquant"
 
 [workspace]
 members = [

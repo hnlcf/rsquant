@@ -34,7 +34,7 @@ class PgConnection:
 
 def setup_postgres() -> PgConnection:
     pg_option = PgOption(
-        db_name="quant_trader",
+        db_name="rsquant",
         db_user="postgres",
         db_passwd="postgres",
         db_host="localhost",

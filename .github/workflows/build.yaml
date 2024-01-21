@@ -20,7 +20,7 @@ jobs:
       - name: Set up Clang
         uses: egor-tensin/setup-clang@v1
         with:
-          version: 16
+          version: 15
           platform: x64
 
       - name: Set up mold linker
@@ -41,7 +41,7 @@ jobs:
           sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
           sudo service postgresql restart && sleep 3
           echo "PG_DATABASE_URL=postgres://postgres:postgres@localhost/" >> $GITHUB_ENV
-          echo "DATABASE_URL=postgres://postgres:postgres@localhost/quant_trader" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost/rsquant" >> $GITHUB_ENV
 
       - name: Build
         run: |

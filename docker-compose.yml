@@ -3,9 +3,9 @@ version: "3"
 services:
   postgres:
     image: postgres:latest
-    container_name: quant_trader
+    container_name: rsquant
     environment:
-      POSTGRES_DB: quant_trader
+      POSTGRES_DB: rsquant
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:

@@ -6,13 +6,14 @@
 
 ## Contents
 
+- [Contents](#contents)
 - [Introduction](#introduction)
 - [Build in Host](#build-in-host)
   - [Requirements](#requirements)
   - [Commands](#commands)
 - [Build in Docker](#build-in-docker)
-  - [Requirements](#requirements)
-  - [Commands](#commands)
+  - [Requirements](#requirements-1)
+  - [Commands](#commands-1)
 - [Configuration](#configuration)
   - [Examples](#examples)
   - [Description](#description)
@@ -40,9 +41,9 @@ The following picture is the structure diagram of the project divided by modules
 ### Commands
 
 ```bash
-./quant_trader.sh setup
+./rsquant.sh setup
 
-./quant_trader.sh build
+./rsquant.sh build
 ```
 
 ## Build in Docker
@@ -54,11 +55,11 @@ The following picture is the structure diagram of the project divided by modules
 ### Commands
 
 ```bash
-./quant_trader.sh setup-docker
+./rsquant.sh setup-docker
 
-./quant_trader.sh setup
+./rsquant.sh setup
 
-./quant_trader.sh build
+./rsquant.sh build
 ```
 
 ## Configuration
@@ -68,7 +69,7 @@ Before using it, you need to configure it correctly in the config file.
 ### Examples
 
 ```toml
-# File location: "$XDG_CONFIG_HOME/quant/config.toml"
+# File location: "$XDG_CONFIG_HOME/rsquant/config.toml"
 
 [api_credentials.binance]
 signature_type="HMAC"
@@ -88,7 +89,7 @@ smtp_addr="smtp.gmail.com"
 log_path="log/btc_output.log"
 
 [database.postgresql]
-pg_addr="postgres://postgres:postgres@localhost:5432/quant_trader_db"
+pg_addr="postgres://postgres:postgres@localhost:5432/rsquant_db"
 
 ```
 
@@ -105,13 +106,13 @@ pg_addr="postgres://postgres:postgres@localhost:5432/quant_trader_db"
 ### Launch data server
 
 ```bash
-./quant_trader.sh run
+./rsquant.sh run
 ```
 
 ### Launch web server
 
 ```bash
-./quant_trader.sh web
+./rsquant.sh web
 ```
 
 ## License

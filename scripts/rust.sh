@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ROOT=$(pwd)
-BIN_NAME="quant_trader"
+BIN_NAME="rsquant"
 
 function build() {
     if [ "$1" = "-d" ] || [ "$1" = "--debug" ]; then
