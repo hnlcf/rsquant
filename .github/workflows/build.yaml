@@ -27,7 +27,10 @@ jobs:
         uses: rui314/setup-mold@v1
 
       - name: Setup Rust
-        run: rustup install nightly
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: nightly
+          components: clippy
 
       - name: Install diesel
         run: cargo install diesel_cli --force --no-default-features --features postgres
@@ -46,4 +49,4 @@ jobs:
       - name: Build
         run: |
           diesel database reset
-          cargo build --release --verbose --jobs 1
+          cargo build --release --verbose --jobs `nproc`
