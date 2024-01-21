@@ -4,7 +4,10 @@ use lettre::{
     transport::smtp::authentication::Credentials,
     Message, SmtpTransport, Transport,
 };
+
 use std::error::Error as StdError;
+
+use quant_config::EmailConfig;
 
 pub struct EmailManager {
     from_email: Mailbox,
@@ -12,7 +15,7 @@ pub struct EmailManager {
     smtp_mailer: SmtpTransport,
 }
 
-#[derive(Default)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct EmailBuilder {
     from_email: String,
     to_emails: Vec<String>,
@@ -21,9 +24,13 @@ pub struct EmailBuilder {
 }
 
 impl EmailBuilder {
-    pub fn from_config() -> Self {
-        // TODO: Create from config file object
-        EmailBuilder::default()
+    pub fn from_config(config: EmailConfig) -> Self {
+        Self {
+            from_email: config.from_email,
+            to_emails: config.to_emails,
+            from_passwd: config.from_passwd,
+            smtp_addr: config.smtp_addr,
+        }
     }
 
     pub fn sender(mut self, email: &str, passwd: &str, smtp_addr: &str) -> Self {
@@ -105,19 +112,17 @@ mod tests {
 
     #[test]
     fn test_send_email() {
-        let email_mgr = EmailManager::builder()
-            .sender(
-                "Quant Trader <15670556067@163.com>",
-                "IVIECOXSPGMWSDRX",
-                "smtp.163.com",
-            )
-            .add_recevier(&["Changfeng Lou <louchangfeng@outlook.com>"])
-            .build();
-        let res = email_mgr.send("Test Message", "<h1> ETHUSDT: 1802.15 </h1>");
+        let actual = EmailManager::builder()
+            .sender("sender@gmail.com", "password", "smtp.gmail.com")
+            .add_recevier(&["recevier@gmail.com"]);
 
-        match res {
-            Ok(_) => log::info!("Successfully send email!"),
-            Err(e) => log::error!("Failed to send email with: {}", e),
-        }
+        let expect = EmailBuilder {
+            from_email: "sender@gmail.com".into(),
+            to_emails: vec!["recevier@gmail.com".into()],
+            from_passwd: "password".into(),
+            smtp_addr: "smtp.gmail.com".into(),
+        };
+
+        assert_eq!(actual, expect);
     }
 }

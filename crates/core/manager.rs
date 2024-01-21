@@ -4,7 +4,7 @@ use binan_spot::market::klines::KlineInterval;
 use quant_config::ConfigBuilder;
 use quant_db::recorder::Recorder;
 use quant_log::Logger;
-use quant_model::{account_info, kline, ticker_price};
+use quant_model::{account_info, kline, order, ticker_price};
 
 use crate::api::Api;
 
@@ -90,5 +90,9 @@ impl Manager {
             .record_kline_data(symbol, &interval.to_string(), &klines);
 
         klines
+    }
+
+    pub async fn get_orders(&self) -> Vec<order::Order> {
+        todo!("Get orders")
     }
 }
