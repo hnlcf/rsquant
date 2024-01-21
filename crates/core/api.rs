@@ -61,7 +61,7 @@ impl Api {
             .await
             .remove_blank_coin();
 
-        log::info!("Get account info:\n{}", account_info);
+        tracing::info!("Get account info:\n{}", account_info);
         account_info
     }
 
@@ -78,7 +78,7 @@ impl Api {
     pub async fn get_ticker_price(&self, symbol: &str) -> ticker_price::TickerPrice {
         let ticker_price = GetResponse::get_ticker_price(&self.client, symbol).await;
 
-        log::info!("Get ticker price of {}: {}", symbol, ticker_price.price);
+        tracing::info!("Get ticker price of {}: {}", symbol, ticker_price.price);
         ticker_price
     }
 
@@ -113,7 +113,7 @@ impl Api {
                 .await;
 
         for i in &klines {
-            log::info!("{}", i);
+            tracing::info!("{}", i);
         }
 
         klines

@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup Rust
-        run: rustup install 1.65
+        run: rustup install nightly
 
       - name: Install diesel
         run: cargo install diesel_cli --force --no-default-features --features postgres

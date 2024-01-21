@@ -16,7 +16,7 @@ impl GetResponse {
     pub async fn get_account_snapshot(client: &BinanHttpClient) -> String {
         let request: Request = wallet::account_snapshot("SPOT").into();
         let data = request.get_response(client).await;
-        log::info!("{}", data);
+        tracing::info!("{}", data);
         data
     }
 

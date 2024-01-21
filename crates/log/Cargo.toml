@@ -6,10 +6,16 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-log = { workspace = true }
+tracing = { workspace = true }
 chrono = { workspace = true }
 
 quant_config = { path = "../config" }
 quant_util = { path = "../util" }
 
 fern = { version = "0.6.2", features = ["colored"] }
+tracing-subscriber = { version = "0.3.18", features = [
+    "env-filter",
+    "registry",
+    "tracing-log",
+] }
+tracing-appender = "0.2.3"

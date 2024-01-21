@@ -16,22 +16,22 @@ impl PostgresConnection {
     pub fn from_config(config: PostgresqlConfig) -> Self {
         let pg_addr = match config.pg_addr {
             Some(addr) => {
-                log::debug!("Get database address from config file: {}.", addr);
+                tracing::debug!("Get database address from config file: {}.", addr);
                 addr
             }
             None => {
-                log::warn!("Use default database address: {}.", DEFAULT_POSTGRES_ADDR);
+                tracing::warn!("Use default database address: {}.", DEFAULT_POSTGRES_ADDR);
                 DEFAULT_POSTGRES_ADDR.to_owned()
             }
         };
 
         match PgConnection::establish(&pg_addr) {
             Ok(conn) => {
-                log::debug!("Establish connection with postgresql.");
+                tracing::debug!("Establish connection with postgresql.");
                 Self { conn }
             }
             Err(e) => {
-                log::error!("Failed to connect database: {} with {}.", pg_addr, e);
+                tracing::error!("Failed to connect database: {} with {}.", pg_addr, e);
                 process::abort();
             }
         }

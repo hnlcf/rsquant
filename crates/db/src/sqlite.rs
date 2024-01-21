@@ -14,7 +14,7 @@ impl SqliteConnection {
         match conn {
             Ok(conn) => Self { conn: Some(conn) },
             Err(e) => {
-                log::error!("{}", e);
+                tracing::error!("{}", e);
                 Self { conn: None }
             }
         }
@@ -72,7 +72,7 @@ impl SqliteConnection {
         if let Some(ref conn) = self.conn {
             let res = conn.execute(sql, params);
             if let Err(e) = res {
-                log::warn!("{}", e);
+                tracing::warn!("{}", e);
             }
         }
     }

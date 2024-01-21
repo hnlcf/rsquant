@@ -6,7 +6,7 @@ impl EnvManager {
     pub fn get_env_var(key: &str) -> Option<String> {
         env::var(key).ok().map_or_else(
             || {
-                log::warn!("Environment variable `{}` is unset!", key);
+                tracing::warn!("Environment variable `{}` is unset!", key);
                 None
             },
             Some,

@@ -46,7 +46,7 @@ impl ConfigBuilder {
         match ConfigBuilder::parse_config(config_content) {
             Ok(c) => Some(c),
             Err(e) => {
-                log::error!("Failed to parse config file with {}", e);
+                tracing::error!("Failed to parse config file with {}", e);
                 process::abort();
             }
         }

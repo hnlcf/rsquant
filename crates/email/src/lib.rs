@@ -45,7 +45,7 @@ impl EmailBuilder {
         let from_email: Mailbox = match self.from_email.parse() {
             Ok(m) => m,
             Err(e) => {
-                log::error!("Failed to parse {} as `Mailbox`.", &self.from_email);
+                tracing::error!("Failed to parse {} as `Mailbox`.", &self.from_email);
                 panic!("Panic with {}!", e);
             }
         };
@@ -116,8 +116,8 @@ mod tests {
         let res = email_mgr.send("Test Message", "<h1> ETHUSDT: 1802.15 </h1>");
 
         match res {
-            Ok(_) => log::info!("Successfully send email!"),
-            Err(e) => log::error!("Failed to send email with: {}", e),
+            Ok(_) => tracing::info!("Successfully send email!"),
+            Err(e) => tracing::error!("Failed to send email with: {}", e),
         }
     }
 }

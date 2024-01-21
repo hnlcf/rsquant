@@ -15,11 +15,11 @@ where
     fn decode_from_str(data: &'a str) -> Option<T> {
         match serde_json::from_str(data) {
             Ok(t) => {
-                log::debug!("Deserialize response string to data structure.");
+                tracing::debug!("Deserialize response string to data structure.");
                 Some(t)
             }
             Err(e) => {
-                log::error!(
+                tracing::error!(
                     "Failed to deserialize response string to data structure: {}.",
                     e
                 );
