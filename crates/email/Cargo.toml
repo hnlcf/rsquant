@@ -8,4 +8,6 @@ edition = "2021"
 [dependencies]
 tracing = { workspace = true }
 
+quant_config    = { path = "../config" }
+
 lettre = "0.10"

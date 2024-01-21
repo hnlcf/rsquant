@@ -45,6 +45,9 @@ function main() {
     "lint-git")
         bash "${check_sh}" git
         ;;
+    "lint-all")
+        bash "${check_sh}" all
+        ;;
     esac
 }
 
