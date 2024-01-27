@@ -1,7 +1,6 @@
 ### Rust
 *.pdb
 **/*.rs.bk
-Cargo.lock
 
 debug/
 target/
@@ -24,6 +23,8 @@ crates/binan_spot_examples
 ### Build and Run
 core.*
 nohup.out
+
+.gdb*
 
 ### Documentations
 *.excalidraw

@@ -6,7 +6,7 @@ use quant_db::recorder::Recorder;
 use quant_log::Logger;
 use quant_model::{account_info, kline, order, ticker_price};
 
-use crate::api::Api;
+use crate::{api::Api, error};
 
 pub struct Manager {
     api: Api,
@@ -60,21 +60,24 @@ impl Manager {
         &self.recorder
     }
 
-    pub async fn get_account_snapshot(&self) -> String {
+    pub async fn get_account_snapshot(&self) -> Result<String, error::Error> {
         self.api.get_account_snapshot().await
     }
 
-    pub async fn get_account_info(&self) -> account_info::AccountInfo {
+    pub async fn get_account_info(&self) -> Result<account_info::AccountInfo, error::Error> {
         self.api.get_account_info().await
     }
 
-    pub async fn get_ticker_price(&self, symbol: &str) -> ticker_price::TickerPrice {
-        let ticker_price = self.api.get_ticker_price(symbol).await;
+    pub async fn get_ticker_price(
+        &self,
+        symbol: &str,
+    ) -> Result<ticker_price::TickerPrice, error::Error> {
+        let ticker_price = self.api.get_ticker_price(symbol).await?;
 
         self.recorder
             .record_ticker_price_data(ticker_price.to_owned());
 
-        ticker_price
+        Ok(ticker_price)
     }
 
     pub async fn get_kline(
@@ -83,16 +86,16 @@ impl Manager {
         interval: KlineInterval,
         start_time: u64,
         end_time: u64,
-    ) -> Vec<kline::Kline> {
+    ) -> Result<Vec<kline::Kline>, error::Error> {
         let klines = self
             .api
             .get_kline(symbol, interval, start_time, end_time)
-            .await;
+            .await?;
 
         self.recorder
             .record_kline_data(symbol, &interval.to_string(), &klines);
 
-        klines
+        Ok(klines)
     }
 
     pub async fn get_orders(&self) -> Vec<order::Order> {

@@ -30,21 +30,23 @@ tokio = { version = "1.26.0", features = ["time", "rt-multi-thread", "macros"] }
 chrono = "0.4.26"
 serde = { version = "1.0.156", features = ["derive"] }
 serde_json = "1.0.94"
+thiserror = "1.0.56"
 
 [dependencies]
 tracing = { workspace = true }
 tokio = { workspace = true }
 chrono = { workspace = true }
+thiserror = { workspace = true }
 
-binan_spot          = { path = "crates/binan_spot", features = ["full"] }
-quant_api           = { path = "crates/api" }
-quant_config        = { path = "crates/config" }
-quant_db            = { path = "crates/db" }
-quant_email         = { path = "crates/email" }
-quant_indicator     = { path = "crates/indicator" }
-quant_log           = { path = "crates/log" }
-quant_model         = { path = "crates/model" }
-quant_util          = { path = "crates/util" }
+binan_spot = { path = "crates/binan_spot", features = ["full"] }
+quant_api = { path = "crates/api" }
+quant_config = { path = "crates/config" }
+quant_db = { path = "crates/db" }
+quant_email = { path = "crates/email" }
+quant_indicator = { path = "crates/indicator" }
+quant_log = { path = "crates/log" }
+quant_model = { path = "crates/model" }
+quant_util = { path = "crates/util" }
 
 clokwerk = "0.4.0"
 actix-web = "4.3.1"

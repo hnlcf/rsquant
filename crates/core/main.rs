@@ -8,6 +8,7 @@ use quant_util::time::TimeZoneConverter;
 use manager::Manager;
 
 mod api;
+mod error;
 mod manager;
 mod time;
 
@@ -15,7 +16,7 @@ static MANAGER: OnceLock<Manager> = OnceLock::new();
 
 static ASSETS: [&str; 2] = ["BTCUSDT", "ETHUSDT"];
 
-async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
+async fn launch_data_server() -> Result<(), error::Error> {
     let manager = MANAGER.get_or_init(|| {
         let m = Manager::from_config();
         let _ = m.init();
@@ -27,7 +28,10 @@ async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
     for i in ASSETS {
         // Ticker price
         scheduler.every(5.seconds()).run(|| async {
-            manager.get_ticker_price(i).await;
+            manager
+                .get_ticker_price(i)
+                .await
+                .expect("Failed to get ticker data");
         });
         // Kline - 1m
         scheduler.every(1.minutes()).run(|| async {
@@ -41,7 +45,8 @@ async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
-                .await;
+                .await
+                .expect("Failed to get kline data");
         });
         // Kline - 5m
         scheduler.every(5.minutes()).run(|| async {
@@ -55,7 +60,8 @@ async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
-                .await;
+                .await
+                .expect("Failed to get kline data");
         });
         // Kline - 30m
         scheduler.every(30.minutes()).run(|| async {
@@ -69,7 +75,8 @@ async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
-                .await;
+                .await
+                .expect("Failed to get kline data");
         });
         // Kline - 1h
         scheduler.every(1.hours()).run(|| async {
@@ -83,7 +90,8 @@ async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
-                .await;
+                .await
+                .expect("Failed to get kline data");
         });
         // Kline - 4h
         scheduler.every(4.hours()).run(|| async {
@@ -97,7 +105,8 @@ async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
-                .await;
+                .await
+                .expect("Failed to get kline data");
         });
         // Kline - 1d
         scheduler.every(1.days()).run(|| async {
@@ -111,7 +120,8 @@ async fn launch_data_server() -> Result<(), Box<dyn std::error::Error>> {
                     TimeZoneConverter::convert_local_to_utc(start_unix_time),
                     TimeZoneConverter::convert_local_to_utc(end_unix_time),
                 )
-                .await;
+                .await
+                .expect("Failed to get kline data");
         });
     }
 
@@ -132,15 +142,16 @@ async fn greet(name: web::Path<String>) -> impl Responder {
     format!("Hello {name}!")
 }
 
-async fn launch_web_server() -> Result<(), std::io::Error> {
+async fn launch_web_server() -> Result<(), error::Error> {
     HttpServer::new(|| App::new().service(greet))
         .bind(("127.0.0.1", 8080))?
         .run()
         .await
+        .map_err(error::Error::IO)
 }
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 2)]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), error::Error> {
     tokio::task::spawn(async {
         tokio::signal::ctrl_c()
             .await

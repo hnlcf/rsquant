@@ -9,27 +9,31 @@ use quant_model::{
 };
 
 use super::{handle_response::AsyncGetResp, BinanHttpClient};
+use crate::{Error, Result};
 
 pub struct GetResponse;
 
 impl GetResponse {
-    pub async fn get_account_snapshot(client: &BinanHttpClient) -> String {
+    pub async fn get_account_snapshot(client: &BinanHttpClient) -> Result<String> {
         let request: Request = wallet::account_snapshot("SPOT").into();
-        let data = request.get_response(client).await;
+        let data = request.get_response(client).await?;
         tracing::info!("{}", data);
-        data
+        Ok(data)
     }
 
     pub async fn get_account_info(
         client: &BinanHttpClient,
         credentials: &Credentials,
-    ) -> AccountInfo {
+    ) -> Result<AccountInfo> {
         let request: Request = Account::default()
             .credentials(credentials)
             .recv_window(5000)
             .into();
 
-        AccountInfo::decode_from_str(&request.get_response(client).await).unwrap()
+        request
+            .get_response(client)
+            .await
+            .and_then(|ref res| AccountInfo::decode_from_str(res).map_err(Error::Serde))
     }
 
     pub async fn get_kline(
@@ -39,18 +43,24 @@ impl GetResponse {
         start_time: u64,
         end_time: u64,
         limit: u32,
-    ) -> Vec<Kline> {
+    ) -> Result<Vec<Kline>> {
         let request: Request = market::klines(symbol, interval)
             .start_time(start_time)
             .end_time(end_time)
             .limit(limit)
             .into();
 
-        Vec::decode_from_str(&request.get_response(client).await).unwrap()
+        request
+            .get_response(client)
+            .await
+            .and_then(|ref res| Vec::decode_from_str(res).map_err(Error::Serde))
     }
 
-    pub async fn get_ticker_price(client: &BinanHttpClient, symbol: &str) -> TickerPrice {
+    pub async fn get_ticker_price(client: &BinanHttpClient, symbol: &str) -> Result<TickerPrice> {
         let request: Request = market::ticker_price().symbol(symbol).into();
-        TickerPrice::decode_from_str(&request.get_response(client).await).unwrap()
+        request
+            .get_response(client)
+            .await
+            .and_then(|ref res| TickerPrice::decode_from_str(res).map_err(Error::Serde))
     }
 }

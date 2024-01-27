@@ -9,11 +9,12 @@ tracing = { workspace = true }
 tokio = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+thiserror = { workspace = true }
 
-binan_spot      = { path = "../binan_spot", features = [ "full" ] }
-quant_config    = { path = "../config" }
-quant_model     = { path = "../model" }
-quant_util      = { path = "../util" }
+binan_spot = { path = "../binan_spot", features = ["full"] }
+quant_config = { path = "../config" }
+quant_model = { path = "../model" }
+quant_util = { path = "../util" }
 
 hyper = "0.14.25"
 hyper-tls = "0.5.0"
