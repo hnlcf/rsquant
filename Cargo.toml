@@ -7,7 +7,7 @@ authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
 
 [[bin]]
 bench = false
-path = "crates/core/main.rs"
+path = "crates/bin/main.rs"
 name = "rsquant"
 
 [workspace]
