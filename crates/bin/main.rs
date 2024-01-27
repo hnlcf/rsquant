@@ -17,7 +17,7 @@ static ASSETS: [&str; 2] = ["BTCUSDT", "ETHUSDT"];
 
 async fn launch_data_server() -> Result<(), quant_core::Error> {
     let manager = MANAGER.get_or_init(|| {
-        let m = Manager::from_config();
+        let mut m = Manager::from_config().expect("Failed to create manager");
         let _ = m.init();
         m
     });

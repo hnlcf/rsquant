@@ -4,12 +4,12 @@ use binan_spot::{
     trade::account::Account,
     wallet,
 };
+use quant_core::{Error, Result};
 use quant_model::{
     account_info::AccountInfo, kline::Kline, market::ticker_price::TickerPrice, DecodeFromStr,
 };
 
 use super::{handle_response::AsyncGetResp, BinanHttpClient};
-use crate::{Error, Result};
 
 pub struct GetResponse;
 
@@ -54,6 +54,11 @@ impl GetResponse {
             .get_response(client)
             .await
             .and_then(|ref res| Vec::decode_from_str(res).map_err(Error::Serde))
+            .map(|ks| {
+                ks.into_iter()
+                    .map(|k| Kline::from_kline(symbol, interval.to_string().as_str(), k))
+                    .collect()
+            })
     }
 
     pub async fn get_ticker_price(client: &BinanHttpClient, symbol: &str) -> Result<TickerPrice> {
@@ -62,5 +67,6 @@ impl GetResponse {
             .get_response(client)
             .await
             .and_then(|ref res| TickerPrice::decode_from_str(res).map_err(Error::Serde))
+            .map(TickerPrice::from_ticker)
     }
 }

@@ -1,11 +1,10 @@
-use std::process;
-
 use crate::DBConnection;
 
 use diesel::prelude::*;
+
 use quant_config::PostgresqlConfig;
-use quant_model::kline::Kline;
-use quant_model::ticker_price::TickerPrice;
+use quant_core::{Error, Result};
+use quant_model::{kline::Kline, ticker_price::TickerPrice};
 use quant_util::constants::DEFAULT_POSTGRES_ADDR;
 
 pub struct PostgresConnection {
@@ -13,7 +12,7 @@ pub struct PostgresConnection {
 }
 
 impl PostgresConnection {
-    pub fn from_config(config: PostgresqlConfig) -> Self {
+    pub fn from_config(config: PostgresqlConfig) -> Result<Self> {
         let pg_addr = match config.pg_addr {
             Some(addr) => {
                 tracing::debug!("Get database address from config file: {}.", addr);
@@ -25,43 +24,29 @@ impl PostgresConnection {
             }
         };
 
-        match PgConnection::establish(&pg_addr) {
-            Ok(conn) => {
-                tracing::debug!("Establish connection with postgresql.");
-                Self { conn }
-            }
-            Err(e) => {
-                tracing::error!("Failed to connect database: {} with {}.", pg_addr, e);
-                process::abort();
-            }
-        }
+        PgConnection::establish(&pg_addr)
+            .map(|conn| Self { conn })
+            .map_err(Error::from)
     }
 
     pub fn init(&self) {}
 
-    pub fn insert_kline(&mut self, symbol: &str, interval: &str, klines: &[Kline]) {
-        use quant_model::market::kline::KlineInsertEntry;
+    pub fn insert_kline(&mut self, klines: &[Kline]) -> Result<usize> {
         use quant_model::schema::assets_kline_data;
 
-        let klines: Vec<KlineInsertEntry> = klines
-            .iter()
-            .map(|k| KlineInsertEntry::from_kline(symbol, interval, k.clone()))
-            .collect();
-
         diesel::insert_into(assets_kline_data::table)
-            .values(&klines)
+            .values(klines)
             .execute(&mut self.conn)
-            .expect("Error saving new klines.");
+            .map_err(Error::from)
     }
 
-    pub fn insert_ticker_price(&mut self, ticker_price: TickerPrice) {
-        use quant_model::market::ticker_price::TickerPriceInsertEntry;
+    pub fn insert_ticker_price(&mut self, ticker_price: &TickerPrice) -> Result<usize> {
         use quant_model::schema::assets_ticker_price_data;
 
         diesel::insert_into(assets_ticker_price_data::table)
-            .values(&TickerPriceInsertEntry::from(ticker_price))
+            .values(ticker_price)
             .execute(&mut self.conn)
-            .expect("Error saving new ticker price.");
+            .map_err(Error::from)
     }
 }
 

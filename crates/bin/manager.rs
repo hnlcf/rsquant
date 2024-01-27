@@ -2,6 +2,7 @@
 
 use binan_spot::market::klines::KlineInterval;
 use quant_config::{ConfigBuilder, QuantConfig};
+use quant_core::Result;
 use quant_db::recorder::Recorder;
 use quant_log::Logger;
 use quant_model::{account_info, kline, order, ticker_price};
@@ -29,8 +30,8 @@ impl Default for Manager {
 }
 
 impl Manager {
-    pub fn from_config() -> Self {
-        if let Some(config) = ConfigBuilder::build() {
+    pub fn from_config() -> Result<Self> {
+        if let Ok(config) = ConfigBuilder::build() {
             let QuantConfig {
                 api_credentials,
                 network,
@@ -39,17 +40,21 @@ impl Manager {
                 ..
             } = config;
 
-            Self {
-                api: Api::from_config(api_credentials, network),
-                recorder: Recorder::from_config(database),
-                logger: Logger::from_config(log),
-            }
+            let api = Api::from_config(api_credentials, network);
+            let recorder = Recorder::from_config(database)?;
+            let logger = Logger::from_config(log);
+
+            Ok(Self {
+                api,
+                recorder,
+                logger,
+            })
         } else {
-            Manager::default()
+            Ok(Manager::default())
         }
     }
 
-    pub fn init(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn init(&mut self) -> Result<()> {
         self.logger.init()?;
         self.recorder.init();
 
@@ -60,22 +65,18 @@ impl Manager {
         &self.recorder
     }
 
-    pub async fn get_account_snapshot(&self) -> Result<String, quant_core::Error> {
+    pub async fn get_account_snapshot(&self) -> Result<String> {
         self.api.get_account_snapshot().await
     }
 
-    pub async fn get_account_info(&self) -> Result<account_info::AccountInfo, quant_core::Error> {
+    pub async fn get_account_info(&self) -> Result<account_info::AccountInfo> {
         self.api.get_account_info().await
     }
 
-    pub async fn get_ticker_price(
-        &self,
-        symbol: &str,
-    ) -> Result<ticker_price::TickerPrice, quant_core::Error> {
+    pub async fn get_ticker_price(&self, symbol: &str) -> Result<ticker_price::TickerPrice> {
         let ticker_price = self.api.get_ticker_price(symbol).await?;
 
-        self.recorder
-            .record_ticker_price_data(ticker_price.to_owned());
+        self.recorder.record_ticker_price_data(&ticker_price)?;
 
         Ok(ticker_price)
     }
@@ -86,14 +87,13 @@ impl Manager {
         interval: KlineInterval,
         start_time: u64,
         end_time: u64,
-    ) -> Result<Vec<kline::Kline>, quant_core::Error> {
+    ) -> Result<Vec<kline::Kline>> {
         let klines = self
             .api
             .get_kline(symbol, interval, start_time, end_time)
             .await?;
 
-        self.recorder
-            .record_kline_data(symbol, &interval.to_string(), &klines);
+        self.recorder.record_kline_data(&klines)?;
 
         Ok(klines)
     }

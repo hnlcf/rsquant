@@ -9,10 +9,10 @@ edition = "2021"
 tracing = { workspace = true }
 chrono = { workspace = true }
 
+quant_core = { path = "../core" }
 quant_config = { path = "../config" }
 quant_util = { path = "../util" }
 
-fern = { version = "0.6.2", features = ["colored"] }
 tracing-subscriber = { version = "0.3.18", features = [
     "env-filter",
     "registry",

@@ -9,6 +9,7 @@ edition = "2021"
 tracing = { workspace = true }
 serde = { workspace = true }
 
+quant_core = { path = "../core" }
 quant_util = { path = "../util" }
 
 toml = "0.7.4"

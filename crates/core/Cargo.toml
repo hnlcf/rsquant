@@ -7,5 +7,10 @@ edition = "2021"
 
 [dependencies]
 thiserror = { workspace = true }
+serde_json = { workspace = true }
 
-quant_api = { path = "../api" }
+binan_spot = { path = "../binan_spot", features = ["full"] }
+
+toml = "0.7.4"
+lettre = "0.10"
+diesel = { version = "2.1.0", features = ["postgres"] }

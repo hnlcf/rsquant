@@ -1,6 +1,7 @@
-use crate::{res::BinanHttpClient, Error, Result};
+use crate::res::BinanHttpClient;
 
 use binan_spot::{http::request::Request, hyper::Response};
+use quant_core::{Error, Result};
 
 pub trait AsyncGetResp: Clone {
     fn get_response(
