@@ -5,8 +5,6 @@ use quant_config::{CredentialsConfig, NetworkConfig};
 use quant_model::{account_info, kline, ticker_price};
 use quant_util::env::EnvManager;
 
-use crate::error;
-
 pub struct Api {
     credentials: Credentials,
     client: BinanHttpClient,
@@ -44,10 +42,10 @@ impl Api {
         }
     }
 
-    pub async fn get_account_snapshot(&self) -> Result<String, error::Error> {
+    pub async fn get_account_snapshot(&self) -> Result<String, quant_core::Error> {
         GetResponse::get_account_snapshot(&self.client)
             .await
-            .map_err(error::Error::from)
+            .map_err(quant_core::Error::from)
     }
 
     /// # Get account information
@@ -60,10 +58,10 @@ impl Api {
     ///
     /// println!("{:#?}", account_info);
     /// ```
-    pub async fn get_account_info(&self) -> Result<account_info::AccountInfo, error::Error> {
+    pub async fn get_account_info(&self) -> Result<account_info::AccountInfo, quant_core::Error> {
         let account_info = GetResponse::get_account_info(&self.client, &self.credentials)
             .await
-            .map_err(error::Error::from)?
+            .map_err(quant_core::Error::from)?
             .remove_blank_coin();
 
         tracing::info!("Get account info:\n{}", account_info);
@@ -83,10 +81,10 @@ impl Api {
     pub async fn get_ticker_price(
         &self,
         symbol: &str,
-    ) -> Result<ticker_price::TickerPrice, error::Error> {
+    ) -> Result<ticker_price::TickerPrice, quant_core::Error> {
         let ticker_price = GetResponse::get_ticker_price(&self.client, symbol)
             .await
-            .map_err(error::Error::from)?;
+            .map_err(quant_core::Error::from)?;
 
         tracing::info!("Get ticker price of {}: {}", symbol, ticker_price.price);
         Ok(ticker_price)
@@ -117,11 +115,11 @@ impl Api {
         interval: KlineInterval,
         start_time: u64,
         end_time: u64,
-    ) -> Result<Vec<kline::Kline>, error::Error> {
+    ) -> Result<Vec<kline::Kline>, quant_core::Error> {
         let klines =
             GetResponse::get_kline(&self.client, symbol, interval, start_time, end_time, 1000)
                 .await
-                .map_err(error::Error::from)?;
+                .map_err(quant_core::Error::from)?;
 
         for i in &klines {
             tracing::info!("{}", i);

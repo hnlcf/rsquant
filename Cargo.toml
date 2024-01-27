@@ -15,6 +15,7 @@ members = [
     "crates/binan_spot",
     "crates/api",
     "crates/config",
+    "crates/core",
     "crates/db",
     "crates/email",
     "crates/indicator",
@@ -41,6 +42,7 @@ thiserror = { workspace = true }
 binan_spot = { path = "crates/binan_spot", features = ["full"] }
 quant_api = { path = "crates/api" }
 quant_config = { path = "crates/config" }
+quant_core = { path = "crates/core" }
 quant_db = { path = "crates/db" }
 quant_email = { path = "crates/email" }
 quant_indicator = { path = "crates/indicator" }

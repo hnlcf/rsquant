@@ -6,7 +6,7 @@ use quant_db::recorder::Recorder;
 use quant_log::Logger;
 use quant_model::{account_info, kline, order, ticker_price};
 
-use crate::{api::Api, error};
+use crate::api::Api;
 
 pub struct Manager {
     api: Api,
@@ -60,18 +60,18 @@ impl Manager {
         &self.recorder
     }
 
-    pub async fn get_account_snapshot(&self) -> Result<String, error::Error> {
+    pub async fn get_account_snapshot(&self) -> Result<String, quant_core::Error> {
         self.api.get_account_snapshot().await
     }
 
-    pub async fn get_account_info(&self) -> Result<account_info::AccountInfo, error::Error> {
+    pub async fn get_account_info(&self) -> Result<account_info::AccountInfo, quant_core::Error> {
         self.api.get_account_info().await
     }
 
     pub async fn get_ticker_price(
         &self,
         symbol: &str,
-    ) -> Result<ticker_price::TickerPrice, error::Error> {
+    ) -> Result<ticker_price::TickerPrice, quant_core::Error> {
         let ticker_price = self.api.get_ticker_price(symbol).await?;
 
         self.recorder
@@ -86,7 +86,7 @@ impl Manager {
         interval: KlineInterval,
         start_time: u64,
         end_time: u64,
-    ) -> Result<Vec<kline::Kline>, error::Error> {
+    ) -> Result<Vec<kline::Kline>, quant_core::Error> {
         let klines = self
             .api
             .get_kline(symbol, interval, start_time, end_time)

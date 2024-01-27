@@ -8,7 +8,6 @@ use quant_util::time::TimeZoneConverter;
 use manager::Manager;
 
 mod api;
-mod error;
 mod manager;
 mod time;
 
@@ -16,7 +15,7 @@ static MANAGER: OnceLock<Manager> = OnceLock::new();
 
 static ASSETS: [&str; 2] = ["BTCUSDT", "ETHUSDT"];
 
-async fn launch_data_server() -> Result<(), error::Error> {
+async fn launch_data_server() -> Result<(), quant_core::Error> {
     let manager = MANAGER.get_or_init(|| {
         let m = Manager::from_config();
         let _ = m.init();
@@ -142,16 +141,16 @@ async fn greet(name: web::Path<String>) -> impl Responder {
     format!("Hello {name}!")
 }
 
-async fn launch_web_server() -> Result<(), error::Error> {
+async fn launch_web_server() -> Result<(), quant_core::Error> {
     HttpServer::new(|| App::new().service(greet))
         .bind(("127.0.0.1", 8080))?
         .run()
         .await
-        .map_err(error::Error::IO)
+        .map_err(quant_core::Error::IO)
 }
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 2)]
-async fn main() -> Result<(), error::Error> {
+async fn main() -> Result<(), quant_core::Error> {
     tokio::task::spawn(async {
         tokio::signal::ctrl_c()
             .await

@@ -2199,6 +2199,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "quant_core"
+version = "0.1.0"
+dependencies = [
+ "quant_api",
+ "thiserror",
+]
+
+[[package]]
 name = "quant_db"
 version = "0.1.0"
 dependencies = [
@@ -2476,6 +2484,7 @@ dependencies = [
  "clokwerk",
  "quant_api",
  "quant_config",
+ "quant_core",
  "quant_db",
  "quant_email",
  "quant_indicator",
