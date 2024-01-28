@@ -8,7 +8,7 @@ use crate::DecodeFromStr;
 
 use quant_util::time::u64_to_datetime;
 
-#[derive(Queryable, Selectable, Insertable, Clone, Deserialize)]
+#[derive(Queryable, Selectable, Insertable, Debug, Clone, Deserialize)]
 #[diesel(table_name = assets_kline_data)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Kline {

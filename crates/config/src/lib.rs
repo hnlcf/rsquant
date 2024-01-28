@@ -1,4 +1,4 @@
-use std::{fs, path};
+use std::{default, fs, path};
 
 use serde::{Deserialize, Serialize};
 
@@ -48,7 +48,7 @@ impl ConfigBuilder {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct QuantConfig {
     pub api_credentials: CredentialsConfig,
     pub email: EmailConfig,
@@ -57,21 +57,22 @@ pub struct QuantConfig {
     pub database: DatabaseConfig,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CredentialsConfig {
     Binance(BinanCredentialsConfig),
+    #[default]
     Okx,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct BinanCredentialsConfig {
     pub signature_type: String,
     pub api_key: String,
     pub api_secret: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct EmailConfig {
     pub from_email: String,
     pub to_emails: Vec<String>,
@@ -79,34 +80,36 @@ pub struct EmailConfig {
     pub smtp_addr: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct NetworkConfig {
     pub proxy: Option<ProxyConfig>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ProxyConfig {
     pub https_proxy: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct LogConfig {
     pub log_path: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DatabaseConfig {
     Postgresql(PostgresqlConfig),
     Sqlite(SqliteConfig),
+    #[default]
+    None,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct PostgresqlConfig {
     pub pg_addr: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct SqliteConfig {
     pub db_path: Option<String>,
 }

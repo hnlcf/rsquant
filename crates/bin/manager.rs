@@ -1,35 +1,40 @@
 #![allow(dead_code)]
 
-use binan_spot::market::klines::KlineInterval;
+use actix::{Actor, Addr};
 use quant_config::{ConfigBuilder, QuantConfig};
-use quant_core::Result;
+use quant_core::{Error, Result};
 use quant_db::recorder::Recorder;
 use quant_log::Logger;
-use quant_model::{account_info, kline, order, ticker_price};
+use quant_model::order;
 
-use crate::api::Api;
+use crate::{
+    api::Api,
+    message::{ApiRequest, ApiResponse, NormalRequest},
+};
 
-pub struct Manager {
-    api: Api,
+pub struct QuantState {
+    config: QuantConfig,
+    api: Addr<Api>,
     recorder: Recorder,
     logger: Logger,
 }
 
-unsafe impl Send for Manager {}
+unsafe impl Send for QuantState {}
 
-unsafe impl Sync for Manager {}
+unsafe impl Sync for QuantState {}
 
-impl Default for Manager {
+impl Default for QuantState {
     fn default() -> Self {
         Self {
-            api: Api::default_with_proxy(),
+            config: QuantConfig::default(),
+            api: Api::default_with_proxy().start(),
             recorder: Recorder::default(),
             logger: Logger::default(),
         }
     }
 }
 
-impl Manager {
+impl QuantState {
     pub fn from_config() -> Result<Self> {
         if let Ok(config) = ConfigBuilder::build() {
             let QuantConfig {
@@ -38,19 +43,20 @@ impl Manager {
                 database,
                 log,
                 ..
-            } = config;
+            } = config.to_owned();
 
-            let api = Api::from_config(api_credentials, network);
+            let api = Api::from_config(api_credentials, network).start();
             let recorder = Recorder::from_config(database)?;
             let logger = Logger::from_config(log);
 
             Ok(Self {
+                config,
                 api,
                 recorder,
                 logger,
             })
         } else {
-            Ok(Manager::default())
+            Ok(QuantState::default())
         }
     }
 
@@ -61,41 +67,29 @@ impl Manager {
         Ok(())
     }
 
+    pub async fn stop(&self) {
+        let _ = self.api.send(NormalRequest::Stop).await;
+    }
+
     pub fn recorder(&self) -> &Recorder {
         &self.recorder
     }
 
-    pub async fn get_account_snapshot(&self) -> Result<String> {
-        self.api.get_account_snapshot().await
-    }
-
-    pub async fn get_account_info(&self) -> Result<account_info::AccountInfo> {
-        self.api.get_account_info().await
-    }
-
-    pub async fn get_ticker_price(&self, symbol: &str) -> Result<ticker_price::TickerPrice> {
-        let ticker_price = self.api.get_ticker_price(symbol).await?;
-
-        self.recorder.record_ticker_price_data(&ticker_price)?;
-
-        Ok(ticker_price)
-    }
-
-    pub async fn get_kline(
-        &self,
-        symbol: &str,
-        interval: KlineInterval,
-        start_time: u64,
-        end_time: u64,
-    ) -> Result<Vec<kline::Kline>> {
-        let klines = self
+    pub async fn get_info(&self, req: ApiRequest) -> Result<ApiResponse> {
+        let res = self
             .api
-            .get_kline(symbol, interval, start_time, end_time)
-            .await?;
+            .send(req)
+            .await
+            .map_err(|e| Error::Custom(e.to_string()))??;
 
-        self.recorder.record_kline_data(&klines)?;
+        match res {
+            ApiResponse::Ticker(ref t) => self.recorder.record_ticker_price_data(t),
+            ApiResponse::Kline(ref k) => self.recorder.record_kline_data(k),
+        }?;
 
-        Ok(klines)
+        tracing::debug!("{}", res);
+
+        Ok(res)
     }
 
     pub async fn get_orders(&self) -> Vec<order::Order> {

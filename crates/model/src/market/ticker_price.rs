@@ -6,7 +6,7 @@ use serde::Deserialize;
 use crate::schema::assets_ticker_price_data;
 use crate::DecodeFromStr;
 
-#[derive(Clone, Deserialize, Queryable, Selectable, Insertable)]
+#[derive(Debug, Clone, Deserialize, Queryable, Selectable, Insertable)]
 #[diesel(table_name = assets_ticker_price_data)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct TickerPrice {

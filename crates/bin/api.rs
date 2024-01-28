@@ -1,3 +1,10 @@
+use std::sync::Arc;
+
+use actix::dev::ContextFutureSpawner;
+use actix::{
+    fut, Actor, ActorContext, ActorFuture, ActorFutureExt, AsyncContext, Context, Handler,
+    ResponseActFuture, WrapFuture,
+};
 use binan_spot::{http::Credentials, market::klines::KlineInterval};
 use quant_api::res::GetResponse;
 use quant_api::{credential, res::BinanHttpClient};
@@ -5,9 +12,11 @@ use quant_config::{CredentialsConfig, NetworkConfig};
 use quant_model::{account_info, kline, ticker_price};
 use quant_util::env::EnvManager;
 
+use crate::message::{ApiRequest, ApiResponse, NormalRequest, NormalResponse};
+
 pub struct Api {
     credentials: Credentials,
-    client: BinanHttpClient,
+    client: Arc<BinanHttpClient>,
 }
 
 impl Api {
@@ -19,7 +28,7 @@ impl Api {
                 match network.proxy {
                     Some(proxy_config) => {
                         let proxy_uri = proxy_config.https_proxy.unwrap_or("".into());
-                        let client = BinanHttpClient::default_with_proxy(&proxy_uri);
+                        let client = Arc::new(BinanHttpClient::default_with_proxy(&proxy_uri));
 
                         Self {
                             credentials,
@@ -38,7 +47,7 @@ impl Api {
         Self {
             credentials: credential::CredentialBuilder::from_env()
                 .expect("Failed to create credential from envs."),
-            client: BinanHttpClient::default_with_proxy(&proxy),
+            client: Arc::new(BinanHttpClient::default_with_proxy(&proxy)),
         }
     }
 
@@ -67,64 +76,57 @@ impl Api {
         tracing::info!("Get account info:\n{}", account_info);
         Ok(account_info)
     }
+}
 
-    /// # Get ticker price
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// let api = Api::default();
-    /// let price = api.get_ticker_price("ETHUSDT").await;
-    ///
-    /// println!("{:#?}", price);
-    /// ```
-    pub async fn get_ticker_price(
-        &self,
-        symbol: &str,
-    ) -> Result<ticker_price::TickerPrice, quant_core::Error> {
-        let ticker_price = GetResponse::get_ticker_price(&self.client, symbol)
-            .await
-            .map_err(quant_core::Error::from)?;
+impl Actor for Api {
+    type Context = Context<Self>;
+}
 
-        tracing::info!("Get ticker price of {}: {}", symbol, ticker_price.price);
-        Ok(ticker_price)
-    }
+impl Handler<ApiRequest> for Api {
+    type Result = ResponseActFuture<Self, Result<ApiResponse, quant_core::Error>>;
 
-    /// # Get Kline data
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// let api = Api::default();
-    /// let start_time = time::TimeTool::convert_to_unix_time("2023-05-08 11:00:00").unwrap();
-    /// let end_time = time::TimeTool::convert_to_unix_time("2023-05-09 11:00:00").unwrap();
-    ///
-    /// let kline = api.get_kline(
-    ///     "ETHUSDT",
-    ///     KlineInterval::Hours1,
-    ///     start_time,
-    ///     end_time,
-    /// )
-    /// .await;
-    ///
-    /// println!("{:#?}", kline);
-    /// ```
-    pub async fn get_kline(
-        &self,
-        symbol: &str,
-        interval: KlineInterval,
-        start_time: u64,
-        end_time: u64,
-    ) -> Result<Vec<kline::Kline>, quant_core::Error> {
-        let klines =
-            GetResponse::get_kline(&self.client, symbol, interval, start_time, end_time, 1000)
-                .await
-                .map_err(quant_core::Error::from)?;
-
-        for i in &klines {
-            tracing::info!("{}", i);
+    fn handle(&mut self, msg: ApiRequest, ctx: &mut Self::Context) -> Self::Result {
+        match msg {
+            ApiRequest::Ticker { symbol } => {
+                let client = self.client.clone();
+                async move {
+                    GetResponse::get_ticker_price(&client, &symbol)
+                        .await
+                        .map_err(quant_core::Error::from)
+                }
+                .into_actor(self)
+                .map(|res, _slf, _ctx| res.map(ApiResponse::Ticker))
+                .boxed_local()
+            }
+            ApiRequest::Kline {
+                symbol,
+                interval,
+                start_time,
+                end_time,
+            } => {
+                let client = self.client.clone();
+                async move {
+                    GetResponse::get_kline(&client, &symbol, interval, start_time, end_time, 1000)
+                        .await
+                        .map_err(quant_core::Error::from)
+                }
+                .into_actor(self)
+                .map(|res, _slf, _ctx| res.map(ApiResponse::Kline))
+                .boxed_local()
+            }
         }
+    }
+}
 
-        Ok(klines)
+impl Handler<NormalRequest> for Api {
+    type Result = Result<NormalResponse, quant_core::Error>;
+
+    fn handle(&mut self, msg: NormalRequest, ctx: &mut Self::Context) -> Self::Result {
+        match msg {
+            NormalRequest::Stop => {
+                ctx.stop();
+                Ok(NormalResponse::Success)
+            }
+        }
     }
 }
