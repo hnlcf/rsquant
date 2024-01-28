@@ -23,6 +23,10 @@ function main() {
     "git")
         git_lint "${extra_args}"
         ;;
+    "all")
+        rust_lint "${extra_args}"
+        git_lint "${extra_args}"
+        ;;
     esac
 }
 

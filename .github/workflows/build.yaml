@@ -4,7 +4,7 @@ on:
   push:
     branches: [master]
   pull_request:
-    branches: [master, fix-**, feat-**]
+    branches: [master, dev, fix-**, feat-**]
   workflow_run:
     workflows: [Lint]
     types:
@@ -17,8 +17,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set up Clang
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: 15
+          platform: x64
+
+      - name: Set up mold linker
+        uses: rui314/setup-mold@v1
+
       - name: Setup Rust
-        run: rustup install 1.65
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: nightly
+          components: clippy
 
       - name: Install diesel
         run: cargo install diesel_cli --force --no-default-features --features postgres
@@ -32,9 +44,9 @@ jobs:
           sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
           sudo service postgresql restart && sleep 3
           echo "PG_DATABASE_URL=postgres://postgres:postgres@localhost/" >> $GITHUB_ENV
-          echo "DATABASE_URL=postgres://postgres:postgres@localhost/quant_trader" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost/rsquant" >> $GITHUB_ENV
 
       - name: Build
         run: |
           diesel database reset
-          cargo build --release --verbose --jobs 1
+          cargo build --release --verbose --jobs `nproc`

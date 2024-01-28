@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use quant_config::DatabaseConfig;
+use quant_core::{Error, Result};
 use quant_model::kline::Kline;
 use quant_model::ticker_price::TickerPrice;
 
@@ -12,12 +13,12 @@ pub struct Recorder {
 }
 
 impl Recorder {
-    pub fn from_config(config: DatabaseConfig) -> Self {
+    pub fn from_config(config: DatabaseConfig) -> Result<Self> {
         match config {
-            DatabaseConfig::Postgresql(config) => Self {
-                conn: Arc::new(Mutex::new(PostgresConnection::from_config(config))),
-            },
-            _ => Recorder::default(),
+            DatabaseConfig::Postgresql(config) => {
+                PostgresConnection::from_config(config).map(Self::new)
+            }
+            _ => Err(Error::Custom("Unsupported database type.".to_owned())),
         }
     }
 
@@ -31,14 +32,11 @@ impl Recorder {
         self.conn.lock().unwrap().init();
     }
 
-    pub fn record_ticker_price_data(&self, ticker_price: TickerPrice) {
-        self.conn.lock().unwrap().insert_ticker_price(ticker_price);
+    pub fn record_ticker_price_data(&self, ticker_price: &TickerPrice) -> Result<usize> {
+        self.conn.lock().unwrap().insert_ticker_price(ticker_price)
     }
 
-    pub fn record_kline_data(&self, symbol: &str, interval: &str, kline: &[Kline]) {
-        self.conn
-            .lock()
-            .unwrap()
-            .insert_kline(symbol, interval, kline);
+    pub fn record_kline_data(&self, kline: &[Kline]) -> Result<usize> {
+        self.conn.lock().unwrap().insert_kline(kline)
     }
 }

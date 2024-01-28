@@ -1,7 +1,7 @@
 use core::fmt;
 
 use super::coin_info::CoinInfo;
-
+use crate::DecodeFromStr;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -12,6 +12,8 @@ pub struct AccountInfo {
     /// 资产
     balances: Vec<CoinInfo>,
 }
+
+impl DecodeFromStr<'_, AccountInfo> for AccountInfo {}
 
 impl AccountInfo {
     pub fn account_type(&self) -> String {

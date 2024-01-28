@@ -1,17 +1,16 @@
 [package]
-name = "quant_db"
+name = "quant_core"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tracing = { workspace = true }
+thiserror = { workspace = true }
+serde_json = { workspace = true }
 
-quant_core = { path = "../core" }
-quant_config = { path = "../config" }
-quant_model = { path = "../model" }
-quant_util = { path = "../util" }
+binan_spot = { path = "../binan_spot", features = ["full"] }
 
-# rusqlite = "0.29.0"
+toml = "0.7.4"
+lettre = "0.10"
 diesel = { version = "2.1.0", features = ["postgres"] }

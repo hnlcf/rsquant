@@ -37,7 +37,7 @@ postgres-auth:
   services:
     - postgres:latest
   variables:
-    POSTGRES_DB: quant_trader
+    POSTGRES_DB: rsquant
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
   image: postgres
@@ -53,7 +53,7 @@ build-rust:
   services:
     - postgres:latest
   variables:
-    POSTGRES_DB: quant_trader
+    POSTGRES_DB: rsquant
     POSTGRES_PORT: 5432
     POSTGRES_HOST: postgres
     POSTGRES_USER: postgres

@@ -6,7 +6,6 @@ use serde::Deserialize;
 use binan_spot::hyper::BinanceHttpClient;
 
 pub use get_response::GetResponse;
-pub use handle_response::HandleResponse;
 
 pub mod get_response;
 pub mod handle_response;

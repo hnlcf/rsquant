@@ -1,13 +1,11 @@
 use lettre::{
-    error::Error as EmailError,
     message::{header::ContentType, Mailbox},
     transport::smtp::authentication::Credentials,
     Message, SmtpTransport, Transport,
 };
 
-use std::error::Error as StdError;
-
 use quant_config::EmailConfig;
+use quant_core::{Error, Result};
 
 pub struct EmailManager {
     from_email: Mailbox,
@@ -52,7 +50,7 @@ impl EmailBuilder {
         let from_email: Mailbox = match self.from_email.parse() {
             Ok(m) => m,
             Err(e) => {
-                log::error!("Failed to parse {} as `Mailbox`.", &self.from_email);
+                tracing::error!("Failed to parse {} as `Mailbox`.", &self.from_email);
                 panic!("Panic with {}!", e);
             }
         };
@@ -81,25 +79,23 @@ impl EmailManager {
         EmailBuilder::default()
     }
 
-    fn create_msg(
-        &self,
-        subject: &str,
-        body: &str,
-        to_email: &Mailbox,
-    ) -> Result<Message, EmailError> {
+    fn create_msg(&self, subject: &str, body: &str, to_email: &Mailbox) -> Result<Message> {
         Message::builder()
             .from(self.from_email.to_owned())
             .to(to_email.to_owned())
             .subject(subject)
             .header(ContentType::TEXT_HTML)
             .body(String::from(body))
+            .map_err(Error::from)
     }
 
-    pub fn send(&self, subject: &str, body: &str) -> Result<(), Box<dyn StdError>> {
+    pub fn send(&self, subject: &str, body: &str) -> Result<()> {
         for email in &self.to_emails {
             let msg = self.create_msg(subject, body, email)?;
 
-            self.smtp_mailer.send(&msg)?;
+            self.smtp_mailer
+                .send(&msg)
+                .map_err(|e| Error::Custom(e.to_string()))?;
         }
 
         Ok(())

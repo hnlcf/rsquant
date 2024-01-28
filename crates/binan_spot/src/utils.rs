@@ -1,10 +1,11 @@
 use crate::http::Signature;
-use base64::encode;
+use base64::engine::general_purpose;
+use base64::Engine;
 use hmac::{Hmac, Mac};
 use rsa::pkcs1v15::SigningKey;
 use rsa::{pkcs8::DecodePrivateKey, RsaPrivateKey};
 use sha2::{digest::InvalidLength, Sha256};
-use signature::RandomizedSigner;
+use signature::{RandomizedSigner, SignatureEncoding};
 
 pub fn sign(payload: &str, signature: &Signature) -> Result<String, InvalidLength> {
     match signature {
@@ -31,10 +32,10 @@ fn sign_rsa(payload: &str, key: &str, password: Option<&str>) -> Result<String, 
     }
     .map_err(|e| format!("{}", e))
     .expect("failed to generate a key");
-    let signing_key = SigningKey::<Sha256>::new_with_prefix(private_key);
+    let signing_key: rsa::pkcs1v15::SigningKey<_> = SigningKey::<Sha256>::new(private_key);
 
     let signature = signing_key.sign_with_rng(&mut rng, &payload.to_string().into_bytes());
-    Ok(encode(signature))
+    Ok(general_purpose::STANDARD.encode(signature.to_bytes()))
 }
 
 #[cfg(test)]

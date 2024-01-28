@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: rsquant
+    environment:
+      POSTGRES_DB: rsquant
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:

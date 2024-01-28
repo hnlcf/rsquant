@@ -5,7 +5,7 @@ function build_image() {
 }
 
 function into_container() {
-    docker run -it --name quant_trader --network=host quant-dev:latest
+    docker run -it --name rsquant --network=host quant-dev:latest
 }
 
 function main() {

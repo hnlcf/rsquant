@@ -1,55 +1,38 @@
 use crate::res::BinanHttpClient;
 
 use binan_spot::{http::request::Request, hyper::Response};
-use serde::Deserialize;
+use quant_core::{Error, Result};
 
-use std::process;
+pub trait AsyncGetResp: Clone {
+    fn get_response(
+        &self,
+        client: &BinanHttpClient,
+    ) -> impl std::future::Future<Output = Result<String>> + Send;
+}
 
-pub struct HandleResponse;
+pub trait AsyncToString {
+    fn async_to_string(self) -> impl std::future::Future<Output = Result<String>> + Send;
+}
 
-impl HandleResponse {
-    pub fn decode_response<'a, T: Deserialize<'a>>(data: &'a str) -> T {
-        match serde_json::from_str(data) {
-            Ok(t) => {
-                log::debug!("Deserialize response string to data structure.");
-                t
-            }
-            Err(e) => {
-                log::error!(
-                    "Failed to deserialize response string to data structure: {}.",
-                    e
-                );
-                process::abort();
-            }
-        }
-    }
-
-    pub async fn get_response(client: &BinanHttpClient, request: impl Into<Request>) -> String {
-        let request = request.into();
+impl AsyncGetResp for Request {
+    async fn get_response(&self, client: &BinanHttpClient) -> Result<String> {
         loop {
-            match client.send(request.clone()).await {
+            match client.send(self.to_owned()).await {
                 Ok(res) => {
-                    log::debug!("Send request from client.");
-                    return Self::response_to_string(res).await;
+                    tracing::debug!("Send request from client.");
+                    return res.async_to_string().await;
                 }
                 Err(e) => {
-                    log::error!("Failed to send request: {}. Resend it.", e);
+                    tracing::error!("Failed to send request: {}. Resend it.", e);
                     continue;
                 }
             }
         }
     }
+}
 
-    pub async fn response_to_string(res: Response) -> String {
-        match res.into_body_str().await {
-            Ok(s) => {
-                log::debug!("Convert response into body string.");
-                s
-            }
-            Err(e) => {
-                log::error!("Failed to convert response body into string: {}.", e);
-                process::abort();
-            }
-        }
+impl AsyncToString for Response {
+    async fn async_to_string(self) -> Result<String> {
+        self.into_body_str().await.map_err(Error::from)
     }
 }

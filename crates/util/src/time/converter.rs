@@ -27,14 +27,14 @@ impl TimeConverter<Local> for LocalTimeTool {
     fn to_date_time(unix_time: i64) -> Option<DateTime<Local>> {
         let naive = NaiveDateTime::from_timestamp_millis(unix_time)?;
         let timezone_east = FixedOffset::east_opt(8 * 60 * 60)?;
-        Some(DateTime::from_local(naive, timezone_east))
+        Some(DateTime::from_naive_utc_and_offset(naive, timezone_east))
     }
 }
 
 impl TimeConverter<Utc> for UtcTimeTool {
     fn to_date_time(unix_time: i64) -> Option<DateTime<Utc>> {
         let naive = NaiveDateTime::from_timestamp_millis(unix_time)?;
-        Some(DateTime::from_utc(naive, Utc))
+        Some(DateTime::from_naive_utc_and_offset(naive, Utc))
     }
 }
 
