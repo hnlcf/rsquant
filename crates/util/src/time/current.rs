@@ -45,20 +45,20 @@ pub enum DurationInterval {
 }
 
 pub trait GetDuration {
-    fn get_duration(&self, interval: DurationInterval) -> (u64, u64);
+    fn get_duration(&self, interval: DurationInterval, count: i64) -> (u64, u64);
 }
 
 impl GetDuration for UtcTimeTool {
-    fn get_duration(&self, interval: DurationInterval) -> (u64, u64) {
+    fn get_duration(&self, interval: DurationInterval, count: i64) -> (u64, u64) {
         let current = Self::get_current();
         let start = match interval {
-            DurationInterval::Seconds1 => current - chrono::Duration::seconds(1),
-            DurationInterval::Minutes1 => current - chrono::Duration::minutes(1),
-            DurationInterval::Hours1 => current - chrono::Duration::hours(1),
-            DurationInterval::Days1 => current - chrono::Duration::days(1),
-            DurationInterval::Weeks1 => current - chrono::Duration::weeks(1),
-            DurationInterval::Months1 => current - chrono::Duration::days(30),
-            DurationInterval::Years1 => current - chrono::Duration::days(365),
+            DurationInterval::Seconds1 => current - chrono::Duration::seconds(count * 1),
+            DurationInterval::Minutes1 => current - chrono::Duration::minutes(count * 1),
+            DurationInterval::Hours1 => current - chrono::Duration::hours(count * 1),
+            DurationInterval::Days1 => current - chrono::Duration::days(count * 1),
+            DurationInterval::Weeks1 => current - chrono::Duration::weeks(count * 1),
+            DurationInterval::Months1 => current - chrono::Duration::days(count * 30),
+            DurationInterval::Years1 => current - chrono::Duration::days(count * 365),
         };
         (
             start.timestamp_millis() as u64,

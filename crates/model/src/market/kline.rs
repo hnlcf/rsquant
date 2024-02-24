@@ -18,7 +18,7 @@ pub struct Kline {
     pub interval: String,
     /// 开始时间
     #[serde(deserialize_with = "u64_to_datetime")]
-    pub open_time: chrono::DateTime<chrono::Utc>,
+    pub open_time: chrono::NaiveDateTime,
     /// 开盘价
     pub open_price: String,
     /// 最高价
@@ -31,7 +31,7 @@ pub struct Kline {
     pub volume: String,
     /// 结束时间
     #[serde(deserialize_with = "u64_to_datetime")]
-    pub close_time: chrono::DateTime<chrono::Utc>,
+    pub close_time: chrono::NaiveDateTime,
     /// 成交额
     pub quote_asset_volume: String,
     pub trades_num: i64,
