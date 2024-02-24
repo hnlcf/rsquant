@@ -17,7 +17,7 @@ where
     fn decode_from_str(data: &'a str) -> Result<T, serde_json::Error> {
         match serde_json::from_str(data) {
             Ok(t) => {
-                tracing::debug!("Deserialize response string to data structure.");
+                tracing::trace!("Deserialize response string to data structure.");
                 Ok(t)
             }
             Err(e) => {
