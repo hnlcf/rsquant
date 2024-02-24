@@ -33,7 +33,10 @@ impl Api {
                 match network.proxy {
                     Some(proxy_config) => {
                         let proxy_uri = proxy_config.https_proxy.unwrap_or("".into());
-                        let client = Arc::new(BinanHttpClient::default_with_proxy(&proxy_uri));
+                        let client = Arc::new(
+                            BinanHttpClient::default_with_proxy(&proxy_uri)
+                                .credentials(credentials.to_owned()),
+                        );
 
                         Self {
                             credentials,
@@ -49,10 +52,13 @@ impl Api {
 
     pub fn default_with_proxy() -> Self {
         let proxy = EnvManager::get_env_var_or("https_proxy", "");
+        let credentials = credential::CredentialBuilder::from_env()
+            .expect("Failed to create credential from envs.");
         Self {
-            credentials: credential::CredentialBuilder::from_env()
-                .expect("Failed to create credential from envs."),
-            client: Arc::new(BinanHttpClient::default_with_proxy(&proxy)),
+            credentials: credentials.to_owned(),
+            client: Arc::new(
+                BinanHttpClient::default_with_proxy(&proxy).credentials(credentials.to_owned()),
+            ),
         }
     }
 
@@ -61,104 +67,10 @@ impl Api {
             .await
             .map_err(quant_core::Error::from)
     }
-
-    /// # Get account information
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// let api = Api::default();
-    /// let account_info = api.get_account_info().await;
-    ///
-    /// println!("{:#?}", account_info);
-    /// ```
-    pub async fn get_account_info(&self) -> Result<account_info::AccountInfo, quant_core::Error> {
-        let account_info = GetResponse::get_account_info(&self.client, &self.credentials)
-            .await
-            .map_err(quant_core::Error::from)?
-            .remove_blank_coin();
-
-        tracing::info!("Get account info:\n{}", account_info);
-        Ok(account_info)
-    }
 }
 
 impl Actor for Api {
     type Context = Context<Self>;
-}
-
-impl Handler<KlineApiRequest> for Api {
-    type Result = ResponseActFuture<Self, Result<KlineApiResponse, quant_core::Error>>;
-
-    fn handle(&mut self, msg: KlineApiRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let KlineApiRequest {
-            symbol,
-            interval,
-            start_time,
-            end_time,
-            limit,
-        } = msg;
-        let client = self.client.clone();
-        async move {
-            GetResponse::get_kline(&client, &symbol, interval, start_time, end_time, limit)
-                .await
-                .map_err(quant_core::Error::from)
-        }
-        .into_actor(self)
-        .map(|res, _slf, _ctx| res.map(|klines| KlineApiResponse { klines }))
-        .boxed_local()
-    }
-}
-
-impl Handler<TickerApiRequest> for Api {
-    type Result = ResponseActFuture<Self, Result<TickerApiResponse, quant_core::Error>>;
-
-    fn handle(&mut self, msg: TickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let TickerApiRequest { symbol } = msg;
-        let client = self.client.clone();
-        async move {
-            GetResponse::get_ticker_price(&client, &symbol)
-                .await
-                .map_err(quant_core::Error::from)
-        }
-        .into_actor(self)
-        .map(|res, _slf, _ctx| res.map(|ticker| TickerApiResponse { ticker }))
-        .boxed_local()
-    }
-}
-
-impl Handler<NewOrderApiRequest> for Api {
-    type Result = ResponseActFuture<Self, Result<NewOrderApiResponse, quant_core::Error>>;
-
-    fn handle(&mut self, msg: NewOrderApiRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let NewOrderApiRequest {
-            symbol,
-            side,
-            r#type,
-            time_in_force,
-            quantity,
-            price,
-            stop_price,
-        } = msg;
-        let client = self.client.clone();
-        async move {
-            GetResponse::new_order(
-                &client,
-                &symbol,
-                side,
-                &r#type,
-                time_in_force,
-                quantity,
-                price,
-                stop_price,
-            )
-            .await
-            .map_err(quant_core::Error::from)
-        }
-        .into_actor(self)
-        .map(|res, _slf, _ctx| res.map(|res| NewOrderApiResponse { res }))
-        .boxed_local()
-    }
 }
 
 impl Handler<NormalRequest> for Api {
@@ -171,5 +83,69 @@ impl Handler<NormalRequest> for Api {
                 Ok(NormalResponse::Success)
             }
         }
+    }
+}
+
+impl Handler<AccountInfoApiRequest> for Api {
+    type Result = ResponseActFuture<Self, Result<AccountInfoApiResponse, quant_core::Error>>;
+
+    fn handle(&mut self, msg: AccountInfoApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let client = self.client.clone();
+        async move {
+            GetResponse::get_account_info(&client, msg)
+                .await
+                .map_err(quant_core::Error::from)
+        }
+        .into_actor(self)
+        .map(|res, _slf, _ctx| res.map(|info| AccountInfoApiResponse { info }))
+        .boxed_local()
+    }
+}
+
+impl Handler<TickerApiRequest> for Api {
+    type Result = ResponseActFuture<Self, Result<TickerApiResponse, quant_core::Error>>;
+
+    fn handle(&mut self, msg: TickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let client = self.client.clone();
+        async move {
+            GetResponse::get_ticker_price(&client, msg)
+                .await
+                .map_err(quant_core::Error::from)
+        }
+        .into_actor(self)
+        .map(|res, _slf, _ctx| res.map(|ticker| TickerApiResponse { ticker }))
+        .boxed_local()
+    }
+}
+
+impl Handler<KlineApiRequest> for Api {
+    type Result = ResponseActFuture<Self, Result<KlineApiResponse, quant_core::Error>>;
+
+    fn handle(&mut self, msg: KlineApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let client = self.client.clone();
+        async move {
+            GetResponse::get_kline(&client, msg)
+                .await
+                .map_err(quant_core::Error::from)
+        }
+        .into_actor(self)
+        .map(|res, _slf, _ctx| res.map(|klines| KlineApiResponse { klines }))
+        .boxed_local()
+    }
+}
+
+impl Handler<NewOrderApiRequest> for Api {
+    type Result = ResponseActFuture<Self, Result<NewOrderApiResponse, quant_core::Error>>;
+
+    fn handle(&mut self, msg: NewOrderApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let client = self.client.clone();
+        async move {
+            GetResponse::new_order(&client, msg)
+                .await
+                .map_err(quant_core::Error::from)
+        }
+        .into_actor(self)
+        .map(|res, _slf, _ctx| res.map(|res| NewOrderApiResponse { res }))
+        .boxed_local()
     }
 }

@@ -75,20 +75,6 @@ impl QuantState {
         &self.recorder
     }
 
-    pub async fn get_kline(&self, req: KlineApiRequest) -> Result<Vec<Kline>> {
-        let res = self
-            .api
-            .send(req)
-            .await
-            .map_err(|e| Error::Custom(e.to_string()))??;
-
-        self.recorder().record_kline_data(&res.klines)?;
-
-        tracing::trace!("{:#?}", res);
-
-        Ok(res.klines)
-    }
-
     pub async fn get_ticker(&self, req: TickerApiRequest) -> Result<TickerPrice> {
         let res = self
             .api
@@ -101,6 +87,20 @@ impl QuantState {
         tracing::trace!("{:#?}", res);
 
         Ok(res.ticker)
+    }
+
+    pub async fn get_kline(&self, req: KlineApiRequest) -> Result<Vec<Kline>> {
+        let res = self
+            .api
+            .send(req)
+            .await
+            .map_err(|e| Error::Custom(e.to_string()))??;
+
+        self.recorder().record_kline_data(&res.klines)?;
+
+        tracing::trace!("{:#?}", res);
+
+        Ok(res.klines)
     }
 
     pub async fn new_order(&self, req: NewOrderApiRequest) -> Result<String> {
