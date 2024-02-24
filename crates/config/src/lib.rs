@@ -1,23 +1,12 @@
-use std::{default, fs, path};
+use std::{fs, path};
 
 use serde::{Deserialize, Serialize};
 
 use quant_core::{Error, Result};
-use quant_util::{constants::DEFAULT_APP_NAME, env::EnvManager};
 
 pub struct ConfigBuilder;
 
 impl ConfigBuilder {
-    fn get_config_path() -> path::PathBuf {
-        let home_dir = EnvManager::get_env_var_or("HOME", "/root");
-        let xdg_config_home =
-            EnvManager::get_env_var_or("XDG_CONFIG_HOME", format!("{}/.config", home_dir));
-
-        [&xdg_config_home, DEFAULT_APP_NAME, "config.toml"]
-            .iter()
-            .collect()
-    }
-
     fn read_config_file(path: path::PathBuf) -> Result<String> {
         if !path.exists() {
             let mut curr_config_path = std::env::current_dir().unwrap();
@@ -39,7 +28,7 @@ impl ConfigBuilder {
     }
 
     fn parse_config(config: String) -> Result<QuantConfig> {
-        toml::from_str::<QuantConfig>(&config).map_err(Error::from)
+        serde_json::from_str::<QuantConfig>(&config).map_err(Error::from)
     }
 
     pub fn build(path: path::PathBuf) -> Result<QuantConfig> {
@@ -60,7 +49,7 @@ pub struct QuantConfig {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum CredentialsConfig {
     Binance(BinanCredentialsConfig),
     #[default]
@@ -98,7 +87,7 @@ pub struct LogConfig {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum DatabaseConfig {
     Postgresql(PostgresqlConfig),
     Sqlite(SqliteConfig),
@@ -117,7 +106,7 @@ pub struct SqliteConfig {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum MarketData {
     #[default]
     Kline,
@@ -130,7 +119,7 @@ pub struct MarketConfig {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", rename_all = "snake_case")]
 pub enum StrategySignal {
     #[default]
     Macd,

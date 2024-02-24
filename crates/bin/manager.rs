@@ -86,7 +86,7 @@ impl QuantState {
 
         self.recorder().record_kline_data(&res.klines)?;
 
-        tracing::debug!("{:#?}", res);
+        tracing::trace!("{:#?}", res);
 
         Ok(res.klines)
     }
@@ -100,7 +100,7 @@ impl QuantState {
 
         self.recorder().record_ticker_price_data(&res.ticker)?;
 
-        tracing::debug!("{:#?}", res);
+        tracing::trace!("{:#?}", res);
 
         Ok(res.ticker)
     }
@@ -112,7 +112,7 @@ impl QuantState {
             .await
             .map_err(|e| Error::Custom(e.to_string()))??;
 
-        tracing::debug!("{:#?}", res);
+        tracing::trace!("{:#?}", res);
 
         Ok(res.res)
     }

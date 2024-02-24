@@ -16,7 +16,7 @@ log
 .venv
 __pycache__
 poetry.lock
-quant.toml
+rsquant.json
 
 crates/binan_spot_examples
 

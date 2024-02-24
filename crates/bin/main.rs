@@ -1,3 +1,4 @@
+#![allow(dead_code, unused)]
 use std::collections::VecDeque;
 use std::time::Duration;
 use std::{path, sync::OnceLock};
