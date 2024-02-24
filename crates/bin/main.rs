@@ -8,7 +8,7 @@ use binan_spot::market::klines::KlineInterval;
 use binan_spot::trade::order::{Side, TimeInForce};
 use quant_api::message::{KlineApiRequest, NewOrderApiRequest, TickerApiRequest};
 use quant_config::ConfigBuilder;
-use quant_indicator::{data_item::IntoDataItem, macd::MacdOutputBuilder};
+use quant_indicator::{data_item::ToDataItem, macd::MacdOutputBuilder};
 use quant_model::kline::Kline;
 use quant_util::time::{DurationInterval, GetDuration, UtcTimeTool};
 
@@ -165,7 +165,7 @@ async fn run(manager: &QuantState) -> Result<(), quant_core::Error> {
 fn handle_klines_with_macd(klines: &[Kline]) -> Option<Side> {
     let item = klines
         .iter()
-        .filter_map(|k| k.into_data_item().ok())
+        .filter_map(|k| k.to_data_item().ok())
         .collect::<Vec<_>>();
     let macd = MacdOutputBuilder::compute(&item).build();
 

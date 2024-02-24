@@ -1166,6 +1166,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fast-float"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95765f67b4b18863968b4a1bd5bb576f732b29a4a28c7cd84c09fa3e2875f33c"
+
+[[package]]
 name = "fastrand"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2376,6 +2382,7 @@ dependencies = [
 name = "quant_indicator"
 version = "0.1.0"
 dependencies = [
+ "fast-float",
  "quant_model",
  "ta",
 ]
@@ -2399,6 +2406,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "diesel",
+ "fast-float",
  "quant_util",
  "rust_decimal",
  "serde",

@@ -1,4 +1,4 @@
-use core::{fmt, num};
+use core::fmt;
 
 use serde::Deserialize;
 
@@ -26,12 +26,9 @@ impl CoinInfo {
     }
 
     pub fn is_zero(&self) -> bool {
-        let free: Result<f64, num::ParseFloatError> = self.free.parse();
-        let locked: Result<f64, num::ParseFloatError> = self.locked.parse();
-        if free.is_ok() && locked.is_ok() && (free.unwrap() != 0.0 || locked.unwrap() != 0.0) {
-            return true;
-        }
-        false
+        let free: Result<f64, fast_float::Error> = fast_float::parse(&self.free);
+        let locked: Result<f64, fast_float::Error> = fast_float::parse(&self.locked);
+        matches!((free, locked), (Ok(free), Ok(locked)) if free == 0.0 && locked == 0.0)
     }
 }
 

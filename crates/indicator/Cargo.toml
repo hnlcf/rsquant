@@ -6,6 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+fast-float = { workspace = true }
+
 quant_model = { path = "../model" }
 
 ta = "0.5.0"
