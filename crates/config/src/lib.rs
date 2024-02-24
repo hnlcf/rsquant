@@ -42,8 +42,8 @@ impl ConfigBuilder {
         toml::from_str::<QuantConfig>(&config).map_err(Error::from)
     }
 
-    pub fn build() -> Result<QuantConfig> {
-        let config_content = ConfigBuilder::read_config_file(ConfigBuilder::get_config_path())?;
+    pub fn build(path: path::PathBuf) -> Result<QuantConfig> {
+        let config_content = ConfigBuilder::read_config_file(path)?;
         ConfigBuilder::parse_config(config_content)
     }
 }
@@ -55,6 +55,8 @@ pub struct QuantConfig {
     pub network: NetworkConfig,
     pub log: LogConfig,
     pub database: DatabaseConfig,
+    pub market: MarketConfig,
+    pub strategy: StrategyConfig,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -112,4 +114,30 @@ pub struct PostgresqlConfig {
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct SqliteConfig {
     pub db_path: Option<String>,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum MarketData {
+    #[default]
+    Kline,
+    Ticker,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct MarketConfig {
+    pub data: MarketData,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum StrategySignal {
+    #[default]
+    Macd,
+    Rsi,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct StrategyConfig {
+    pub signal: StrategySignal,
 }
