@@ -16,12 +16,12 @@ pub struct AccountInfo {
 impl DecodeFromStr<'_, AccountInfo> for AccountInfo {}
 
 impl AccountInfo {
-    pub fn account_type(&self) -> String {
-        self.account_type.to_owned()
+    pub fn account_type(&self) -> &str {
+        &self.account_type
     }
 
-    pub fn balances(&self) -> Vec<CoinInfo> {
-        self.balances.to_owned()
+    pub fn balances(&self) -> &[CoinInfo] {
+        &self.balances
     }
 
     pub fn remove_blank_coin(self) -> Self {

@@ -52,13 +52,14 @@ impl GetResponse {
             .limit(limit)
             .into();
 
+        let interval = interval.to_string();
         request
             .get_response(client)
             .await
             .and_then(|ref res| Vec::decode_from_str(res).map_err(Error::Serde))
             .map(|ks| {
                 ks.into_iter()
-                    .map(|k| Kline::from_kline(&symbol, interval.to_string().as_str(), k))
+                    .map(|k| Kline::from_kline(&symbol, &interval, k))
                     .collect()
             })
     }
