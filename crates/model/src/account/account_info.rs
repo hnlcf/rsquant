@@ -4,7 +4,7 @@ use super::coin_info::CoinInfo;
 use crate::DecodeFromStr;
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct AccountInfo {
     /// 账户类型
     #[serde(rename = "accountType")]

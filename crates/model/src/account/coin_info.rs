@@ -2,7 +2,7 @@ use core::{fmt, num};
 
 use serde::Deserialize;
 
-#[derive(Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct CoinInfo {
     /// 资产名称
     asset: String,

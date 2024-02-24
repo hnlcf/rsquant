@@ -40,7 +40,7 @@ impl Logger {
             .or_else(|_| EnvFilter::try_new("info"))
             .unwrap();
 
-        let file_appender = tracing_appender::rolling::daily(&self.log_dir, "quant.log");
+        let file_appender = tracing_appender::rolling::daily(&self.log_dir, DEFAULT_LOG_FILE);
         let (log_file, guard) = tracing_appender::non_blocking(file_appender);
         self.guards.push(guard);
 
