@@ -1,13 +1,18 @@
 use binan_spot::{
     http::{request::Request, Credentials},
     market::{self, klines::KlineInterval},
-    trade::account::Account,
+    trade::{
+        self,
+        account::Account,
+        order::{Side, TimeInForce},
+    },
     wallet,
 };
 use quant_core::{Error, Result};
 use quant_model::{
     account_info::AccountInfo, kline::Kline, market::ticker_price::TickerPrice, DecodeFromStr,
 };
+use rust_decimal::Decimal;
 
 use super::{handle_response::AsyncGetResp, BinanHttpClient};
 
@@ -68,5 +73,26 @@ impl GetResponse {
             .await
             .and_then(|ref res| TickerPrice::decode_from_str(res).map_err(Error::Serde))
             .map(TickerPrice::from_ticker)
+    }
+
+    pub async fn new_order(
+        client: &BinanHttpClient,
+        symbol: &str,
+        side: Side,
+        r#type: &str,
+        time_in_force: TimeInForce,
+        quantity: Decimal,
+        price: Decimal,
+        stop_price: Decimal,
+    ) -> Result<String> {
+        let request: Request = trade::new_order(symbol, side, r#type)
+            .time_in_force(time_in_force)
+            .quantity(quantity)
+            .price(price)
+            .stop_price(stop_price)
+            .into();
+        let data = request.get_response(client).await?;
+        tracing::info!("{}", data);
+        Ok(data)
     }
 }

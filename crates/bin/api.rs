@@ -3,7 +3,7 @@ use std::sync::Arc;
 use actix::dev::ContextFutureSpawner;
 use actix::{
     fut, Actor, ActorContext, ActorFuture, ActorFutureExt, AsyncContext, Context, Handler,
-    ResponseActFuture, WrapFuture,
+    ResponseActFuture, System, WrapFuture,
 };
 use binan_spot::{http::Credentials, market::klines::KlineInterval};
 use quant_api::res::GetResponse;
@@ -12,7 +12,10 @@ use quant_config::{CredentialsConfig, NetworkConfig};
 use quant_model::{account_info, kline, ticker_price};
 use quant_util::env::EnvManager;
 
-use crate::message::{ApiRequest, ApiResponse, NormalRequest, NormalResponse};
+use crate::message::{
+    KlineApiRequest, KlineApiResponse, NewOrderApiRequest, NewOrderApiResponse, NormalRequest,
+    NormalResponse, TickerApiRequest, TickerApiResponse,
+};
 
 pub struct Api {
     credentials: Credentials,
@@ -82,39 +85,77 @@ impl Actor for Api {
     type Context = Context<Self>;
 }
 
-impl Handler<ApiRequest> for Api {
-    type Result = ResponseActFuture<Self, Result<ApiResponse, quant_core::Error>>;
+impl Handler<KlineApiRequest> for Api {
+    type Result = ResponseActFuture<Self, Result<KlineApiResponse, quant_core::Error>>;
 
-    fn handle(&mut self, msg: ApiRequest, ctx: &mut Self::Context) -> Self::Result {
-        match msg {
-            ApiRequest::Ticker { symbol } => {
-                let client = self.client.clone();
-                async move {
-                    GetResponse::get_ticker_price(&client, &symbol)
-                        .await
-                        .map_err(quant_core::Error::from)
-                }
-                .into_actor(self)
-                .map(|res, _slf, _ctx| res.map(ApiResponse::Ticker))
-                .boxed_local()
-            }
-            ApiRequest::Kline {
-                symbol,
-                interval,
-                start_time,
-                end_time,
-            } => {
-                let client = self.client.clone();
-                async move {
-                    GetResponse::get_kline(&client, &symbol, interval, start_time, end_time, 1000)
-                        .await
-                        .map_err(quant_core::Error::from)
-                }
-                .into_actor(self)
-                .map(|res, _slf, _ctx| res.map(ApiResponse::Kline))
-                .boxed_local()
-            }
+    fn handle(&mut self, msg: KlineApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let KlineApiRequest {
+            symbol,
+            interval,
+            start_time,
+            end_time,
+            limit,
+        } = msg;
+        let client = self.client.clone();
+        async move {
+            GetResponse::get_kline(&client, &symbol, interval, start_time, end_time, limit)
+                .await
+                .map_err(quant_core::Error::from)
         }
+        .into_actor(self)
+        .map(|res, _slf, _ctx| res.map(|klines| KlineApiResponse { klines }))
+        .boxed_local()
+    }
+}
+
+impl Handler<TickerApiRequest> for Api {
+    type Result = ResponseActFuture<Self, Result<TickerApiResponse, quant_core::Error>>;
+
+    fn handle(&mut self, msg: TickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let TickerApiRequest { symbol } = msg;
+        let client = self.client.clone();
+        async move {
+            GetResponse::get_ticker_price(&client, &symbol)
+                .await
+                .map_err(quant_core::Error::from)
+        }
+        .into_actor(self)
+        .map(|res, _slf, _ctx| res.map(|ticker| TickerApiResponse { ticker }))
+        .boxed_local()
+    }
+}
+
+impl Handler<NewOrderApiRequest> for Api {
+    type Result = ResponseActFuture<Self, Result<NewOrderApiResponse, quant_core::Error>>;
+
+    fn handle(&mut self, msg: NewOrderApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let NewOrderApiRequest {
+            symbol,
+            side,
+            r#type,
+            time_in_force,
+            quantity,
+            price,
+            stop_price,
+        } = msg;
+        let client = self.client.clone();
+        async move {
+            GetResponse::new_order(
+                &client,
+                &symbol,
+                side,
+                &r#type,
+                time_in_force,
+                quantity,
+                price,
+                stop_price,
+            )
+            .await
+            .map_err(quant_core::Error::from)
+        }
+        .into_actor(self)
+        .map(|res, _slf, _ctx| res.map(|res| NewOrderApiResponse { res }))
+        .boxed_local()
     }
 }
 

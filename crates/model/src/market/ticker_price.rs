@@ -1,6 +1,8 @@
 use core::fmt;
+use std::str::FromStr;
 
 use diesel::prelude::*;
+use rust_decimal::Decimal;
 use serde::Deserialize;
 
 use crate::schema::assets_ticker_price_data;
@@ -22,6 +24,10 @@ impl TickerPrice {
             update_time: chrono::Local::now().naive_local(),
             ..ticker
         }
+    }
+
+    pub fn price(&self) -> Decimal {
+        Decimal::from_str(self.price.as_str()).unwrap()
     }
 }
 

@@ -3,9 +3,13 @@
 use core::fmt;
 
 use actix::Message;
-use binan_spot::market::klines::KlineInterval;
+use binan_spot::{
+    market::klines::KlineInterval,
+    trade::order::{Side, TimeInForce},
+};
 use quant_core::Error;
 use quant_model::{kline::Kline, ticker_price::TickerPrice};
+use rust_decimal::Decimal;
 
 #[derive(Message)]
 #[rtype(result = "Result<NormalResponse, quant_core::Error>")]
@@ -17,40 +21,47 @@ pub enum NormalResponse {
     Success,
     Failure(Error),
 }
-
 #[derive(Message)]
-#[rtype(result = "Result<ApiResponse, quant_core::Error>")]
-pub enum ApiRequest {
-    Ticker {
-        symbol: String,
-    },
-    Kline {
-        symbol: String,
-        interval: KlineInterval,
-        start_time: u64,
-        end_time: u64,
-    },
+#[rtype(result = "Result<TickerApiResponse, quant_core::Error>")]
+pub struct TickerApiRequest {
+    pub symbol: String,
 }
 
 #[derive(Debug)]
-pub enum ApiResponse {
-    Ticker(TickerPrice),
-    Kline(Vec<Kline>),
+pub struct TickerApiResponse {
+    pub ticker: TickerPrice,
 }
 
-impl fmt::Display for ApiResponse {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ApiResponse::Ticker(ticker) => write!(f, "Ticker: {}", ticker),
-            ApiResponse::Kline(klines) => {
-                writeln!(f, "Kline:")?;
-                for kline in klines {
-                    write!(f, "{}", kline)?;
-                }
-                Ok(())
-            }
-        }
-    }
+#[derive(Message)]
+#[rtype(result = "Result<KlineApiResponse, quant_core::Error>")]
+pub struct KlineApiRequest {
+    pub symbol: String,
+    pub interval: KlineInterval,
+    pub start_time: u64,
+    pub end_time: u64,
+    pub limit: u32,
+}
+
+#[derive(Debug)]
+pub struct KlineApiResponse {
+    pub klines: Vec<Kline>,
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<NewOrderApiResponse, quant_core::Error>")]
+pub struct NewOrderApiRequest {
+    pub symbol: String,
+    pub side: Side,
+    pub r#type: String,
+    pub time_in_force: TimeInForce,
+    pub quantity: Decimal,
+    pub price: Decimal,
+    pub stop_price: Decimal,
+}
+
+#[derive(Debug)]
+pub struct NewOrderApiResponse {
+    pub res: String,
 }
 
 pub enum SchedulerDataRequest {

@@ -1,6 +1,6 @@
 use strum::Display;
 
-#[derive(Copy, Clone, Display)]
+#[derive(Copy, Clone, Display, PartialEq, Eq)]
 #[strum(serialize_all = "UPPERCASE")]
 pub enum Side {
     Buy,

@@ -1,15 +1,16 @@
-#![allow(dead_code)]
-
 use actix::{Actor, Addr};
-use quant_config::{ConfigBuilder, QuantConfig};
+use quant_config::QuantConfig;
 use quant_core::{Error, Result};
 use quant_db::recorder::Recorder;
 use quant_log::Logger;
-use quant_model::order;
+use quant_model::{kline::Kline, order, ticker_price::TickerPrice};
 
 use crate::{
     api::Api,
-    message::{ApiRequest, ApiResponse, NormalRequest},
+    message::{
+        KlineApiRequest, KlineApiResponse, NewOrderApiRequest, NormalRequest, TickerApiRequest,
+        TickerApiResponse,
+    },
 };
 
 pub struct QuantState {
@@ -35,29 +36,29 @@ impl Default for QuantState {
 }
 
 impl QuantState {
-    pub fn from_config() -> Result<Self> {
-        if let Ok(config) = ConfigBuilder::build() {
-            let QuantConfig {
-                api_credentials,
-                network,
-                database,
-                log,
-                ..
-            } = config.to_owned();
+    pub fn from_config(config: QuantConfig) -> Result<Self> {
+        let QuantConfig {
+            api_credentials,
+            network,
+            database,
+            log,
+            ..
+        } = config.to_owned();
 
-            let api = Api::from_config(api_credentials, network).start();
-            let recorder = Recorder::from_config(database)?;
-            let logger = Logger::from_config(log);
+        let api = Api::from_config(api_credentials, network).start();
+        let recorder = Recorder::from_config(database)?;
+        let logger = Logger::from_config(log);
 
-            Ok(Self {
-                config,
-                api,
-                recorder,
-                logger,
-            })
-        } else {
-            Ok(QuantState::default())
-        }
+        Ok(Self {
+            config,
+            api,
+            recorder,
+            logger,
+        })
+    }
+
+    pub fn config(&self) -> &QuantConfig {
+        &self.config
     }
 
     pub fn init(&mut self) -> Result<()> {
@@ -69,27 +70,51 @@ impl QuantState {
 
     pub async fn stop(&self) {
         let _ = self.api.send(NormalRequest::Stop).await;
+        tracing::debug!("Send stop signal to actor")
     }
 
     pub fn recorder(&self) -> &Recorder {
         &self.recorder
     }
 
-    pub async fn get_info(&self, req: ApiRequest) -> Result<ApiResponse> {
+    pub async fn get_kline(&self, req: KlineApiRequest) -> Result<Vec<Kline>> {
         let res = self
             .api
             .send(req)
             .await
             .map_err(|e| Error::Custom(e.to_string()))??;
 
-        match res {
-            ApiResponse::Ticker(ref t) => self.recorder.record_ticker_price_data(t),
-            ApiResponse::Kline(ref k) => self.recorder.record_kline_data(k),
-        }?;
+        self.recorder().record_kline_data(&res.klines)?;
 
-        tracing::debug!("{}", res);
+        tracing::debug!("{:#?}", res);
 
-        Ok(res)
+        Ok(res.klines)
+    }
+
+    pub async fn get_ticker(&self, req: TickerApiRequest) -> Result<TickerPrice> {
+        let res = self
+            .api
+            .send(req)
+            .await
+            .map_err(|e| Error::Custom(e.to_string()))??;
+
+        self.recorder().record_ticker_price_data(&res.ticker)?;
+
+        tracing::debug!("{:#?}", res);
+
+        Ok(res.ticker)
+    }
+
+    pub async fn new_order(&self, req: NewOrderApiRequest) -> Result<String> {
+        let res = self
+            .api
+            .send(req)
+            .await
+            .map_err(|e| Error::Custom(e.to_string()))??;
+
+        tracing::debug!("{:#?}", res);
+
+        Ok(res.res)
     }
 
     pub async fn get_orders(&self) -> Vec<order::Order> {
