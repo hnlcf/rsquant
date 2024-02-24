@@ -33,3 +33,36 @@ impl CurrentTime<Utc> for UtcTimeTool {
         Utc::now()
     }
 }
+
+pub enum DurationInterval {
+    Seconds1,
+    Minutes1,
+    Hours1,
+    Days1,
+    Weeks1,
+    Months1,
+    Years1,
+}
+
+pub trait GetDuration {
+    fn get_duration(&self, interval: DurationInterval) -> (u64, u64);
+}
+
+impl GetDuration for UtcTimeTool {
+    fn get_duration(&self, interval: DurationInterval) -> (u64, u64) {
+        let current = Self::get_current();
+        let start = match interval {
+            DurationInterval::Seconds1 => current - chrono::Duration::seconds(1),
+            DurationInterval::Minutes1 => current - chrono::Duration::minutes(1),
+            DurationInterval::Hours1 => current - chrono::Duration::hours(1),
+            DurationInterval::Days1 => current - chrono::Duration::days(1),
+            DurationInterval::Weeks1 => current - chrono::Duration::weeks(1),
+            DurationInterval::Months1 => current - chrono::Duration::days(30),
+            DurationInterval::Years1 => current - chrono::Duration::days(365),
+        };
+        (
+            start.timestamp_millis() as u64,
+            current.timestamp_millis() as u64,
+        )
+    }
+}

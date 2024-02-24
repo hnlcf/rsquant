@@ -5,7 +5,7 @@ mod current;
 mod timezone;
 
 pub use converter::TimeConverter;
-pub use current::CurrentTime;
+pub use current::{CurrentTime, DurationInterval, GetDuration};
 pub use timezone::TimeZoneConverter;
 
 pub struct LocalTimeTool;

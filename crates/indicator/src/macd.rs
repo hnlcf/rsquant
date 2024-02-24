@@ -12,7 +12,7 @@ pub struct MacdOutputBuilder {
 }
 
 impl MacdOutputBuilder {
-    pub fn compute(self, data: &[DataItem]) -> Self {
+    pub fn compute(data: &[DataItem]) -> Self {
         let mut macd = Macd::default();
         let f = |v: &DataItem| macd.next(v.close());
         Self {
