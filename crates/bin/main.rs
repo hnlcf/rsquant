@@ -5,20 +5,19 @@ use std::{path, sync::OnceLock};
 
 use binan_spot::market::klines::KlineInterval;
 use binan_spot::trade::order::{Side, TimeInForce};
-use clap::Parser;
+use quant_api::message::{KlineApiRequest, NewOrderApiRequest, TickerApiRequest};
 use quant_config::ConfigBuilder;
 use quant_indicator::{data_item::IntoDataItem, macd::MacdOutputBuilder};
 use quant_model::kline::Kline;
 use quant_util::time::{DurationInterval, GetDuration, UtcTimeTool};
+
+use clap::Parser;
 use rust_decimal_macros::dec;
 
 use manager::QuantState;
 
-use self::message::{KlineApiRequest, NewOrderApiRequest, TickerApiRequest};
-
 mod api;
 mod manager;
-mod message;
 
 static STATE: OnceLock<QuantState> = OnceLock::new();
 

@@ -4,11 +4,12 @@ use core::fmt;
 
 use actix::Message;
 use binan_spot::{
+    http::Credentials,
     market::klines::KlineInterval,
     trade::order::{Side, TimeInForce},
 };
 use quant_core::Error;
-use quant_model::{kline::Kline, ticker_price::TickerPrice};
+use quant_model::{account_info::AccountInfo, kline::Kline, ticker_price::TickerPrice};
 use rust_decimal::Decimal;
 
 #[derive(Message)]
@@ -21,6 +22,16 @@ pub enum NormalResponse {
     Success,
     Failure(Error),
 }
+
+#[derive(Message)]
+#[rtype(result = "Result<AccountInfoApiResponse, quant_core::Error>")]
+pub struct AccountInfoApiRequest;
+
+#[derive(Debug)]
+pub struct AccountInfoApiResponse {
+    pub info: AccountInfo,
+}
+
 #[derive(Message)]
 #[rtype(result = "Result<TickerApiResponse, quant_core::Error>")]
 pub struct TickerApiRequest {

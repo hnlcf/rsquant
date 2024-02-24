@@ -2310,6 +2310,7 @@ dependencies = [
 name = "quant_api"
 version = "0.1.0"
 dependencies = [
+ "actix",
  "binan_spot",
  "hyper",
  "hyper-proxy",

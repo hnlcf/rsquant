@@ -1,17 +1,15 @@
 use actix::{Actor, Addr};
+use quant_api::message::{
+    KlineApiRequest, KlineApiResponse, NewOrderApiRequest, NormalRequest, TickerApiRequest,
+    TickerApiResponse,
+};
 use quant_config::QuantConfig;
 use quant_core::{Error, Result};
 use quant_db::recorder::Recorder;
 use quant_log::Logger;
 use quant_model::{kline::Kline, order, ticker_price::TickerPrice};
 
-use crate::{
-    api::Api,
-    message::{
-        KlineApiRequest, KlineApiResponse, NewOrderApiRequest, NormalRequest, TickerApiRequest,
-        TickerApiResponse,
-    },
-};
+use crate::api::Api;
 
 pub struct QuantState {
     config: QuantConfig,
