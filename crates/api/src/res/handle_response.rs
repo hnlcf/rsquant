@@ -16,10 +16,10 @@ pub trait AsyncToString {
 
 impl AsyncGetResp for Request {
     async fn get_response(&self, client: &BinanHttpClient) -> Result<String> {
+        tracing::debug!("Send request: {:?}", self);
         loop {
             match client.send(self.to_owned()).await {
                 Ok(res) => {
-                    tracing::debug!("Send request from client.");
                     return res.async_to_string().await;
                 }
                 Err(e) => {

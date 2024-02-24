@@ -52,11 +52,11 @@ impl GetDuration for UtcTimeTool {
     fn get_duration(&self, interval: DurationInterval, count: i64) -> (u64, u64) {
         let current = Self::get_current();
         let start = match interval {
-            DurationInterval::Seconds1 => current - chrono::Duration::seconds(count * 1),
-            DurationInterval::Minutes1 => current - chrono::Duration::minutes(count * 1),
-            DurationInterval::Hours1 => current - chrono::Duration::hours(count * 1),
-            DurationInterval::Days1 => current - chrono::Duration::days(count * 1),
-            DurationInterval::Weeks1 => current - chrono::Duration::weeks(count * 1),
+            DurationInterval::Seconds1 => current - chrono::Duration::seconds(count),
+            DurationInterval::Minutes1 => current - chrono::Duration::minutes(count),
+            DurationInterval::Hours1 => current - chrono::Duration::hours(count),
+            DurationInterval::Days1 => current - chrono::Duration::days(count),
+            DurationInterval::Weeks1 => current - chrono::Duration::weeks(count),
             DurationInterval::Months1 => current - chrono::Duration::days(count * 30),
             DurationInterval::Years1 => current - chrono::Duration::days(count * 365),
         };

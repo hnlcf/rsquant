@@ -61,12 +61,6 @@ impl Api {
             ),
         }
     }
-
-    pub async fn get_account_snapshot(&self) -> Result<String, quant_core::Error> {
-        GetResponse::get_account_snapshot(&self.client)
-            .await
-            .map_err(quant_core::Error::from)
-    }
 }
 
 impl Actor for Api {

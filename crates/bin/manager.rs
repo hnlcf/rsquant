@@ -1,13 +1,13 @@
 use actix::{Actor, Addr};
 use quant_api::message::{
-    KlineApiRequest, KlineApiResponse, NewOrderApiRequest, NormalRequest, TickerApiRequest,
-    TickerApiResponse,
+    AccountInfoApiRequest, AccountInfoApiResponse, KlineApiRequest, KlineApiResponse,
+    NewOrderApiRequest, NormalRequest, TickerApiRequest, TickerApiResponse,
 };
 use quant_config::QuantConfig;
 use quant_core::{Error, Result};
 use quant_db::recorder::Recorder;
 use quant_log::Logger;
-use quant_model::{kline::Kline, order, ticker_price::TickerPrice};
+use quant_model::{account_info::AccountInfo, kline::Kline, order, ticker_price::TickerPrice};
 
 use crate::api::Api;
 
@@ -74,6 +74,21 @@ impl QuantState {
     pub fn recorder(&self) -> &Recorder {
         &self.recorder
     }
+}
+
+/// Implement the API methods based on `Api` actor
+impl QuantState {
+    pub async fn get_account_info(&self) -> Result<AccountInfo> {
+        let res = self
+            .api
+            .send(AccountInfoApiRequest)
+            .await
+            .map_err(|e| Error::Custom(e.to_string()))??;
+
+        tracing::trace!("{:#?}", res);
+
+        Ok(res.info)
+    }
 
     pub async fn get_ticker(&self, req: TickerApiRequest) -> Result<TickerPrice> {
         let res = self
@@ -113,9 +128,5 @@ impl QuantState {
         tracing::trace!("{:#?}", res);
 
         Ok(res.res)
-    }
-
-    pub async fn get_orders(&self) -> Vec<order::Order> {
-        todo!("Get orders")
     }
 }

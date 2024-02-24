@@ -1,4 +1,4 @@
-use binan_spot::{http::request::Request, market, trade, wallet};
+use binan_spot::{http::request::Request, market, trade};
 use quant_core::{Error, Result};
 use quant_model::{
     account_info::AccountInfo, kline::Kline, market::ticker_price::TickerPrice, DecodeFromStr,
@@ -13,11 +13,6 @@ use super::{handle_response::AsyncGetResp, BinanHttpClient};
 pub struct GetResponse;
 
 impl GetResponse {
-    pub async fn get_account_snapshot(client: &BinanHttpClient) -> Result<String> {
-        let request: Request = wallet::account_snapshot("SPOT").into();
-        request.get_response(client).await
-    }
-
     pub async fn get_account_info(
         client: &BinanHttpClient,
         _req: AccountInfoApiRequest,
