@@ -13,7 +13,7 @@ pub struct MacdOutputBuilder {
 
 impl MacdOutputBuilder {
     pub fn compute(data: &[DataItem]) -> Self {
-        let mut macd = Macd::default();
+        let mut macd = Macd::new(12, 26, 9).unwrap();
         let f = |v: &DataItem| macd.next(v.close());
         Self {
             output: data.iter().map(f).collect(),

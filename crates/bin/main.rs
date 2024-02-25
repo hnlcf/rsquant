@@ -49,41 +49,36 @@ async fn main() -> Result<(), quant_core::Error> {
     let args: Cli = Cli::parse();
     let config = ConfigBuilder::build(args.config)?;
 
-    let manager = STATE.get_or_init(|| {
+    let _manager = STATE.get_or_init(|| {
         let mut m = QuantState::from_config(config.to_owned()).expect("Failed to create manager");
         let _ = m.init();
         m
     });
 
-    run(manager).await
+    run().await
 }
 
-async fn run(manager: &QuantState) -> Result<(), quant_core::Error> {
+async fn run() -> Result<(), quant_core::Error> {
     let symbol = "BTCUSDT";
     let total = dec!(50.0);
     let mut trades = VecDeque::new();
 
-    let price = Arc::new(Mutex::new(dec!(1.0)));
+    let manager = STATE.get().unwrap();
+    let price_slot = Arc::new(Mutex::new(dec!(1.0)));
 
-    {
-        let price = price.clone();
-        let manager = STATE.get().unwrap();
-        tokio::spawn(async move {
-            loop {
-                let origin_price = manager
-                    .get_ticker(TickerApiRequest {
-                        symbol: symbol.to_owned(),
-                    })
-                    .await
-                    .unwrap()
-                    .price();
-                *price.lock().await = origin_price;
-
-                tracing::debug!("Ticker of {}: {}", symbol, origin_price);
-                tokio::time::sleep(Duration::from_secs(1)).await;
-            }
-        });
-    }
+    let price = price_slot.clone();
+    tokio::task::spawn(async move {
+        loop {
+            let origin_price = manager
+                .get_ticker(TickerApiRequest {
+                    symbol: symbol.to_owned(),
+                })
+                .await
+                .unwrap()
+                .price();
+            *price.lock().await = origin_price;
+        }
+    });
 
     'out: loop {
         let (start, end) = UtcTimeTool.get_duration(DurationInterval::Minutes1, 250);
@@ -104,7 +99,9 @@ async fn run(manager: &QuantState) -> Result<(), quant_core::Error> {
                     signal.map(|s| s.to_string()).unwrap_or("Nil".to_string())
                 );
 
-                let origin_price = *price.lock().await;
+                let origin_price = *price_slot.lock().await;
+                tracing::debug!("Ticker of {}: {}", symbol, origin_price);
+
                 match signal {
                     Some(Side::Buy) => {
                         let price = origin_price + dec!(1.0);
@@ -176,17 +173,17 @@ fn handle_klines_with_macd(klines: &[Kline]) -> Option<Side> {
     let fast_point = fast.last().copied().unwrap_or_default();
     let slow_point = slow.last().copied().unwrap_or_default();
     let bar_point = bar.last().copied().unwrap_or_default();
-    let (last_flag, current_flag) = match &bar[..] {
-        [.., a, b] => (*a, *b),
-        _ => panic!("array shorter than 2"),
+    let (last_flag, current_flag) = match bar[..] {
+        [.., a, b, c] => (b - a, c - b),
+        _ => panic!("array shorter than 3"),
     };
 
     if last_flag * current_flag < 0.0 {
         if fast_point < 0.0
             && slow_point < 0.0
             && bar_point < 0.0
-            && last_flag < 0.0
-            && current_flag > 0.0
+            && last_flag <= 0.0
+            && current_flag >= 0.0
         {
             // 当出现 MACD 极小值点且快慢线均小于0
             return Some(Side::Buy);
@@ -194,8 +191,8 @@ fn handle_klines_with_macd(klines: &[Kline]) -> Option<Side> {
         if fast_point > 0.0
             && slow_point > 0.0
             && bar_point > 0.0
-            && last_flag > 0.0
-            && current_flag < 0.0
+            && last_flag >= 0.0
+            && current_flag <= 0.0
         {
             // 当出现 MACD 极大值点且快慢线均大于0
             return Some(Side::Sell);
