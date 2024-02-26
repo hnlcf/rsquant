@@ -1,4 +1,5 @@
 #![allow(dead_code, unused)]
+#![feature(let_chains)]
 use std::collections::VecDeque;
 use std::sync::Arc;
 use std::time::Duration;
@@ -13,6 +14,7 @@ use quant_model::kline::Kline;
 use quant_util::time::{DurationInterval, GetDuration, UtcTimeTool};
 
 use clap::Parser;
+use rust_decimal::prelude::Signed;
 use rust_decimal_macros::dec;
 
 use manager::QuantState;
@@ -59,9 +61,12 @@ async fn main() -> Result<(), quant_core::Error> {
 }
 
 async fn run() -> Result<(), quant_core::Error> {
+    let usdt = "USDT";
+    let btc = "BTC";
     let symbol = "BTCUSDT";
+
     let total = dec!(50.0);
-    let mut trades = VecDeque::new();
+    let mut profit = dec!(0.0);
 
     let manager = STATE.get().unwrap();
     let price_slot = Arc::new(Mutex::new(dec!(1.0)));
@@ -81,11 +86,11 @@ async fn run() -> Result<(), quant_core::Error> {
     });
 
     'out: loop {
-        let (start, end) = UtcTimeTool.get_duration(DurationInterval::Minutes1, 250);
+        let (start, end) = UtcTimeTool.get_duration(DurationInterval::Minutes1, 750);
         match manager
             .get_kline(KlineApiRequest {
                 symbol: symbol.to_owned(),
-                interval: KlineInterval::Minutes5,
+                interval: KlineInterval::Minutes15,
                 start_time: start,
                 end_time: end,
                 limit: 50,
@@ -102,47 +107,53 @@ async fn run() -> Result<(), quant_core::Error> {
                 let origin_price = *price_slot.lock().await;
                 tracing::debug!("Ticker of {}: {}", symbol, origin_price);
 
+                let account_info = manager.get_account_info().await?;
                 match signal {
                     Some(Side::Buy) => {
-                        let price = origin_price + dec!(1.0);
-                        let stop_price = price * dec!(1.01);
-                        let quantity = total / price;
+                        if let Some(x) = account_info.query_asset(usdt)
+                            && x >= total
+                        {
+                            let price = (origin_price + dec!(1.0)).round_dp(5);
+                            let quantity = (total / price).round_dp(5);
 
-                        let res = manager
-                            .new_order(NewOrderApiRequest {
-                                symbol: symbol.to_owned(),
-                                side: Side::Buy,
-                                r#type: "LIMIT".to_owned(),
-                                time_in_force: TimeInForce::Gtc,
-                                quantity,
-                                price,
-                                stop_price,
-                            })
-                            .await?;
+                            let res = manager
+                                .new_order(NewOrderApiRequest {
+                                    symbol: symbol.to_owned(),
+                                    side: Side::Buy,
+                                    r#type: "LIMIT".to_owned(),
+                                    time_in_force: TimeInForce::Gtc,
+                                    quantity,
+                                    price,
+                                })
+                                .await?;
 
-                        tracing::info!("Order res: {}", res);
-                        trades.push_back((price, quantity));
+                            tracing::info!("Order res: {}", res);
+                        }
                     }
-                    Some(Side::Sell) if !trades.is_empty() => {
-                        let (buy_price, buy_quantity) = trades.pop_front().unwrap();
-                        let price = origin_price - dec!(1.0);
-                        let stop_price = price * dec!(0.99);
+                    Some(Side::Sell) => {
+                        if let Some(x) = account_info.query_asset(btc)
+                            && x >= total / origin_price
+                        {
+                            let price = (origin_price - dec!(1.0)).round_dp(5);
+                            let quantity = (total / price).round_dp(5);
 
-                        let res = manager
-                            .new_order(NewOrderApiRequest {
-                                symbol: symbol.to_owned(),
-                                side: Side::Sell,
-                                r#type: "LIMIT".to_owned(),
-                                time_in_force: TimeInForce::Gtc,
-                                quantity: buy_quantity,
-                                price,
-                                stop_price,
-                            })
-                            .await?;
+                            let res = manager
+                                .new_order(NewOrderApiRequest {
+                                    symbol: symbol.to_owned(),
+                                    side: Side::Sell,
+                                    r#type: "LIMIT".to_owned(),
+                                    time_in_force: TimeInForce::Gtc,
+                                    quantity,
+                                    price,
+                                })
+                                .await?;
 
-                        tracing::info!("Order res: {}", res);
-                        let profit = (price - buy_price) * buy_quantity;
-                        tracing::info!("Profit: {}", profit);
+                            tracing::info!("Order res: {}", res);
+
+                            let money = account_info.query_asset(usdt).unwrap_or_default()
+                                + account_info.query_asset(btc).unwrap_or_default() * origin_price;
+                            tracing::info!("Money: {}", money);
+                        }
                     }
                     _ => {}
                 }
@@ -153,13 +164,17 @@ async fn run() -> Result<(), quant_core::Error> {
             }
         }
 
-        tokio::time::sleep(Duration::from_secs(60 * 5)).await;
+        tokio::time::sleep(Duration::from_secs(60 * 15)).await;
     }
 
     Ok(())
 }
 
 fn handle_klines_with_macd(klines: &[Kline]) -> Option<Side> {
+    if klines.len() < 3 {
+        return None;
+    }
+
     let item = klines
         .iter()
         .filter_map(|k| k.to_data_item().ok())
@@ -175,7 +190,7 @@ fn handle_klines_with_macd(klines: &[Kline]) -> Option<Side> {
     let bar_point = bar.last().copied().unwrap_or_default();
     let (last_flag, current_flag) = match bar[..] {
         [.., a, b, c] => (b - a, c - b),
-        _ => panic!("array shorter than 3"),
+        _ => unreachable!(),
     };
 
     if last_flag * current_flag < 0.0 {

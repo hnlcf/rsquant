@@ -30,3 +30,7 @@ where
         }
     }
 }
+
+pub trait IntoTarget<T> {
+    fn into_target(self) -> T;
+}

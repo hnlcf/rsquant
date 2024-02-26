@@ -67,7 +67,6 @@ pub struct NewOrderApiRequest {
     pub time_in_force: TimeInForce,
     pub quantity: Decimal,
     pub price: Decimal,
-    pub stop_price: Decimal,
 }
 
 #[derive(Debug)]

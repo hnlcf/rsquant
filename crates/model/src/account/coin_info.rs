@@ -1,15 +1,16 @@
 use core::fmt;
 
+use rust_decimal::Decimal;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct CoinInfo {
     /// 资产名称
-    asset: String,
+    pub asset: String,
     /// 可用余额
-    free: String,
+    pub free: Decimal,
     /// 不可用余额
-    locked: String,
+    pub locked: Decimal,
 }
 
 impl CoinInfo {
@@ -17,18 +18,16 @@ impl CoinInfo {
         self.asset.to_owned()
     }
 
-    pub fn free(&self) -> String {
+    pub fn free(&self) -> Decimal {
         self.free.to_owned()
     }
 
-    pub fn locked(&self) -> String {
+    pub fn locked(&self) -> Decimal {
         self.locked.to_owned()
     }
 
     pub fn is_zero(&self) -> bool {
-        let free: Result<f64, fast_float::Error> = fast_float::parse(&self.free);
-        let locked: Result<f64, fast_float::Error> = fast_float::parse(&self.locked);
-        matches!((free, locked), (Ok(free), Ok(locked)) if free == 0.0 && locked == 0.0)
+        self.free.is_zero() && self.locked.is_zero()
     }
 }
 

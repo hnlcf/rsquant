@@ -1,7 +1,10 @@
 use binan_spot::{http::request::Request, market, trade};
 use quant_core::{Error, Result};
 use quant_model::{
-    account_info::AccountInfo, kline::Kline, market::ticker_price::TickerPrice, DecodeFromStr,
+    account_info::{AccountInfo, RawAccountInfo},
+    kline::Kline,
+    market::ticker_price::TickerPrice,
+    DecodeFromStr, IntoTarget,
 };
 
 use crate::message::{
@@ -19,10 +22,11 @@ impl GetResponse {
     ) -> Result<AccountInfo> {
         let request: Request = trade::account().into();
 
-        request
-            .get_response(client)
-            .await
-            .and_then(|ref res| AccountInfo::decode_from_str(res).map_err(Error::Serde))
+        request.get_response(client).await.and_then(|ref res| {
+            RawAccountInfo::decode_from_str(res)
+                .map(|a| a.into_target())
+                .map_err(Error::Serde)
+        })
     }
 
     pub async fn get_ticker_price(
@@ -72,13 +76,11 @@ impl GetResponse {
             time_in_force,
             quantity,
             price,
-            stop_price,
         } = req;
         let request: Request = trade::new_order(&symbol, side, &r#type)
             .time_in_force(time_in_force)
             .quantity(quantity)
             .price(price)
-            .stop_price(stop_price)
             .into();
         request.get_response(client).await
     }
