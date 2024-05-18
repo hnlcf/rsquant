@@ -39,7 +39,6 @@ impl GetResponse {
             .get_response(client)
             .await
             .and_then(|ref res| TickerPrice::decode_from_str(res).map_err(Error::Serde))
-            .map(TickerPrice::from_ticker)
     }
 
     pub async fn get_kline(client: &BinanHttpClient, req: KlineApiRequest) -> Result<Vec<Kline>> {
@@ -56,16 +55,10 @@ impl GetResponse {
             .limit(limit)
             .into();
 
-        let interval = interval.to_string();
         request
             .get_response(client)
             .await
             .and_then(|ref res| Vec::decode_from_str(res).map_err(Error::Serde))
-            .map(|ks| {
-                ks.into_iter()
-                    .map(|k| Kline::from_kline(&symbol, &interval, k))
-                    .collect()
-            })
     }
 
     pub async fn new_order(client: &BinanHttpClient, req: NewOrderApiRequest) -> Result<String> {

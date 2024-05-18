@@ -13,7 +13,7 @@ thiserror = { workspace = true }
 rust_decimal = { workspace = true }
 actix = { workspace = true }
 
-binan_spot = { path = "../binan_spot", features = ["full"] }
+binan_spot = { path = "../../deps/binan_spot", features = ["full"] }
 quant_config = { path = "../config" }
 quant_core = { path = "../core" }
 quant_model = { path = "../model" }

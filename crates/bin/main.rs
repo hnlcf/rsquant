@@ -20,7 +20,6 @@ use rust_decimal_macros::dec;
 use manager::QuantState;
 use tokio::sync::Mutex;
 
-mod api;
 mod manager;
 
 static STATE: OnceLock<QuantState> = OnceLock::new();
@@ -65,7 +64,7 @@ async fn run() -> Result<(), quant_core::Error> {
     let btc = "BTC";
     let symbol = "BTCUSDT";
 
-    let total = dec!(50.0);
+    let total = dec!(100.0);
     let mut profit = dec!(0.0);
 
     let manager = STATE.get().unwrap();
@@ -74,14 +73,15 @@ async fn run() -> Result<(), quant_core::Error> {
     let price = price_slot.clone();
     tokio::task::spawn(async move {
         loop {
-            let origin_price = manager
+            let ticker = manager
                 .get_ticker(TickerApiRequest {
                     symbol: symbol.to_owned(),
                 })
                 .await
-                .unwrap()
-                .price();
-            *price.lock().await = origin_price;
+                .unwrap();
+            tracing::info!("Ticker: {}: {}", ticker.symbol, ticker.price());
+            *price.lock().await = ticker.price();
+            tokio::time::sleep(Duration::from_secs(5)).await;
         }
     });
 
@@ -99,13 +99,13 @@ async fn run() -> Result<(), quant_core::Error> {
         {
             Ok(res) => {
                 let signal = handle_klines_with_macd(&res);
-                tracing::debug!(
+                tracing::info!(
                     "Signal: {}",
                     signal.map(|s| s.to_string()).unwrap_or("Nil".to_string())
                 );
 
                 let origin_price = *price_slot.lock().await;
-                tracing::debug!("Ticker of {}: {}", symbol, origin_price);
+                tracing::info!("Ticker of {}: {}", symbol, origin_price);
 
                 let account_info = manager.get_account_info().await?;
                 match signal {

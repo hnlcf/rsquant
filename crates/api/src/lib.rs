@@ -1,3 +1,4 @@
+pub mod actor;
 pub mod credential;
 pub mod message;
 pub mod req;

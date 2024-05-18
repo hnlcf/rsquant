@@ -43,7 +43,7 @@ pub struct TickerApiResponse {
     pub ticker: TickerPrice,
 }
 
-#[derive(Message)]
+#[derive(Message, Clone)]
 #[rtype(result = "Result<KlineApiResponse, quant_core::Error>")]
 pub struct KlineApiRequest {
     pub symbol: String,
@@ -55,6 +55,8 @@ pub struct KlineApiRequest {
 
 #[derive(Debug)]
 pub struct KlineApiResponse {
+    pub symbol: String,
+    pub interval: KlineInterval,
     pub klines: Vec<Kline>,
 }
 

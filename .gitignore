@@ -18,7 +18,7 @@ __pycache__
 poetry.lock
 rsquant.json
 
-crates/binan_spot_examples
+deps/binan_spot_examples
 
 ### Build and Run
 core.*

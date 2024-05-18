@@ -1,4 +1,5 @@
 use actix::{Actor, Addr};
+use quant_api::actor::Api;
 use quant_api::message::{
     AccountInfoApiRequest, AccountInfoApiResponse, KlineApiRequest, KlineApiResponse,
     NewOrderApiRequest, NormalRequest, TickerApiRequest, TickerApiResponse,
@@ -8,8 +9,6 @@ use quant_core::{Error, Result};
 use quant_db::recorder::Recorder;
 use quant_log::Logger;
 use quant_model::{account_info::AccountInfo, kline::Kline, order, ticker_price::TickerPrice};
-
-use crate::api::Api;
 
 pub struct QuantState {
     config: QuantConfig,
@@ -26,7 +25,7 @@ impl Default for QuantState {
     fn default() -> Self {
         Self {
             config: QuantConfig::default(),
-            api: Api::default_with_proxy().start(),
+            api: Api::default().start(),
             recorder: Recorder::default(),
             logger: Logger::default(),
         }
@@ -37,13 +36,12 @@ impl QuantState {
     pub fn from_config(config: QuantConfig) -> Result<Self> {
         let QuantConfig {
             api_credentials,
-            network,
             database,
             log,
             ..
         } = config.to_owned();
 
-        let api = Api::from_config(api_credentials, network).start();
+        let api = Api::from_config(api_credentials).start();
         let recorder = Recorder::from_config(database)?;
         let logger = Logger::from_config(log);
 
@@ -97,8 +95,6 @@ impl QuantState {
             .await
             .map_err(|e| Error::Custom(e.to_string()))??;
 
-        self.recorder().record_ticker_price_data(&res.ticker)?;
-
         tracing::trace!("{:#?}", res);
 
         Ok(res.ticker)
@@ -110,8 +106,6 @@ impl QuantState {
             .send(req)
             .await
             .map_err(|e| Error::Custom(e.to_string()))??;
-
-        self.recorder().record_kline_data(&res.klines)?;
 
         tracing::trace!("{:#?}", res);
 

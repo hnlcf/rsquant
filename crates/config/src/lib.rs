@@ -7,33 +7,9 @@ use quant_core::{Error, Result};
 pub struct ConfigBuilder;
 
 impl ConfigBuilder {
-    fn read_config_file(path: path::PathBuf) -> Result<String> {
-        if !path.exists() {
-            let mut curr_config_path = std::env::current_dir().unwrap();
-            curr_config_path.push("quant.toml");
-            if !curr_config_path.exists() {
-                let config_dir = path.parent().ok_or(Error::Custom(
-                    "Failed to get config file parent path.".to_owned(),
-                ))?;
-                std::fs::create_dir_all(config_dir)?;
-                fs::File::create(path)?;
-
-                Err(Error::Custom("Please fill in the config file.".to_owned()))
-            } else {
-                fs::read_to_string(curr_config_path).map_err(Error::from)
-            }
-        } else {
-            fs::read_to_string(path).map_err(Error::from)
-        }
-    }
-
-    fn parse_config(config: String) -> Result<QuantConfig> {
-        serde_json::from_str::<QuantConfig>(&config).map_err(Error::from)
-    }
-
     pub fn build(path: path::PathBuf) -> Result<QuantConfig> {
-        let config_content = ConfigBuilder::read_config_file(path)?;
-        ConfigBuilder::parse_config(config_content)
+        let content = fs::read_to_string(path).map_err(Error::from)?;
+        serde_json::from_str::<QuantConfig>(&content).map_err(Error::from)
     }
 }
 

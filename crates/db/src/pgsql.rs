@@ -4,7 +4,6 @@ use diesel::prelude::*;
 
 use quant_config::PostgresqlConfig;
 use quant_core::{Error, Result};
-use quant_model::{kline::Kline, ticker_price::TickerPrice};
 use quant_util::constants::DEFAULT_POSTGRES_ADDR;
 
 pub struct PostgresConnection {
@@ -30,24 +29,6 @@ impl PostgresConnection {
     }
 
     pub fn init(&self) {}
-
-    pub fn insert_kline(&mut self, klines: &[Kline]) -> Result<usize> {
-        use quant_model::schema::assets_kline_data;
-
-        diesel::insert_into(assets_kline_data::table)
-            .values(klines)
-            .execute(&mut self.conn)
-            .map_err(Error::from)
-    }
-
-    pub fn insert_ticker_price(&mut self, ticker_price: &TickerPrice) -> Result<usize> {
-        use quant_model::schema::assets_ticker_price_data;
-
-        diesel::insert_into(assets_ticker_price_data::table)
-            .values(ticker_price)
-            .execute(&mut self.conn)
-            .map_err(Error::from)
-    }
 }
 
 impl Default for PostgresConnection {

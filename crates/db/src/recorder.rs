@@ -2,8 +2,6 @@ use std::sync::{Arc, Mutex};
 
 use quant_config::DatabaseConfig;
 use quant_core::{Error, Result};
-use quant_model::kline::Kline;
-use quant_model::ticker_price::TickerPrice;
 
 use super::pgsql::PostgresConnection;
 
@@ -30,13 +28,5 @@ impl Recorder {
 
     pub fn init(&self) {
         self.conn.lock().unwrap().init();
-    }
-
-    pub fn record_ticker_price_data(&self, ticker_price: &TickerPrice) -> Result<usize> {
-        self.conn.lock().unwrap().insert_ticker_price(ticker_price)
-    }
-
-    pub fn record_kline_data(&self, kline: &[Kline]) -> Result<usize> {
-        self.conn.lock().unwrap().insert_kline(kline)
     }
 }

@@ -3,7 +3,7 @@ version: "3"
 services:
   postgres:
     image: postgres:latest
-    container_name: rsquant
+    container_name: rsquant-pg
     environment:
       POSTGRES_DB: rsquant
       POSTGRES_USER: postgres

@@ -1,21 +1,13 @@
 use core::fmt;
 
-use diesel::prelude::*;
 use serde::Deserialize;
 
-use crate::schema::assets_kline_data;
 use crate::DecodeFromStr;
-
 use quant_util::time::u64_to_datetime;
 
-#[derive(Queryable, Selectable, Insertable, Debug, Clone, Deserialize)]
-#[diesel(table_name = assets_kline_data)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(Debug, Deserialize)]
+
 pub struct Kline {
-    #[serde(skip_deserializing)]
-    pub symbol: String,
-    #[serde(skip_deserializing)]
-    pub interval: String,
     /// 开始时间
     #[serde(deserialize_with = "u64_to_datetime")]
     pub open_time: chrono::NaiveDateTime,
@@ -38,16 +30,6 @@ pub struct Kline {
     pub buy_base_asset_volume: String,
     pub buy_quote_asset_volume: String,
     pub ignore_field: String,
-}
-
-impl Kline {
-    pub fn from_kline(symbol: &str, interval: &str, kline: Kline) -> Self {
-        Self {
-            symbol: symbol.to_owned(),
-            interval: interval.to_owned(),
-            ..kline
-        }
-    }
 }
 
 impl DecodeFromStr<'_, Vec<Kline>> for Vec<Kline> {}

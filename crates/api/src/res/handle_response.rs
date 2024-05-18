@@ -16,7 +16,7 @@ pub trait AsyncToString {
 
 impl AsyncGetResp for Request {
     async fn get_response(&self, client: &BinanHttpClient) -> Result<String> {
-        tracing::trace!("Send request: {:?}", self);
+        tracing::debug!("Send request: {:?}", self);
         loop {
             match client.send(self.to_owned()).await {
                 Ok(res) => {

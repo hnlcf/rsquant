@@ -22,8 +22,9 @@ where
             }
             Err(e) => {
                 tracing::error!(
-                    "Failed to deserialize response string to data structure: {}.",
-                    e
+                    "Failed to deserialize response string to data structure: {} for data `{}`.",
+                    e,
+                    data
                 );
                 Err(e)
             }

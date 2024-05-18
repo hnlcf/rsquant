@@ -1,31 +1,19 @@
 use core::fmt;
 use std::str::FromStr;
 
-use diesel::prelude::*;
+use quant_util::time::u64_to_datetime;
 use rust_decimal::Decimal;
 use serde::Deserialize;
 
-use crate::schema::assets_ticker_price_data;
 use crate::DecodeFromStr;
 
-#[derive(Debug, Clone, Deserialize, Queryable, Selectable, Insertable)]
-#[diesel(table_name = assets_ticker_price_data)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
+#[derive(Debug, Deserialize)]
 pub struct TickerPrice {
     pub symbol: String,
     pub price: String,
-    #[serde(skip_deserializing)]
-    pub update_time: chrono::NaiveDateTime,
 }
 
 impl TickerPrice {
-    pub fn from_ticker(ticker: TickerPrice) -> Self {
-        Self {
-            update_time: chrono::Local::now().naive_local(),
-            ..ticker
-        }
-    }
-
     pub fn price(&self) -> Decimal {
         Decimal::from_str(self.price.as_str()).unwrap()
     }

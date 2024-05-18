@@ -1,12 +1,6 @@
 use std::sync::Arc;
 
-use actix::dev::ContextFutureSpawner;
-use actix::{
-    fut, Actor, ActorContext, ActorFuture, ActorFutureExt, AsyncContext, Context, Handler,
-    ResponseActFuture, System, WrapFuture,
-};
-use binan_spot::{http::Credentials, market::klines::KlineInterval};
-use quant_api::{
+use crate::{
     credential,
     message::{
         AccountInfoApiRequest, AccountInfoApiResponse, KlineApiRequest, KlineApiResponse,
@@ -15,50 +9,37 @@ use quant_api::{
     },
     res::{BinanHttpClient, GetResponse},
 };
-use quant_config::{CredentialsConfig, NetworkConfig};
-use quant_model::{account_info, kline, ticker_price};
-use quant_util::env::EnvManager;
+use actix::{Actor, ActorContext, ActorFutureExt, Context, Handler, ResponseActFuture, WrapFuture};
+
+use quant_config::CredentialsConfig;
 
 pub struct Api {
-    credentials: Credentials,
     client: Arc<BinanHttpClient>,
 }
 
 impl Api {
-    pub fn from_config(credentials: CredentialsConfig, network: NetworkConfig) -> Self {
+    pub fn from_config(credentials: CredentialsConfig) -> Self {
         match credentials {
             CredentialsConfig::Binance(binan_credentials) => {
                 let credentials = credential::CredentialBuilder::from_config(binan_credentials)
                     .expect("Failed to get credentials from config file.");
-                match network.proxy {
-                    Some(proxy_config) => {
-                        let proxy_uri = proxy_config.https_proxy.unwrap_or("".into());
-                        let client = Arc::new(
-                            BinanHttpClient::default_with_proxy(&proxy_uri)
-                                .credentials(credentials.to_owned()),
-                        );
 
-                        Self {
-                            credentials,
-                            client,
-                        }
-                    }
-                    None => Api::default_with_proxy(),
-                }
+                let client =
+                    Arc::new(BinanHttpClient::default().credentials(credentials.to_owned()));
+
+                Self { client }
             }
-            _ => Api::default_with_proxy(),
+            _ => Api::default(),
         }
     }
+}
 
-    pub fn default_with_proxy() -> Self {
-        let proxy = EnvManager::get_env_var_or("https_proxy", "");
+impl Default for Api {
+    fn default() -> Self {
         let credentials = credential::CredentialBuilder::from_env()
             .expect("Failed to create credential from envs.");
         Self {
-            credentials: credentials.to_owned(),
-            client: Arc::new(
-                BinanHttpClient::default_with_proxy(&proxy).credentials(credentials.to_owned()),
-            ),
+            client: Arc::new(BinanHttpClient::default().credentials(credentials.to_owned())),
         }
     }
 }
@@ -116,6 +97,10 @@ impl Handler<KlineApiRequest> for Api {
     type Result = ResponseActFuture<Self, Result<KlineApiResponse, quant_core::Error>>;
 
     fn handle(&mut self, msg: KlineApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let KlineApiRequest {
+            symbol, interval, ..
+        } = msg.clone();
+
         let client = self.client.clone();
         async move {
             GetResponse::get_kline(&client, msg)
@@ -123,7 +108,13 @@ impl Handler<KlineApiRequest> for Api {
                 .map_err(quant_core::Error::from)
         }
         .into_actor(self)
-        .map(|res, _slf, _ctx| res.map(|klines| KlineApiResponse { klines }))
+        .map(move |res, _slf, _ctx| {
+            res.map(|klines| KlineApiResponse {
+                symbol,
+                interval,
+                klines,
+            })
+        })
         .boxed_local()
     }
 }

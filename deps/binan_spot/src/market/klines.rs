@@ -1,7 +1,7 @@
 use crate::http::{request::Request, Method};
 use strum::Display;
 
-#[derive(Copy, Clone, Display)]
+#[derive(Debug, Copy, Clone, Display)]
 pub enum KlineInterval {
     #[strum(serialize = "1m")]
     Minutes1,
