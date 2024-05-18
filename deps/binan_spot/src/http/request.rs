@@ -5,11 +5,11 @@ use crate::http::{
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Request {
-    pub(crate) method: Method,
-    pub(crate) path: String,
-    pub(crate) params: Vec<(String, String)>,
-    pub(crate) credentials: Option<Credentials>,
-    pub(crate) sign: bool,
+    pub method: Method,
+    pub path: String,
+    pub params: Vec<(String, String)>,
+    pub credentials: Option<Credentials>,
+    pub sign: bool,
 }
 
 impl Request {

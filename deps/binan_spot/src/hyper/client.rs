@@ -77,7 +77,7 @@ impl BinanceHttpClient<HttpsConnector<HttpConnector>> {
     }
 }
 
-fn create_query_string(params: &[(String, String)]) -> String {
+pub fn create_query_string(params: &[(String, String)]) -> String {
     let mut serializer = url::form_urlencoded::Serializer::new(String::new());
     for (k, v) in params.iter() {
         serializer.append_pair(k, v);
