@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `GET /api/v3/orderList`
 ///
@@ -86,7 +90,11 @@ impl Default for GetOCOOrder {
 #[cfg(test)]
 mod tests {
     use super::GetOCOOrder;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

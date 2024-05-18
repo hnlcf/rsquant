@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `GET /api/v3/rateLimit/order`
 ///
@@ -64,7 +68,11 @@ impl Default for OrderLimitUsage {
 #[cfg(test)]
 mod tests {
     use super::OrderLimitUsage;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `GET /sapi/v1/margin/openOrders`
 ///
@@ -91,7 +95,11 @@ impl From<MarginOpenOrders> for Request {
 #[cfg(test)]
 mod tests {
     use super::MarginOpenOrders;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

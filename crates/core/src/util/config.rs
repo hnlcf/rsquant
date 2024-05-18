@@ -1,8 +1,17 @@
-use std::{fs, path};
+use std::{
+    fs,
+    path,
+};
 
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
-use quant_core::{Error, Result};
+use crate::{
+    Error,
+    Result,
+};
 
 pub struct ConfigBuilder;
 

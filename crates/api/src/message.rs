@@ -6,10 +6,19 @@ use actix::Message;
 use binan_spot::{
     http::Credentials,
     market::klines::KlineInterval,
-    trade::order::{Side, TimeInForce},
+    trade::order::{
+        Side,
+        TimeInForce,
+    },
 };
-use quant_core::Error;
-use quant_model::{account_info::AccountInfo, kline::Kline, ticker_price::TickerPrice};
+use quant_core::{
+    model::{
+        account_info::AccountInfo,
+        kline::Kline,
+        ticker_price::TickerPrice,
+    },
+    Error,
+};
 use rust_decimal::Decimal;
 
 #[derive(Message)]

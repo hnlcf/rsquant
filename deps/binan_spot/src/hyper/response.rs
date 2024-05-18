@@ -1,7 +1,15 @@
-use crate::http::error::{BinanceApiError, ClientError, HttpError};
-use crate::hyper::Error;
-use hyper::Body;
 use std::collections::HashMap;
+
+use hyper::Body;
+
+use crate::{
+    http::error::{
+        BinanceApiError,
+        ClientError,
+        HttpError,
+    },
+    hyper::Error,
+};
 
 /// REST Response
 #[derive(Debug)]

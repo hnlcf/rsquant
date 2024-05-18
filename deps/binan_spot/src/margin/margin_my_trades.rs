@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `GET /sapi/v1/margin/myTrades`
 ///
@@ -118,7 +122,11 @@ impl From<MarginMyTrades> for Request {
 #[cfg(test)]
 mod tests {
     use super::MarginMyTrades;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `GET /sapi/v1/margin/isolatedMarginTier`
 ///
@@ -71,7 +75,11 @@ impl From<IsolatedMarginTierData> for Request {
 #[cfg(test)]
 mod tests {
     use super::IsolatedMarginTierData;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

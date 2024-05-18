@@ -1,5 +1,7 @@
-use crate::market::klines::KlineInterval;
-use crate::websocket::Stream;
+use crate::{
+    market::klines::KlineInterval,
+    websocket::Stream,
+};
 
 /// Kline/Candlestick Stream
 ///

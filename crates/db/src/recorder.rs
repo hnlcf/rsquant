@@ -1,7 +1,13 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{
+    Arc,
+    Mutex,
+};
 
-use quant_config::DatabaseConfig;
-use quant_core::{Error, Result};
+use quant_core::{
+    util::config,
+    Error,
+    Result,
+};
 
 use super::pgsql::PostgresConnection;
 
@@ -11,9 +17,9 @@ pub struct Recorder {
 }
 
 impl Recorder {
-    pub fn from_config(config: DatabaseConfig) -> Result<Self> {
+    pub fn from_config(config: config::DatabaseConfig) -> Result<Self> {
         match config {
-            DatabaseConfig::Postgresql(config) => {
+            config::DatabaseConfig::Postgresql(config) => {
                 PostgresConnection::from_config(config).map(Self::new)
             }
             _ => Err(Error::Custom("Unsupported database type.".to_owned())),

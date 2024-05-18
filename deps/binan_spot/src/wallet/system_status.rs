@@ -1,4 +1,7 @@
-use crate::http::{request::Request, Method};
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 /// `GET /sapi/v1/system/status`
 ///
@@ -44,7 +47,10 @@ impl Default for SystemStatus {
 #[cfg(test)]
 mod tests {
     use super::SystemStatus;
-    use crate::http::{request::Request, Method};
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn wallet_system_status_convert_to_request_test() {

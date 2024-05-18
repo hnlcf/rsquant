@@ -1,14 +1,35 @@
-use actix::{Actor, Addr};
-use quant_api::actor::Api;
-use quant_api::message::{
-    AccountInfoApiRequest, AccountInfoApiResponse, KlineApiRequest, KlineApiResponse,
-    NewOrderApiRequest, NormalRequest, TickerApiRequest, TickerApiResponse,
+use actix::{
+    Actor,
+    Addr,
 };
-use quant_config::QuantConfig;
-use quant_core::{Error, Result};
+use quant_api::{
+    actor::Api,
+    message::{
+        AccountInfoApiRequest,
+        AccountInfoApiResponse,
+        KlineApiRequest,
+        KlineApiResponse,
+        NewOrderApiRequest,
+        NormalRequest,
+        TickerApiRequest,
+        TickerApiResponse,
+    },
+};
+use quant_core::{
+    model::{
+        account_info::AccountInfo,
+        kline::Kline,
+        order,
+        ticker_price::TickerPrice,
+    },
+    util::{
+        config::QuantConfig,
+        log::Logger,
+    },
+    Error,
+    Result,
+};
 use quant_db::recorder::Recorder;
-use quant_log::Logger;
-use quant_model::{account_info::AccountInfo, kline::Kline, order, ticker_price::TickerPrice};
 
 pub struct QuantState {
     config: QuantConfig,

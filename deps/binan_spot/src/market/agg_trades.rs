@@ -1,4 +1,7 @@
-use crate::http::{request::Request, Method};
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 /// `GET /api/v3/aggTrades`
 ///
@@ -88,7 +91,10 @@ impl From<AggTrades> for Request {
 #[cfg(test)]
 mod tests {
     use super::AggTrades;
-    use crate::http::{request::Request, Method};
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn market_agg_trades_convert_to_request_test() {

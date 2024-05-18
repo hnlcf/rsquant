@@ -1,6 +1,17 @@
-use crate::http::{request::Request, Credentials, Method};
-use crate::trade::order::{NewOrderResponseType, Side, TimeInForce};
 use rust_decimal::Decimal;
+
+use crate::{
+    http::{
+        request::Request,
+        Credentials,
+        Method,
+    },
+    trade::order::{
+        NewOrderResponseType,
+        Side,
+        TimeInForce,
+    },
+};
 
 /// `POST /api/v3/order/oco`
 ///
@@ -196,10 +207,20 @@ impl From<NewOCOOrder> for Request {
 
 #[cfg(test)]
 mod tests {
-    use super::NewOCOOrder;
-    use crate::http::{request::Request, Credentials, Method};
-    use crate::trade::order::{Side, TimeInForce};
     use rust_decimal_macros::dec;
+
+    use super::NewOCOOrder;
+    use crate::{
+        http::{
+            request::Request,
+            Credentials,
+            Method,
+        },
+        trade::order::{
+            Side,
+            TimeInForce,
+        },
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

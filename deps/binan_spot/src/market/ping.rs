@@ -1,4 +1,7 @@
-use crate::http::{request::Request, Method};
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 /// `GET /api/v3/ping`
 ///
@@ -44,7 +47,10 @@ impl Default for Ping {
 #[cfg(test)]
 mod tests {
     use super::Ping;
-    use crate::http::{request::Request, Method};
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn market_ping_convert_to_request_test() {

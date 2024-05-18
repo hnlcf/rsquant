@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `GET /sapi/v1/margin/rateLimit/order`
 ///
@@ -89,7 +93,11 @@ impl Default for MarginOrderCountUsage {
 #[cfg(test)]
 mod tests {
     use super::MarginOrderCountUsage;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

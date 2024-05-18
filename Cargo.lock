@@ -2332,10 +2332,7 @@ dependencies = [
  "hyper",
  "hyper-proxy",
  "hyper-tls",
- "quant_config",
  "quant_core",
- "quant_model",
- "quant_util",
  "rust_decimal",
  "serde",
  "serde_json",
@@ -2345,26 +2342,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "quant_config"
-version = "0.1.0"
-dependencies = [
- "quant_core",
- "quant_util",
- "serde",
- "serde_json",
- "tracing",
-]
-
-[[package]]
 name = "quant_core"
 version = "0.1.0"
 dependencies = [
  "binan_spot",
+ "chrono",
  "diesel",
+ "fast-float",
  "lettre",
+ "rust_decimal",
+ "serde",
  "serde_json",
  "thiserror",
  "toml 0.7.8",
+ "tracing",
+ "tracing-appender",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -2372,19 +2365,6 @@ name = "quant_db"
 version = "0.1.0"
 dependencies = [
  "diesel",
- "quant_config",
- "quant_core",
- "quant_model",
- "quant_util",
- "tracing",
-]
-
-[[package]]
-name = "quant_email"
-version = "0.1.0"
-dependencies = [
- "lettre",
- "quant_config",
  "quant_core",
  "tracing",
 ]
@@ -2394,44 +2374,8 @@ name = "quant_indicator"
 version = "0.1.0"
 dependencies = [
  "fast-float",
- "quant_model",
- "ta",
-]
-
-[[package]]
-name = "quant_log"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "quant_config",
  "quant_core",
- "quant_util",
- "tracing",
- "tracing-appender",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "quant_model"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "diesel",
- "fast-float",
- "quant_util",
- "rust_decimal",
- "serde",
- "serde_json",
- "tracing",
-]
-
-[[package]]
-name = "quant_util"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "serde",
- "tracing",
+ "ta",
 ]
 
 [[package]]
@@ -2670,14 +2614,9 @@ dependencies = [
  "openssl",
  "pq-src",
  "quant_api",
- "quant_config",
  "quant_core",
  "quant_db",
- "quant_email",
  "quant_indicator",
- "quant_log",
- "quant_model",
- "quant_util",
  "rust_decimal",
  "rust_decimal_macros",
  "thiserror",

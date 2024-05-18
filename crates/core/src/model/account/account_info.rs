@@ -1,10 +1,14 @@
 use core::fmt;
 use std::collections::BTreeMap;
 
-use super::coin_info::CoinInfo;
-use crate::{DecodeFromStr, IntoTarget};
 use rust_decimal::Decimal;
 use serde::Deserialize;
+
+use super::coin_info::CoinInfo;
+use crate::model::{
+    DecodeFromStr,
+    IntoTarget,
+};
 
 #[derive(Debug)]
 pub struct AccountInfo {

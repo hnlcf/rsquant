@@ -1,4 +1,7 @@
-use crate::http::{Credentials, Method};
+use crate::http::{
+    Credentials,
+    Method,
+};
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Request {
@@ -13,15 +16,19 @@ impl Request {
     pub fn method(&self) -> &Method {
         &self.method
     }
+
     pub fn path(&self) -> &str {
         &self.path
     }
+
     pub fn params(&self) -> &[(String, String)] {
         &self.params
     }
+
     pub fn credentials(&self) -> &Option<Credentials> {
         &self.credentials
     }
+
     pub fn sign(&self) -> &bool {
         &self.sign
     }

@@ -1,11 +1,19 @@
 use lettre::{
-    message::{header::ContentType, Mailbox},
+    message::{
+        header::ContentType,
+        Mailbox,
+    },
     transport::smtp::authentication::Credentials,
-    Message, SmtpTransport, Transport,
+    Message,
+    SmtpTransport,
+    Transport,
 };
 
-use quant_config::EmailConfig;
-use quant_core::{Error, Result};
+use super::config::EmailConfig;
+use crate::{
+    Error,
+    Result,
+};
 
 pub struct EmailManager {
     from_email: Mailbox,

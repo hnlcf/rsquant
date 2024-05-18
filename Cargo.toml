@@ -14,15 +14,10 @@ name = "rsquant"
 members = [
     "deps/binan_spot",
     # "deps/binan_spot_examples",
-    "crates/api",
-    "crates/config",
     "crates/core",
+    "crates/api",
     "crates/db",
-    "crates/email",
     "crates/indicator",
-    "crates/log",
-    "crates/model",
-    "crates/util",
 ]
 
 [workspace.dependencies]
@@ -53,14 +48,9 @@ rust_decimal = { workspace = true }
 
 binan_spot = { path = "deps/binan_spot", features = ["full"] }
 quant_api = { path = "crates/api" }
-quant_config = { path = "crates/config" }
 quant_core = { path = "crates/core" }
 quant_db = { path = "crates/db" }
-quant_email = { path = "crates/email" }
 quant_indicator = { path = "crates/indicator" }
-quant_log = { path = "crates/log" }
-quant_model = { path = "crates/model" }
-quant_util = { path = "crates/util" }
 actix-web = { version = "4.3.1", features = ["macros", "rustls"] }
 crossbeam-channel = "0.5.11"
 futures-util = "0.3.30"

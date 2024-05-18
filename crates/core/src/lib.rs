@@ -1,4 +1,6 @@
 mod error;
+pub mod model;
+pub mod util;
 
 pub use error::Error;
 

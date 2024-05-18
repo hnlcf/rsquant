@@ -1,10 +1,20 @@
 use futures_util::SinkExt;
-use tokio::io::{AsyncRead, AsyncWrite};
-use tokio::net::TcpStream;
+use tokio::{
+    io::{
+        AsyncRead,
+        AsyncWrite,
+    },
+    net::TcpStream,
+};
 use tokio_tungstenite::{
     connect_async,
-    tungstenite::{handshake::client::Response, protocol::Message, Error},
-    MaybeTlsStream, WebSocketStream,
+    tungstenite::{
+        handshake::client::Response,
+        protocol::Message,
+        Error,
+    },
+    MaybeTlsStream,
+    WebSocketStream,
 };
 use url::Url;
 

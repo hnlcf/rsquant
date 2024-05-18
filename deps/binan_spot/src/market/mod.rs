@@ -20,7 +20,10 @@ use book_ticker::BookTicker;
 use depth::Depth;
 use exchange_info::ExchangeInfo;
 use historical_trades::HistoricalTrades;
-use klines::{KlineInterval, Klines};
+use klines::{
+    KlineInterval,
+    Klines,
+};
 use ping::Ping;
 use rolling_window_price_change_statistics::RollingWindowPriceChangeStatistics;
 use ticker_price::TickerPrice;

@@ -1,23 +1,46 @@
 #![allow(dead_code, unused)]
 #![feature(let_chains)]
-use std::collections::VecDeque;
-use std::sync::Arc;
-use std::time::Duration;
-use std::{path, sync::OnceLock};
+use std::{
+    collections::VecDeque,
+    path,
+    sync::{
+        Arc,
+        OnceLock,
+    },
+    time::Duration,
+};
 
-use binan_spot::market::klines::KlineInterval;
-use binan_spot::trade::order::{Side, TimeInForce};
-use quant_api::message::{KlineApiRequest, NewOrderApiRequest, TickerApiRequest};
-use quant_config::ConfigBuilder;
-use quant_indicator::{data_item::ToDataItem, macd::MacdOutputBuilder};
-use quant_model::kline::Kline;
-use quant_util::time::{DurationInterval, GetDuration, UtcTimeTool};
-
+use binan_spot::{
+    market::klines::KlineInterval,
+    trade::order::{
+        Side,
+        TimeInForce,
+    },
+};
 use clap::Parser;
+use manager::QuantState;
+use quant_api::message::{
+    KlineApiRequest,
+    NewOrderApiRequest,
+    TickerApiRequest,
+};
+use quant_core::{
+    model::kline::Kline,
+    util::{
+        config::ConfigBuilder,
+        time::{
+            DurationInterval,
+            GetDuration,
+            UtcTimeTool,
+        },
+    },
+};
+use quant_indicator::{
+    data_item::ToDataItem,
+    macd::MacdOutputBuilder,
+};
 use rust_decimal::prelude::Signed;
 use rust_decimal_macros::dec;
-
-use manager::QuantState;
 use tokio::sync::Mutex;
 
 mod manager;

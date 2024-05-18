@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `DELETE /sapi/v1/margin/order`
 ///
@@ -109,7 +113,11 @@ impl From<MarginCancelOrder> for Request {
 #[cfg(test)]
 mod tests {
     use super::MarginCancelOrder;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

@@ -1,5 +1,10 @@
-use crate::http::{request::Request, Credentials, Method};
 use rust_decimal::Decimal;
+
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `POST /sapi/v1/capital/withdraw/apply`
 ///
@@ -141,9 +146,14 @@ impl From<Withdraw> for Request {
 
 #[cfg(test)]
 mod tests {
-    use super::Withdraw;
-    use crate::http::{request::Request, Credentials, Method};
     use rust_decimal_macros::dec;
+
+    use super::Withdraw;
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

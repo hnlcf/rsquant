@@ -1,9 +1,18 @@
-use chrono::TimeZone;
-use chrono::{DateTime, FixedOffset, Local, NaiveDateTime, Utc};
+use chrono::{
+    DateTime,
+    FixedOffset,
+    Local,
+    NaiveDateTime,
+    TimeZone,
+    Utc,
+};
 
-use crate::{
+use crate::util::{
     constants::DEFAULT_DATETIME_FORMAT_STR,
-    time::{LocalTimeTool, UtcTimeTool},
+    time::{
+        LocalTimeTool,
+        UtcTimeTool,
+    },
 };
 
 pub trait TimeConverter<Tz: TimeZone>
@@ -40,7 +49,10 @@ impl TimeConverter<Utc> for UtcTimeTool {
 
 #[cfg(test)]
 mod tests {
-    use super::{LocalTimeTool, TimeConverter};
+    use super::{
+        LocalTimeTool,
+        TimeConverter,
+    };
 
     #[test]
     fn test_time_converter() {

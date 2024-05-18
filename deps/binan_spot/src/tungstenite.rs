@@ -1,8 +1,21 @@
-use crate::websocket::Stream;
-use std::io::{Read, Write};
-use std::net::TcpStream;
-use tungstenite::{connect, stream::MaybeTlsStream, Error, Message, WebSocket};
+use std::{
+    io::{
+        Read,
+        Write,
+    },
+    net::TcpStream,
+};
+
+use tungstenite::{
+    connect,
+    stream::MaybeTlsStream,
+    Error,
+    Message,
+    WebSocket,
+};
 use url::Url;
+
+use crate::websocket::Stream;
 
 /// Binance websocket client using Tungstenite.
 pub struct BinanceWebSocketClient;

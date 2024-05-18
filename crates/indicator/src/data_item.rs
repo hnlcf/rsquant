@@ -1,4 +1,4 @@
-use quant_model::kline::Kline;
+use quant_core::model::kline::Kline;
 use ta::DataItem;
 
 pub trait ToDataItem {

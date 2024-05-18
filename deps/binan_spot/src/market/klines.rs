@@ -1,5 +1,9 @@
-use crate::http::{request::Request, Method};
 use strum::Display;
+
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 #[derive(Debug, Copy, Clone, Display)]
 pub enum KlineInterval {
@@ -119,8 +123,14 @@ impl From<Klines> for Request {
 
 #[cfg(test)]
 mod tests {
-    use super::{KlineInterval, Klines};
-    use crate::http::{request::Request, Method};
+    use super::{
+        KlineInterval,
+        Klines,
+    };
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn market_kline_candlestick_data_convert_to_request_test() {

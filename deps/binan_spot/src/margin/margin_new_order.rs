@@ -1,5 +1,10 @@
-use crate::http::{request::Request, Credentials, Method};
 use rust_decimal::Decimal;
+
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `POST /sapi/v1/margin/order`
 ///
@@ -182,9 +187,14 @@ impl From<MarginNewOrder> for Request {
 
 #[cfg(test)]
 mod tests {
-    use super::MarginNewOrder;
-    use crate::http::{request::Request, Credentials, Method};
     use rust_decimal_macros::dec;
+
+    use super::MarginNewOrder;
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

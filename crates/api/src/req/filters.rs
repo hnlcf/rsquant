@@ -1,5 +1,8 @@
 #![allow(clippy::enum_variant_names)]
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]

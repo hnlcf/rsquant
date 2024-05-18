@@ -1,4 +1,7 @@
-use crate::http::{request::Request, Method};
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 /// `GET /api/v3/ticker/24hr`
 ///
@@ -75,7 +78,10 @@ impl Default for Ticker24hr {
 #[cfg(test)]
 mod tests {
     use super::Ticker24hr;
-    use crate::http::{request::Request, Method};
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn market_ticker_twenty_four_hr_convert_to_request_test() {

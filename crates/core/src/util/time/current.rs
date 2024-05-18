@@ -1,8 +1,16 @@
-use chrono::{DateTime, Local, TimeZone, Utc};
+use chrono::{
+    DateTime,
+    Local,
+    TimeZone,
+    Utc,
+};
 
-use crate::{
+use crate::util::{
     constants::DEFAULT_DATETIME_FORMAT_STR,
-    time::{LocalTimeTool, UtcTimeTool},
+    time::{
+        LocalTimeTool,
+        UtcTimeTool,
+    },
 };
 
 pub trait CurrentTime<Tz: TimeZone>

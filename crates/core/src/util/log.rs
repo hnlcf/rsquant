@@ -1,11 +1,19 @@
 use std::fs;
 
 use tracing_appender::non_blocking::WorkerGuard;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use tracing_subscriber::{
+    layer::SubscriberExt,
+    util::SubscriberInitExt,
+    EnvFilter,
+};
 
-use quant_config::LogConfig;
-use quant_core::Result;
-use quant_util::constants::DEFAULT_LOG_FILE;
+use crate::{
+    util::{
+        config::LogConfig,
+        constants::DEFAULT_LOG_FILE,
+    },
+    Result,
+};
 
 #[derive(Default)]
 pub struct Logger {

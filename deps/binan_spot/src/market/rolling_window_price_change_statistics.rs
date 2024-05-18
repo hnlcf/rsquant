@@ -1,4 +1,7 @@
-use crate::http::{request::Request, Method};
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 /// `GET /api/v3/ticker`
 ///
@@ -88,7 +91,10 @@ impl From<RollingWindowPriceChangeStatistics> for Request {
 #[cfg(test)]
 mod tests {
     use super::RollingWindowPriceChangeStatistics;
-    use crate::http::{request::Request, Method};
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn market_rolling_window_price_change_statistics_convert_to_request_test() {

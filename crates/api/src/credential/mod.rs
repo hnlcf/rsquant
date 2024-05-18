@@ -1,11 +1,13 @@
 use binan_spot::http::Credentials;
-use quant_config::BinanCredentialsConfig;
-use quant_util::env;
+use quant_core::util::{
+    config,
+    env,
+};
 
 pub struct CredentialBuilder;
 
 impl CredentialBuilder {
-    pub fn from_config(config: BinanCredentialsConfig) -> Option<Credentials> {
+    pub fn from_config(config: config::BinanCredentialsConfig) -> Option<Credentials> {
         let sig_type = config.signature_type;
         let api_key = config.api_key;
         let api_secret = config.api_secret?;

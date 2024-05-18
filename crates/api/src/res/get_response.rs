@@ -1,17 +1,33 @@
-use binan_spot::{http::request::Request, market, trade};
-use quant_core::{Error, Result};
-use quant_model::{
-    account_info::{AccountInfo, RawAccountInfo},
-    kline::Kline,
-    market::ticker_price::TickerPrice,
-    DecodeFromStr, IntoTarget,
+use binan_spot::{
+    http::request::Request,
+    market,
+    trade,
+};
+use quant_core::{
+    model::{
+        account_info::{
+            AccountInfo,
+            RawAccountInfo,
+        },
+        kline::Kline,
+        market::ticker_price::TickerPrice,
+        DecodeFromStr,
+        IntoTarget,
+    },
+    Error,
+    Result,
 };
 
+use super::{
+    handle_response::AsyncGetResp,
+    BinanHttpClient,
+};
 use crate::message::{
-    AccountInfoApiRequest, KlineApiRequest, NewOrderApiRequest, TickerApiRequest,
+    AccountInfoApiRequest,
+    KlineApiRequest,
+    NewOrderApiRequest,
+    TickerApiRequest,
 };
-
-use super::{handle_response::AsyncGetResp, BinanHttpClient};
 
 pub struct GetResponse;
 

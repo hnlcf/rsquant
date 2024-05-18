@@ -11,8 +11,6 @@ pub mod rolling_window_ticker;
 pub mod ticker;
 pub mod trade;
 
-use crate::market::klines::KlineInterval;
-
 use agg_trade::AggTradeStream;
 use book_ticker::BookTickerStream;
 use diff_depth::DiffDepthStream;
@@ -22,6 +20,8 @@ use partial_depth::PartialDepthStream;
 use rolling_window_ticker::RollingWindowTickerStream;
 use ticker::TickerStream;
 use trade::TradeStream;
+
+use crate::market::klines::KlineInterval;
 
 pub fn agg_trades(symbol: &str) -> AggTradeStream {
     AggTradeStream::new(symbol)

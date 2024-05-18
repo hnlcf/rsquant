@@ -1,4 +1,7 @@
-use crate::http::{request::Request, Method};
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 /// `GET /api/v3/ticker/bookTicker`
 ///
@@ -75,7 +78,10 @@ impl From<BookTicker> for Request {
 #[cfg(test)]
 mod tests {
     use super::BookTicker;
-    use crate::http::{request::Request, Method};
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn market_book_ticker_convert_to_request_test() {

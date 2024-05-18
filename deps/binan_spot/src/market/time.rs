@@ -1,4 +1,7 @@
-use crate::http::{request::Request, Method};
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 /// `GET /api/v3/time`
 ///
@@ -44,7 +47,10 @@ impl Default for Time {
 #[cfg(test)]
 mod tests {
     use super::Time;
-    use crate::http::{request::Request, Method};
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn market_time_convert_to_request_test() {

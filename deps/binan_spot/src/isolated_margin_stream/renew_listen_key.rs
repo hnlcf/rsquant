@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `PUT /sapi/v1/userDataStream/isolated`
 ///
@@ -54,7 +58,11 @@ impl From<RenewListenKey> for Request {
 #[cfg(test)]
 mod tests {
     use super::RenewListenKey;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

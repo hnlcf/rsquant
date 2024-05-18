@@ -19,8 +19,6 @@ pub mod open_orders;
 pub mod order;
 pub mod order_limit_usage;
 
-use rust_decimal::Decimal;
-
 use account::Account;
 use all_orders::AllOrders;
 use cancel_an_existing_order_and_send_a_new_order::CancelAnExistingOrderAndSendANewOrder;
@@ -36,8 +34,12 @@ use new_oco_order::NewOCOOrder;
 use new_order::NewOrder;
 use new_order_test::NewOrderTest;
 use open_orders::OpenOrders;
-use order::{CancelReplaceMode, Side};
+use order::{
+    CancelReplaceMode,
+    Side,
+};
 use order_limit_usage::OrderLimitUsage;
+use rust_decimal::Decimal;
 
 pub fn new_order_test(symbol: &str, side: Side, r#type: &str) -> NewOrderTest {
     NewOrderTest::new(symbol, side, r#type)

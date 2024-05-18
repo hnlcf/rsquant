@@ -1,7 +1,15 @@
-use crate::http::error::{BinanceApiError, ClientError, HttpError};
-use crate::ureq::Error;
 use std::collections::HashMap;
+
 use ureq::Response as UreqResponse;
+
+use crate::{
+    http::error::{
+        BinanceApiError,
+        ClientError,
+        HttpError,
+    },
+    ureq::Error,
+};
 
 /// REST Response
 pub struct Response {

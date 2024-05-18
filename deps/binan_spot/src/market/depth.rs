@@ -1,4 +1,7 @@
-use crate::http::{request::Request, Method};
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 /// `GET /api/v3/depth`
 ///
@@ -56,7 +59,10 @@ impl From<Depth> for Request {
 #[cfg(test)]
 mod tests {
     use super::Depth;
-    use crate::http::{request::Request, Method};
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn market_depth_convert_to_request_test() {

@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `POST /sapi/v1/bnbBurn`
 ///
@@ -86,7 +90,11 @@ impl Default for ToggleBNBBurn {
 #[cfg(test)]
 mod tests {
     use super::ToggleBNBBurn;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

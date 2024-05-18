@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `GET /sapi/v1/margin/interestRateHistory`
 ///
@@ -93,7 +97,11 @@ impl From<MarginInterestRateHistory> for Request {
 #[cfg(test)]
 mod tests {
     use super::MarginInterestRateHistory;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

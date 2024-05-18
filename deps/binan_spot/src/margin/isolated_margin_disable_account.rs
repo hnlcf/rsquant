@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `DELETE /sapi/v1/margin/isolated/account`
 ///
@@ -60,7 +64,11 @@ impl From<IsolatedMarginDisableAccount> for Request {
 #[cfg(test)]
 mod tests {
     use super::IsolatedMarginDisableAccount;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

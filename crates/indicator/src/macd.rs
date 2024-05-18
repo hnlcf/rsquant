@@ -3,7 +3,9 @@ use ta::{
         MovingAverageConvergenceDivergence as Macd,
         MovingAverageConvergenceDivergenceOutput as MacdOutput,
     },
-    Close, DataItem, Next,
+    Close,
+    DataItem,
+    Next,
 };
 
 #[derive(Default)]

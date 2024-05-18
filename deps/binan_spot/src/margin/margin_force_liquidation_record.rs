@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `GET /sapi/v1/margin/forceLiquidationRec`
 ///
@@ -119,7 +123,11 @@ impl From<MarginForceLiquidationRecord> for Request {
 #[cfg(test)]
 mod tests {
     use super::MarginForceLiquidationRecord;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

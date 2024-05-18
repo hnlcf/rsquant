@@ -1,7 +1,12 @@
+pub use account::{
+    account_info,
+    coin_info,
+};
+pub use market::{
+    kline,
+    ticker_price,
+};
 use serde::Deserialize;
-
-pub use account::{account_info, coin_info};
-pub use market::{kline, ticker_price};
 pub use trade::order;
 
 pub mod account;

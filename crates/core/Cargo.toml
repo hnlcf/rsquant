@@ -6,6 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+rust_decimal = { workspace = true }
+fast-float = { workspace = true }
 thiserror = { workspace = true }
 serde_json = { workspace = true }
 
@@ -13,4 +19,5 @@ binan_spot = { path = "../../deps/binan_spot", features = ["full"] }
 
 toml = "0.7.4"
 lettre = "0.10"
-diesel = { version = "2.1.0", features = ["postgres"] }
+diesel = { version = "2.1.0", features = ["postgres", "chrono"] }
+tracing-appender = "0.2.3"

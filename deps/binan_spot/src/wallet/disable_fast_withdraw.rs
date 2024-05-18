@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `POST /sapi/v1/account/disableFastWithdrawSwitch`
 ///
@@ -65,7 +69,11 @@ impl Default for DisableFastWithdraw {
 #[cfg(test)]
 mod tests {
     use super::DisableFastWithdraw;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

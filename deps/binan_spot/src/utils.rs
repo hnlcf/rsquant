@@ -1,11 +1,26 @@
+use base64::{
+    engine::general_purpose,
+    Engine,
+};
+use hmac::{
+    Hmac,
+    Mac,
+};
+use rsa::{
+    pkcs1v15::SigningKey,
+    pkcs8::DecodePrivateKey,
+    RsaPrivateKey,
+};
+use sha2::{
+    digest::InvalidLength,
+    Sha256,
+};
+use signature::{
+    RandomizedSigner,
+    SignatureEncoding,
+};
+
 use crate::http::Signature;
-use base64::engine::general_purpose;
-use base64::Engine;
-use hmac::{Hmac, Mac};
-use rsa::pkcs1v15::SigningKey;
-use rsa::{pkcs8::DecodePrivateKey, RsaPrivateKey};
-use sha2::{digest::InvalidLength, Sha256};
-use signature::{RandomizedSigner, SignatureEncoding};
 
 pub fn sign(payload: &str, signature: &Signature) -> Result<String, InvalidLength> {
     match signature {

@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `PUT /api/v3/userDataStream`
 ///
@@ -49,7 +53,11 @@ impl From<RenewListenKey> for Request {
 #[cfg(test)]
 mod tests {
     use super::RenewListenKey;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

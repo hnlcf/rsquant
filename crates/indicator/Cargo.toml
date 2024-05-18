@@ -8,6 +8,6 @@ edition = "2021"
 [dependencies]
 fast-float = { workspace = true }
 
-quant_model = { path = "../model" }
+quant_core = { path = "../core" }
 
 ta = "0.5.0"

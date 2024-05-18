@@ -1,26 +1,44 @@
 use std::sync::Arc;
 
+use actix::{
+    Actor,
+    ActorContext,
+    ActorFutureExt,
+    Context,
+    Handler,
+    ResponseActFuture,
+    WrapFuture,
+};
+use quant_core::util::config;
+
 use crate::{
     credential,
     message::{
-        AccountInfoApiRequest, AccountInfoApiResponse, KlineApiRequest, KlineApiResponse,
-        NewOrderApiRequest, NewOrderApiResponse, NormalRequest, NormalResponse, TickerApiRequest,
+        AccountInfoApiRequest,
+        AccountInfoApiResponse,
+        KlineApiRequest,
+        KlineApiResponse,
+        NewOrderApiRequest,
+        NewOrderApiResponse,
+        NormalRequest,
+        NormalResponse,
+        TickerApiRequest,
         TickerApiResponse,
     },
-    res::{BinanHttpClient, GetResponse},
+    res::{
+        BinanHttpClient,
+        GetResponse,
+    },
 };
-use actix::{Actor, ActorContext, ActorFutureExt, Context, Handler, ResponseActFuture, WrapFuture};
-
-use quant_config::CredentialsConfig;
 
 pub struct Api {
     client: Arc<BinanHttpClient>,
 }
 
 impl Api {
-    pub fn from_config(credentials: CredentialsConfig) -> Self {
+    pub fn from_config(credentials: config::CredentialsConfig) -> Self {
         match credentials {
-            CredentialsConfig::Binance(binan_credentials) => {
+            config::CredentialsConfig::Binance(binan_credentials) => {
                 let credentials = credential::CredentialBuilder::from_config(binan_credentials)
                     .expect("Failed to get credentials from config file.");
 

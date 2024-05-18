@@ -1,11 +1,10 @@
 use core::fmt;
 use std::str::FromStr;
 
-use quant_util::time::u64_to_datetime;
 use rust_decimal::Decimal;
 use serde::Deserialize;
 
-use crate::DecodeFromStr;
+use crate::model::DecodeFromStr;
 
 #[derive(Debug, Deserialize)]
 pub struct TickerPrice {

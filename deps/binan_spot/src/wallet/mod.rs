@@ -23,8 +23,6 @@ pub mod user_asset;
 pub mod withdraw;
 pub mod withdraw_history;
 
-use rust_decimal::Decimal;
-
 use account_snapshot::AccountSnapshot;
 use account_status::AccountStatus;
 use api_key_permission::APIKeyPermission;
@@ -40,6 +38,7 @@ use dust_transfer::DustTransfer;
 use dustable_assets::DustableAssets;
 use enable_fast_withdraw::EnableFastWithdraw;
 use funding_wallet::FundingWallet;
+use rust_decimal::Decimal;
 use system_status::SystemStatus;
 use trade_fee::TradeFee;
 use universal_transfer::UniversalTransfer;

@@ -1,8 +1,25 @@
-use crate::http::{request::Request, Credentials};
-use crate::ureq::{Error, Response};
+use std::time::{
+    SystemTime,
+    UNIX_EPOCH,
+};
+
 use http::Uri;
-use std::time::{SystemTime, UNIX_EPOCH};
-use ureq::{Agent, AgentBuilder, Error as UreqError};
+use ureq::{
+    Agent,
+    AgentBuilder,
+    Error as UreqError,
+};
+
+use crate::{
+    http::{
+        request::Request,
+        Credentials,
+    },
+    ureq::{
+        Error,
+        Response,
+    },
+};
 
 #[derive(Clone)]
 pub struct BinanceHttpClient {
@@ -123,15 +140,26 @@ impl Default for BinanceHttpClient {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
+    use ureq::{
+        AgentBuilder,
+        Error as UreqError,
+        Middleware,
+        MiddlewareNext,
+        Request as UreqRequest,
+        Response,
+    };
+
     use super::BinanceHttpClient;
     use crate::{
-        http::{error::ClientError, request::Request, Credentials, Method},
+        http::{
+            error::ClientError,
+            request::Request,
+            Credentials,
+            Method,
+        },
         ureq::Error,
-    };
-    use std::collections::HashMap;
-    use ureq::{
-        AgentBuilder, Error as UreqError, Middleware, MiddlewareNext, Request as UreqRequest,
-        Response,
     };
 
     #[test]

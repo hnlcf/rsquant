@@ -1,7 +1,10 @@
+use std::{
+    collections::HashMap,
+    error,
+    fmt,
+};
+
 use serde::Deserialize;
-use std::collections::HashMap;
-use std::error;
-use std::fmt;
 
 /// Unsuccessful response from the Binance API.
 #[derive(Debug)]
@@ -42,7 +45,7 @@ pub struct BinanceApiError {
     #[serde(rename(deserialize = "code"))]
     pub code: i16,
 
-    ///Error description
+    /// Error description
     #[serde(rename(deserialize = "msg"))]
     pub message: String,
 }

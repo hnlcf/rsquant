@@ -1,4 +1,8 @@
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `DELETE /api/v3/orderList`
 ///
@@ -95,7 +99,11 @@ impl From<CancelOCOOrder> for Request {
 #[cfg(test)]
 mod tests {
     use super::CancelOCOOrder;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

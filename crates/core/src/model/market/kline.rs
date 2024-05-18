@@ -2,8 +2,10 @@ use core::fmt;
 
 use serde::Deserialize;
 
-use crate::DecodeFromStr;
-use quant_util::time::u64_to_datetime;
+use crate::{
+    model::DecodeFromStr,
+    util::time::u64_to_datetime,
+};
 
 #[derive(Debug, Deserialize)]
 

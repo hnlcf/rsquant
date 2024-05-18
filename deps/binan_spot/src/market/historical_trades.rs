@@ -1,6 +1,10 @@
 #![allow(clippy::wrong_self_convention)]
 
-use crate::http::{request::Request, Credentials, Method};
+use crate::http::{
+    request::Request,
+    Credentials,
+    Method,
+};
 
 /// `GET /api/v3/historicalTrades`
 ///
@@ -74,7 +78,11 @@ impl From<HistoricalTrades> for Request {
 #[cfg(test)]
 mod tests {
     use super::HistoricalTrades;
-    use crate::http::{request::Request, Credentials, Method};
+    use crate::http::{
+        request::Request,
+        Credentials,
+        Method,
+    };
 
     static API_KEY: &str = "api-key";
     static API_SECRET: &str = "api-secret";

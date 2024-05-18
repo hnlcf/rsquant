@@ -1,4 +1,7 @@
-use crate::http::{request::Request, Method};
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 /// `GET /api/v3/avgPrice`
 ///
@@ -42,7 +45,10 @@ impl From<AvgPrice> for Request {
 #[cfg(test)]
 mod tests {
     use super::AvgPrice;
-    use crate::http::{request::Request, Method};
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn market_avg_price_convert_to_request_test() {

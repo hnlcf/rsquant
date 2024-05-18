@@ -1,11 +1,35 @@
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{
+    SystemTime,
+    UNIX_EPOCH,
+};
 
-use hyper::{client::connect::Connect, client::HttpConnector, Body, Client, Uri};
-use hyper_proxy::{Intercept, Proxy, ProxyConnector};
+use hyper::{
+    client::{
+        connect::Connect,
+        HttpConnector,
+    },
+    Body,
+    Client,
+    Uri,
+};
+use hyper_proxy::{
+    Intercept,
+    Proxy,
+    ProxyConnector,
+};
 use hyper_tls::HttpsConnector;
 
-use crate::http::{request::Request, Credentials, Method};
-use crate::hyper::{Error, Response};
+use crate::{
+    http::{
+        request::Request,
+        Credentials,
+        Method,
+    },
+    hyper::{
+        Error,
+        Response,
+    },
+};
 
 #[derive(Clone)]
 pub struct BinanceHttpClient<T>
@@ -157,21 +181,38 @@ impl From<Method> for hyper::Method {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-    use std::future::Future;
-    use std::pin::Pin;
-    use std::str;
-    use std::task::{Context, Poll, Waker};
+    use std::{
+        collections::HashMap,
+        future::Future,
+        pin::Pin,
+        str,
+        task::{
+            Context,
+            Poll,
+            Waker,
+        },
+    };
 
-    use hyper::client::connect::Connected;
-    use hyper::{Client, Uri};
-    use tokio::io::Error as IoError;
-    use tokio::io::ReadBuf;
-
-    use crate::http::{error::ClientError, request::Request, Credentials, Method};
-    use crate::hyper::Error;
+    use hyper::{
+        client::connect::Connected,
+        Client,
+        Uri,
+    };
+    use tokio::io::{
+        Error as IoError,
+        ReadBuf,
+    };
 
     use super::BinanceHttpClient;
+    use crate::{
+        http::{
+            error::ClientError,
+            request::Request,
+            Credentials,
+            Method,
+        },
+        hyper::Error,
+    };
 
     #[tokio::test]
     async fn client_respects_request_basic_configuration_test() {
@@ -580,9 +621,9 @@ mod tests {
     }
 
     impl tower::Service<Uri> for MockConnector {
-        type Response = MockResponse;
         type Error = http::Error;
         type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>>;
+        type Response = MockResponse;
 
         fn poll_ready(&mut self, _: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))

@@ -7,7 +7,6 @@
 /// interchangeable.
 ///
 /// [API Documentation](https://binance-docs.github.io/apidocs/spot/en/#api-key-restrictions)
-///
 #[derive(PartialEq, Eq, Clone)]
 pub struct Credentials {
     pub api_key: String,
@@ -41,6 +40,7 @@ impl Credentials {
             }),
         }
     }
+
     pub fn from_rsa_protected(
         api_key: impl Into<String>,
         key: impl Into<String>,
@@ -54,6 +54,7 @@ impl Credentials {
             }),
         }
     }
+
     pub fn from_hmac(api_key: impl Into<String>, api_secret: impl Into<String>) -> Self {
         Credentials {
             api_key: api_key.into(),

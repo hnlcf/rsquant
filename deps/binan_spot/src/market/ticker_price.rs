@@ -1,4 +1,7 @@
-use crate::http::{request::Request, Method};
+use crate::http::{
+    request::Request,
+    Method,
+};
 
 /// `GET /api/v3/ticker/price`
 ///
@@ -75,7 +78,10 @@ impl Default for TickerPrice {
 #[cfg(test)]
 mod tests {
     use super::TickerPrice;
-    use crate::http::{request::Request, Method};
+    use crate::http::{
+        request::Request,
+        Method,
+    };
 
     #[test]
     fn market_ticker_price_convert_to_request_test() {

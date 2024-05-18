@@ -45,8 +45,6 @@ pub mod margin_transfer;
 pub mod margin_transfer_history;
 pub mod toggle_bnb_burn;
 
-use rust_decimal::Decimal;
-
 use bnb_burn_status::BNBBurnStatus;
 use isolated_margin_account::IsolatedMarginAccount;
 use isolated_margin_account_limit::IsolatedMarginAccountLimit;
@@ -90,6 +88,7 @@ use margin_repay::MarginRepay;
 use margin_repay_record::MarginRepayRecord;
 use margin_transfer::MarginTransfer;
 use margin_transfer_history::MarginTransferHistory;
+use rust_decimal::Decimal;
 use toggle_bnb_burn::ToggleBNBBurn;
 
 pub fn margin_transfer(asset: &str, amount: Decimal, r#type: u32) -> MarginTransfer {
