@@ -14,6 +14,10 @@ use quant_core::{
         DecodeFromStr,
         IntoTarget,
     },
+    util::time::{
+        CurrentTime,
+        LocalTimeTool,
+    },
     Error,
     Result,
 };
@@ -36,7 +40,9 @@ impl ApiImpl {
         client: &HttpClient,
         _req: AccountInfoApiRequest,
     ) -> Result<AccountInfo> {
-        let request: Request = trade::account().into();
+        let request: Request = trade::account()
+            .timestamp(LocalTimeTool::get_unix_time() as i64)
+            .into();
 
         request.send_req(client).await.and_then(|ref res| {
             RawAccountInfo::decode_from_str(res)
