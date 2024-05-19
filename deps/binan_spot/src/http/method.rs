@@ -16,3 +16,14 @@ impl AsRef<str> for Method {
         }
     }
 }
+
+impl From<Method> for reqwest::Method {
+    fn from(method: Method) -> Self {
+        match method {
+            Method::Get => reqwest::Method::GET,
+            Method::Post => reqwest::Method::POST,
+            Method::Delete => reqwest::Method::DELETE,
+            Method::Put => reqwest::Method::PUT,
+        }
+    }
+}

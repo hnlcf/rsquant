@@ -40,9 +40,9 @@ impl EmailBuilder {
     }
 
     pub fn sender(mut self, email: &str, passwd: &str, smtp_addr: &str) -> Self {
-        self.from_email = email.to_owned();
-        self.from_passwd = passwd.to_owned();
-        self.smtp_addr = smtp_addr.to_owned();
+        email.clone_into(&mut self.from_email);
+        passwd.clone_into(&mut self.from_passwd);
+        smtp_addr.clone_into(&mut self.smtp_addr);
 
         self
     }

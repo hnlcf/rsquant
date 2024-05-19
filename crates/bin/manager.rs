@@ -42,19 +42,8 @@ unsafe impl Send for QuantState {}
 
 unsafe impl Sync for QuantState {}
 
-impl Default for QuantState {
-    fn default() -> Self {
-        Self {
-            config: QuantConfig::default(),
-            api: Api::default().start(),
-            recorder: Recorder::default(),
-            logger: Logger::default(),
-        }
-    }
-}
-
 impl QuantState {
-    pub fn from_config(config: QuantConfig) -> Result<Self> {
+    pub async fn from_config(config: QuantConfig) -> Result<Self> {
         let QuantConfig {
             api_credentials,
             database,
@@ -62,7 +51,7 @@ impl QuantState {
             ..
         } = config.to_owned();
 
-        let api = Api::from_config(api_credentials).start();
+        let api = Api::from_config(api_credentials).await.start();
         let recorder = Recorder::from_config(database)?;
         let logger = Logger::from_config(log);
 

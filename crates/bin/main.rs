@@ -1,5 +1,4 @@
 #![allow(dead_code, unused)]
-#![feature(let_chains)]
 use std::{
     collections::VecDeque,
     path,
@@ -73,10 +72,12 @@ async fn main() -> Result<(), quant_core::Error> {
     let args: Cli = Cli::parse();
     let config = ConfigBuilder::build(args.config)?;
 
-    let _manager = STATE.get_or_init(|| {
-        let mut m = QuantState::from_config(config.to_owned()).expect("Failed to create manager");
-        let _ = m.init();
-        m
+    let mut state = QuantState::from_config(config.to_owned())
+        .await
+        .expect("Failed to create manager");
+    let _manager = STATE.get_or_init(move || {
+        let _ = state.init();
+        state
     });
 
     run().await
@@ -110,82 +111,80 @@ async fn run() -> Result<(), quant_core::Error> {
 
     'out: loop {
         let (start, end) = UtcTimeTool.get_duration(DurationInterval::Minutes1, 750);
-        match manager
-            .get_kline(KlineApiRequest {
-                symbol: symbol.to_owned(),
-                interval: KlineInterval::Minutes15,
-                start_time: start,
-                end_time: end,
-                limit: 50,
-            })
-            .await
-        {
-            Ok(res) => {
-                let signal = handle_klines_with_macd(&res);
-                tracing::info!(
-                    "Signal: {}",
-                    signal.map(|s| s.to_string()).unwrap_or("Nil".to_string())
-                );
+        // match manager
+        //     .get_kline(KlineApiRequest {
+        //         symbol: symbol.to_owned(),
+        //         interval: KlineInterval::Minutes15,
+        //         start_time: start,
+        //         end_time: end,
+        //         limit: 50,
+        //     })
+        //     .await
+        // {
+        //     Ok(res) => {
+        //         let signal = handle_klines_with_macd(&res);
+        //         tracing::info!(
+        //             "Signal: {}",
+        //             signal.map(|s| s.to_string()).unwrap_or("Nil".to_string())
+        //         );
 
-                let origin_price = *price_slot.lock().await;
-                tracing::info!("Ticker of {}: {}", symbol, origin_price);
+        //         let origin_price = *price_slot.lock().await;
+        //         tracing::info!("Ticker of {}: {}", symbol, origin_price);
 
-                let account_info = manager.get_account_info().await?;
-                match signal {
-                    Some(Side::Buy) => {
-                        if let Some(x) = account_info.query_asset(usdt)
-                            && x >= total
-                        {
-                            let price = (origin_price + dec!(1.0)).round_dp(5);
-                            let quantity = (total / price).round_dp(5);
+        //         let account_info = manager.get_account_info().await?;
+        //         let usdt_count = account_info.query_asset(usdt);
+        //         let btc_count = account_info.query_asset(btc);
+        //         match signal {
+        //             Some(Side::Buy) if usdt_count.is_some() => {
+        //                 if usdt_count.unwrap() >= total {
+        //                     let price = (origin_price + dec!(1.0)).round_dp(5);
+        //                     let quantity = (total / price).round_dp(5);
 
-                            let res = manager
-                                .new_order(NewOrderApiRequest {
-                                    symbol: symbol.to_owned(),
-                                    side: Side::Buy,
-                                    r#type: "LIMIT".to_owned(),
-                                    time_in_force: TimeInForce::Gtc,
-                                    quantity,
-                                    price,
-                                })
-                                .await?;
+        //                     let res = manager
+        //                         .new_order(NewOrderApiRequest {
+        //                             symbol: symbol.to_owned(),
+        //                             side: Side::Buy,
+        //                             r#type: "LIMIT".to_owned(),
+        //                             time_in_force: TimeInForce::Gtc,
+        //                             quantity,
+        //                             price,
+        //                         })
+        //                         .await?;
 
-                            tracing::info!("Order res: {}", res);
-                        }
-                    }
-                    Some(Side::Sell) => {
-                        if let Some(x) = account_info.query_asset(btc)
-                            && x >= total / origin_price
-                        {
-                            let price = (origin_price - dec!(1.0)).round_dp(5);
-                            let quantity = (total / price).round_dp(5);
+        //                     tracing::info!("Order res: {}", res);
+        //                 }
+        //             }
+        //             Some(Side::Sell) if btc_count.is_some() => {
+        //                 if btc_count.unwrap() >= total / origin_price {
+        //                     let price = (origin_price - dec!(1.0)).round_dp(5);
+        //                     let quantity = (total / price).round_dp(5);
 
-                            let res = manager
-                                .new_order(NewOrderApiRequest {
-                                    symbol: symbol.to_owned(),
-                                    side: Side::Sell,
-                                    r#type: "LIMIT".to_owned(),
-                                    time_in_force: TimeInForce::Gtc,
-                                    quantity,
-                                    price,
-                                })
-                                .await?;
+        //                     let res = manager
+        //                         .new_order(NewOrderApiRequest {
+        //                             symbol: symbol.to_owned(),
+        //                             side: Side::Sell,
+        //                             r#type: "LIMIT".to_owned(),
+        //                             time_in_force: TimeInForce::Gtc,
+        //                             quantity,
+        //                             price,
+        //                         })
+        //                         .await?;
 
-                            tracing::info!("Order res: {}", res);
+        //                     tracing::info!("Order res: {}", res);
 
-                            let money = account_info.query_asset(usdt).unwrap_or_default()
-                                + account_info.query_asset(btc).unwrap_or_default() * origin_price;
-                            tracing::info!("Money: {}", money);
-                        }
-                    }
-                    _ => {}
-                }
-            }
-            Err(e) => {
-                tracing::warn!("{}", e);
-                break 'out;
-            }
-        }
+        //                     let money = account_info.query_asset(usdt).unwrap_or_default()
+        //                         + account_info.query_asset(btc).unwrap_or_default() * origin_price;
+        //                     tracing::info!("Money: {}", money);
+        //                 }
+        //             }
+        //             _ => {}
+        //         }
+        //     }
+        //     Err(e) => {
+        //         tracing::warn!("{}", e);
+        //         break 'out;
+        //     }
+        // }
 
         tokio::time::sleep(Duration::from_secs(60 * 15)).await;
     }

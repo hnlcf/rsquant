@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::rc::Rc;
 
 use actix::{
     Actor,
@@ -25,39 +25,36 @@ use crate::{
         TickerApiRequest,
         TickerApiResponse,
     },
-    res::{
-        BinanHttpClient,
-        GetResponse,
+    req::{
+        ApiImpl,
+        HttpClient,
     },
 };
 
 pub struct Api {
-    client: Arc<BinanHttpClient>,
+    client: Rc<HttpClient>,
 }
 
 impl Api {
-    pub fn from_config(credentials: config::CredentialsConfig) -> Self {
+    pub async fn from_config(credentials: config::CredentialsConfig) -> Self {
         match credentials {
             config::CredentialsConfig::Binance(binan_credentials) => {
                 let credentials = credential::CredentialBuilder::from_config(binan_credentials)
                     .expect("Failed to get credentials from config file.");
 
-                let client =
-                    Arc::new(BinanHttpClient::default().credentials(credentials.to_owned()));
+                let client = Rc::new(HttpClient::new(credentials.to_owned()).await);
 
                 Self { client }
             }
-            _ => Api::default(),
+            _ => Api::default().await,
         }
     }
-}
 
-impl Default for Api {
-    fn default() -> Self {
+    pub async fn default() -> Self {
         let credentials = credential::CredentialBuilder::from_env()
             .expect("Failed to create credential from envs.");
         Self {
-            client: Arc::new(BinanHttpClient::default().credentials(credentials.to_owned())),
+            client: Rc::new(HttpClient::new(credentials.to_owned()).await),
         }
     }
 }
@@ -85,7 +82,7 @@ impl Handler<AccountInfoApiRequest> for Api {
     fn handle(&mut self, msg: AccountInfoApiRequest, _ctx: &mut Self::Context) -> Self::Result {
         let client = self.client.clone();
         async move {
-            GetResponse::get_account_info(&client, msg)
+            ApiImpl::get_account_info(&client, msg)
                 .await
                 .map_err(quant_core::Error::from)
         }
@@ -101,7 +98,7 @@ impl Handler<TickerApiRequest> for Api {
     fn handle(&mut self, msg: TickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
         let client = self.client.clone();
         async move {
-            GetResponse::get_ticker_price(&client, msg)
+            ApiImpl::get_ticker_price(&client, msg)
                 .await
                 .map_err(quant_core::Error::from)
         }
@@ -121,7 +118,7 @@ impl Handler<KlineApiRequest> for Api {
 
         let client = self.client.clone();
         async move {
-            GetResponse::get_kline(&client, msg)
+            ApiImpl::get_kline(&client, msg)
                 .await
                 .map_err(quant_core::Error::from)
         }
@@ -143,7 +140,7 @@ impl Handler<NewOrderApiRequest> for Api {
     fn handle(&mut self, msg: NewOrderApiRequest, _ctx: &mut Self::Context) -> Self::Result {
         let client = self.client.clone();
         async move {
-            GetResponse::new_order(&client, msg)
+            ApiImpl::new_order(&client, msg)
                 .await
                 .map_err(quant_core::Error::from)
         }

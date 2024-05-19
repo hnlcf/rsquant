@@ -19,8 +19,8 @@ use quant_core::{
 };
 
 use super::{
-    handle_response::AsyncGetResp,
-    BinanHttpClient,
+    send_req::AsyncSendReq,
+    HttpClient,
 };
 use crate::message::{
     AccountInfoApiRequest,
@@ -29,16 +29,16 @@ use crate::message::{
     TickerApiRequest,
 };
 
-pub struct GetResponse;
+pub struct ApiImpl;
 
-impl GetResponse {
+impl ApiImpl {
     pub async fn get_account_info(
-        client: &BinanHttpClient,
+        client: &HttpClient,
         _req: AccountInfoApiRequest,
     ) -> Result<AccountInfo> {
         let request: Request = trade::account().into();
 
-        request.get_response(client).await.and_then(|ref res| {
+        request.send_req(client).await.and_then(|ref res| {
             RawAccountInfo::decode_from_str(res)
                 .map(|a| a.into_target())
                 .map_err(Error::Serde)
@@ -46,18 +46,18 @@ impl GetResponse {
     }
 
     pub async fn get_ticker_price(
-        client: &BinanHttpClient,
+        client: &HttpClient,
         req: TickerApiRequest,
     ) -> Result<TickerPrice> {
         let TickerApiRequest { symbol } = req;
         let request: Request = market::ticker_price().symbol(&symbol).into();
         request
-            .get_response(client)
+            .send_req(client)
             .await
             .and_then(|ref res| TickerPrice::decode_from_str(res).map_err(Error::Serde))
     }
 
-    pub async fn get_kline(client: &BinanHttpClient, req: KlineApiRequest) -> Result<Vec<Kline>> {
+    pub async fn get_kline(client: &HttpClient, req: KlineApiRequest) -> Result<Vec<Kline>> {
         let KlineApiRequest {
             symbol,
             interval,
@@ -72,12 +72,12 @@ impl GetResponse {
             .into();
 
         request
-            .get_response(client)
+            .send_req(client)
             .await
             .and_then(|ref res| Vec::decode_from_str(res).map_err(Error::Serde))
     }
 
-    pub async fn new_order(client: &BinanHttpClient, req: NewOrderApiRequest) -> Result<String> {
+    pub async fn new_order(client: &HttpClient, req: NewOrderApiRequest) -> Result<String> {
         let NewOrderApiRequest {
             symbol,
             side,
@@ -91,6 +91,7 @@ impl GetResponse {
             .quantity(quantity)
             .price(price)
             .into();
-        request.get_response(client).await
+
+        request.send_req(client).await
     }
 }
