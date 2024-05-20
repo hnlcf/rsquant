@@ -1,5 +1,6 @@
 use binan_spot::hyper::Error as BinanceHttpError;
 use sha2::digest::InvalidLength;
+
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("Invalid length by `{0}`.")]

@@ -26,6 +26,7 @@ use quant_core::{
             TickerApiRequest,
         },
     },
+    init_state,
     model::kline::Kline,
     util::{
         config::ConfigBuilder,
@@ -35,6 +36,7 @@ use quant_core::{
             UtcTimeTool,
         },
     },
+    Error,
     QuantState,
     STATE,
 };
@@ -53,8 +55,7 @@ struct Cli {
     config: path::PathBuf,
 }
 
-#[actix::main]
-async fn main() -> Result<(), quant_core::Error> {
+fn set_ctrlc_handler() {
     tokio::task::spawn(async move {
         tokio::signal::ctrl_c()
             .await
@@ -68,21 +69,22 @@ async fn main() -> Result<(), quant_core::Error> {
 
         std::process::exit(0);
     });
+}
 
+#[actix_web::main]
+async fn main() -> Result<(), quant_core::Error> {
     let args: Cli = Cli::parse();
     let config = ConfigBuilder::build(args.config)?;
 
-    let mut state = QuantState::from_config(config.to_owned())
+    init_state(config).await;
+    set_ctrlc_handler();
+
+    actor::run_web()
         .await
-        .expect("Failed to create manager");
-    let _manager = STATE.get_or_init(move || {
-        let _ = state.init();
-        state
-    });
+        .map_err(|e| Error::Custom(e.to_string()))?;
 
-    tokio::spawn(async { actor::run_web().await });
-
-    run().await
+    // run().await
+    Ok(())
 }
 
 async fn run() -> Result<(), quant_core::Error> {

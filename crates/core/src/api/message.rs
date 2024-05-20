@@ -46,7 +46,7 @@ pub struct AccountInfoApiResponse {
     pub info: AccountInfo,
 }
 
-#[derive(Message, Deserialize)]
+#[derive(Debug, Clone, Message, Deserialize)]
 #[rtype(result = "Result<TickerApiResponse, Error>")]
 pub struct TickerApiRequest {
     pub symbol: String,
@@ -110,4 +110,11 @@ pub enum SchedulerToStrategyRequest {
 pub enum TradeRequest {
     Buy,
     Sell,
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+pub enum SubscribeTickerRequest {
+    Subscribe(TickerApiRequest),
+    Unsubscribe(String),
 }

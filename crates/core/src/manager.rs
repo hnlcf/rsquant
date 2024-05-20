@@ -32,6 +32,16 @@ use crate::{
 
 pub static STATE: OnceLock<QuantState> = OnceLock::new();
 
+pub async fn init_state(config: QuantConfig) {
+    let mut state = QuantState::from_config(config)
+        .await
+        .expect("Failed to create manager");
+    let _manager = STATE.get_or_init(move || {
+        let _ = state.init();
+        state
+    });
+}
+
 pub struct QuantState {
     config: QuantConfig,
     api: Addr<BinanApi>,
@@ -62,6 +72,10 @@ impl QuantState {
             recorder,
             logger,
         })
+    }
+
+    pub fn get() -> &'static QuantState {
+        STATE.get().expect("State is uninitialized")
     }
 
     pub fn config(&self) -> &QuantConfig {

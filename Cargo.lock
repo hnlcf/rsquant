@@ -2778,6 +2778,7 @@ name = "rsquant"
 version = "0.1.0"
 dependencies = [
  "actix",
+ "actix-web",
  "binan_spot",
  "chrono",
  "clap 4.5.1",

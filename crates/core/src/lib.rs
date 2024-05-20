@@ -9,6 +9,7 @@ pub type Result<T> = core::result::Result<T, Error>;
 
 pub use error::Error;
 pub use manager::{
+    init_state,
     QuantState,
     STATE,
 };
