@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use actix::{
     Actor,
+    ActorContext,
     AsyncContext,
     Handler,
     StreamHandler,
@@ -100,8 +101,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for SubscribeTicker {
             }
             Ok(ws::Message::Close(_close)) => {
                 self.unsubscribe_all();
+                ctx.stop();
             }
-            _ => (),
+            _ => {
+                tracing::warn!("Unknown message: {:?}", msg)
+            }
         }
     }
 }
