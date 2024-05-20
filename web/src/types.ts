@@ -1,4 +1,4 @@
-export type SubscribeRequest = TickerApiRequest | string
+export type SubscribeTickerRequest = TickerApiRequest | string
 
 export interface TickerApiRequest {
   symbol: string

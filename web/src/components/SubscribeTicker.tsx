@@ -1,14 +1,16 @@
-import { Component, For, createSignal } from "solid-js"
-import { baseUrl } from "./utils/constants"
-import { SubscribeRequest, TickerApiRequest, TickerApiResponse } from "./types"
+import { Component, For, createSignal, onCleanup } from "solid-js"
+import { baseUrl } from "../utils/constants"
+import { SubscribeTickerRequest, TickerApiResponse } from "../types"
 
-const App: Component = () => {
-  const [tickerMap, setTickerMap] = createSignal<Map<string, TickerApiResponse>>(new Map())
+const SubscribeTicker: Component = () => {
   const [symbol, setSymbol] = createSignal("")
-
   const [symbolList, setSymbolList] = createSignal<string[]>([])
+  const [tickerMap, setTickerMap] = createSignal<Map<string, TickerApiResponse>>(new Map())
 
   const ws = new WebSocket(baseUrl)
+  onCleanup(() => {
+    if (ws.readyState == WebSocket.OPEN) ws.close()
+  })
 
   ws.onmessage = (event) => {
     const data: TickerApiResponse = JSON.parse(event.data)
@@ -19,22 +21,20 @@ const App: Component = () => {
     })
   }
 
-  ws.onclose = (event) => {
-    console.log("WebSocket is closed now.")
-  }
-
   const subscribeTicker = (symbol: string) => {
-    const req: SubscribeRequest = {
-      symbol: symbol,
-      interval: 5,
-    }
+    if (!tickerMap().has(symbol) && !symbolList().includes(symbol)) {
+      const req: SubscribeTickerRequest = {
+        symbol: symbol,
+        interval: 5,
+      }
 
-    ws.send(JSON.stringify(req))
-    setSymbolList([...symbolList(), symbol])
+      ws.send(JSON.stringify(req))
+      setSymbolList([...symbolList(), symbol])
+    }
   }
 
   const unsubscribeTicker = (symbol: string) => {
-    const req: SubscribeRequest = symbol
+    const req: SubscribeTickerRequest = symbol
     ws.send(JSON.stringify(req))
     setSymbolList(symbolList().filter((s) => s !== symbol))
     setTickerMap((prev) => {
@@ -82,4 +82,4 @@ const App: Component = () => {
   )
 }
 
-export default App
+export default SubscribeTicker

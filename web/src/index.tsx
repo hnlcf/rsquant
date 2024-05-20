@@ -1,8 +1,11 @@
 /* @refresh reload */
 import { render } from "solid-js/web"
+import { Router, Route, A } from "@solidjs/router"
+
+import Home from "./components/Home"
+import SubscribeTicker from "./components/SubscribeTicker"
 
 import "./index.css"
-import App from "./app"
 
 const root = document.getElementById("root")
 
@@ -12,4 +15,23 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   )
 }
 
-render(() => <App />, root!)
+const App = (props: any) => (
+  <>
+    <nav>
+      <A href="/">Home</A>
+      <A href="/ticker">Ticker</A>
+    </nav>
+    <h1>Rsquant</h1>
+    {props.children}
+  </>
+)
+
+render(
+  () => (
+    <Router root={App}>
+      <Route path="/" component={Home} />
+      <Route path="/ticker" component={SubscribeTicker} />
+    </Router>
+  ),
+  root!
+)
