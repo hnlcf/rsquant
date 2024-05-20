@@ -1,5 +1,7 @@
 use diesel::prelude::*;
-use quant_core::{
+
+use super::DBConnection;
+use crate::{
     util::{
         config,
         constants,
@@ -7,8 +9,6 @@ use quant_core::{
     Error,
     Result,
 };
-
-use crate::DBConnection;
 
 pub struct PostgresConnection {
     conn: PgConnection,

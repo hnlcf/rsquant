@@ -1,25 +1,25 @@
+use std::sync::OnceLock;
+
 use actix::{
     Actor,
     Addr,
 };
-use quant_api::{
-    actor::BinanApi,
-    message::{
-        AccountInfoApiRequest,
-        AccountInfoApiResponse,
-        KlineApiRequest,
-        KlineApiResponse,
-        NewOrderApiRequest,
-        NormalRequest,
-        TickerApiRequest,
-        TickerApiResponse,
+
+use crate::{
+    api::{
+        actor::BinanApi,
+        message::{
+            AccountInfoApiRequest,
+            KlineApiRequest,
+            NewOrderApiRequest,
+            NormalRequest,
+            TickerApiRequest,
+        },
     },
-};
-use quant_core::{
+    db::recorder::Recorder,
     model::{
         account_info::AccountInfo,
         kline::Kline,
-        order,
         ticker_price::TickerPrice,
     },
     util::{
@@ -29,7 +29,8 @@ use quant_core::{
     Error,
     Result,
 };
-use quant_db::recorder::Recorder;
+
+pub static STATE: OnceLock<QuantState> = OnceLock::new();
 
 pub struct QuantState {
     config: QuantConfig,

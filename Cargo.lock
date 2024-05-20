@@ -2476,53 +2476,30 @@ dependencies = [
 ]
 
 [[package]]
-name = "quant_api"
+name = "quant_core"
 version = "0.1.0"
 dependencies = [
  "actix",
  "actix-web",
  "actix-web-actors",
  "binan_spot",
- "quant_core",
- "reqwest",
- "rust_decimal",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tracing",
- "url",
-]
-
-[[package]]
-name = "quant_core"
-version = "0.1.0"
-dependencies = [
- "binan_spot",
  "chrono",
  "diesel",
  "fast-float",
  "http 1.1.0",
  "lettre",
+ "reqwest",
  "rust_decimal",
  "serde",
  "serde_json",
  "sha2",
  "thiserror",
+ "tokio",
  "toml 0.7.8",
  "tracing",
  "tracing-appender",
  "tracing-subscriber",
  "url",
-]
-
-[[package]]
-name = "quant_db"
-version = "0.1.0"
-dependencies = [
- "diesel",
- "quant_core",
- "tracing",
 ]
 
 [[package]]
@@ -2806,9 +2783,7 @@ dependencies = [
  "clap 4.5.1",
  "crossbeam-channel",
  "futures-util",
- "quant_api",
  "quant_core",
- "quant_db",
  "quant_indicator",
  "rust_decimal",
  "rust_decimal_macros",

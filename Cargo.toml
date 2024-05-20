@@ -15,8 +15,6 @@ members = [
     "deps/binan_spot",
     # "deps/binan_spot_examples",
     "crates/core",
-    "crates/api",
-    "crates/db",
     "crates/indicator",
 ]
 
@@ -47,9 +45,7 @@ tracing-subscriber = { workspace = true }
 rust_decimal = { workspace = true }
 
 binan_spot = { path = "deps/binan_spot", features = ["full"] }
-quant_api = { path = "crates/api" }
 quant_core = { path = "crates/core" }
-quant_db = { path = "crates/db" }
 quant_indicator = { path = "crates/indicator" }
 crossbeam-channel = "0.5.11"
 futures-util = "0.3.30"

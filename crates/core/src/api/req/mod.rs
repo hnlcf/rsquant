@@ -1,5 +1,4 @@
 use binan_spot::http::request::Request as BinanRequest;
-use quant_core::Error;
 
 pub mod api_impl;
 pub mod send_req;
@@ -8,7 +7,10 @@ pub use self::{
     api_impl::ApiImpl,
     send_req::Response,
 };
-use crate::basic;
+use crate::{
+    api::basic,
+    Error,
+};
 
 #[derive(Debug)]
 pub struct HttpClient {

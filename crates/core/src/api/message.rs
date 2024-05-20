@@ -11,7 +11,13 @@ use binan_spot::{
         TimeInForce,
     },
 };
-use quant_core::{
+use rust_decimal::Decimal;
+use serde::{
+    Deserialize,
+    Serialize,
+};
+
+use crate::{
     model::{
         account_info::AccountInfo,
         kline::Kline,
@@ -19,14 +25,9 @@ use quant_core::{
     },
     Error,
 };
-use rust_decimal::Decimal;
-use serde::{
-    Deserialize,
-    Serialize,
-};
 
 #[derive(Message)]
-#[rtype(result = "Result<NormalResponse, quant_core::Error>")]
+#[rtype(result = "Result<NormalResponse, Error>")]
 pub enum NormalRequest {
     Stop,
 }
@@ -37,7 +38,7 @@ pub enum NormalResponse {
 }
 
 #[derive(Message)]
-#[rtype(result = "Result<AccountInfoApiResponse, quant_core::Error>")]
+#[rtype(result = "Result<AccountInfoApiResponse, Error>")]
 pub struct AccountInfoApiRequest;
 
 #[derive(Debug)]
@@ -46,7 +47,7 @@ pub struct AccountInfoApiResponse {
 }
 
 #[derive(Message, Deserialize)]
-#[rtype(result = "Result<TickerApiResponse, quant_core::Error>")]
+#[rtype(result = "Result<TickerApiResponse, Error>")]
 pub struct TickerApiRequest {
     pub symbol: String,
     pub interval: u64,
@@ -59,7 +60,7 @@ pub struct TickerApiResponse {
 }
 
 #[derive(Message, Clone)]
-#[rtype(result = "Result<KlineApiResponse, quant_core::Error>")]
+#[rtype(result = "Result<KlineApiResponse, Error>")]
 pub struct KlineApiRequest {
     pub symbol: String,
     pub interval: KlineInterval,
@@ -76,7 +77,7 @@ pub struct KlineApiResponse {
 }
 
 #[derive(Message)]
-#[rtype(result = "Result<NewOrderApiResponse, quant_core::Error>")]
+#[rtype(result = "Result<NewOrderApiResponse, Error>")]
 pub struct NewOrderApiRequest {
     pub symbol: String,
     pub side: Side,

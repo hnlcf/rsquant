@@ -17,16 +17,15 @@ use binan_spot::{
     },
 };
 use clap::Parser;
-use manager::QuantState;
-use quant_api::{
-    actor,
-    message::{
-        KlineApiRequest,
-        NewOrderApiRequest,
-        TickerApiRequest,
-    },
-};
 use quant_core::{
+    api::{
+        actor,
+        message::{
+            KlineApiRequest,
+            NewOrderApiRequest,
+            TickerApiRequest,
+        },
+    },
     model::kline::Kline,
     util::{
         config::ConfigBuilder,
@@ -36,6 +35,8 @@ use quant_core::{
             UtcTimeTool,
         },
     },
+    QuantState,
+    STATE,
 };
 use quant_indicator::{
     data_item::ToDataItem,
@@ -44,10 +45,6 @@ use quant_indicator::{
 use rust_decimal::prelude::Signed;
 use rust_decimal_macros::dec;
 use tokio::sync::Mutex;
-
-mod manager;
-
-static STATE: OnceLock<QuantState> = OnceLock::new();
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]

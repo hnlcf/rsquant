@@ -13,11 +13,13 @@ use actix_web::{
     HttpServer,
 };
 use actix_web_actors::ws;
-use quant_core::model::ticker_price::TickerPrice;
 
-use crate::message::{
-    TickerApiRequest,
-    TickerApiResponse,
+use crate::{
+    api::message::{
+        TickerApiRequest,
+        TickerApiResponse,
+    },
+    model::ticker_price::TickerPrice,
 };
 
 struct FrontendApi;

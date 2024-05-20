@@ -3,7 +3,18 @@ use binan_spot::{
     market,
     trade,
 };
-use quant_core::{
+
+use super::{
+    send_req::AsyncSendReq,
+    HttpClient,
+};
+use crate::{
+    api::message::{
+        AccountInfoApiRequest,
+        KlineApiRequest,
+        NewOrderApiRequest,
+        TickerApiRequest,
+    },
     model::{
         account_info::{
             AccountInfo,
@@ -20,17 +31,6 @@ use quant_core::{
     },
     Error,
     Result,
-};
-
-use super::{
-    send_req::AsyncSendReq,
-    HttpClient,
-};
-use crate::message::{
-    AccountInfoApiRequest,
-    KlineApiRequest,
-    NewOrderApiRequest,
-    TickerApiRequest,
 };
 
 pub struct ApiImpl;

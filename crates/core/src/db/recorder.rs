@@ -3,13 +3,12 @@ use std::sync::{
     Mutex,
 };
 
-use quant_core::{
+use super::pgsql::PostgresConnection;
+use crate::{
     util::config,
     Error,
     Result,
 };
-
-use super::pgsql::PostgresConnection;
 
 #[derive(Default)]
 pub struct Recorder {

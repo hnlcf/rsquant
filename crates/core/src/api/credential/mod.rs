@@ -1,5 +1,6 @@
 use binan_spot::http::Credentials;
-use quant_core::util::{
+
+use crate::util::{
     config,
     env,
 };

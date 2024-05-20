@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
 use binan_spot::http::request::Request as BinanRequest;
-use quant_core::{
+
+use crate::{
+    api::req::HttpClient,
     Error,
     Result,
 };
-
-use crate::req::HttpClient;
 
 pub trait AsyncSendReq: Clone {
     fn send_req(&self, client: &HttpClient) -> impl std::future::Future<Output = Result<String>>;
