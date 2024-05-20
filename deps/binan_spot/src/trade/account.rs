@@ -20,7 +20,7 @@ use crate::http::{
 pub struct Account {
     recv_window: Option<i64>,
     credentials: Option<Credentials>,
-    timestamp: Option<i64>,
+    timestamp: Option<u64>,
 }
 
 impl Account {
@@ -42,7 +42,7 @@ impl Account {
         self
     }
 
-    pub fn timestamp(mut self, timestamp: i64) -> Self {
+    pub fn timestamp(mut self, timestamp: u64) -> Self {
         self.timestamp = Some(timestamp);
         self
     }

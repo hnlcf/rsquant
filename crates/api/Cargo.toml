@@ -18,3 +18,5 @@ quant_core = { path = "../core" }
 
 url = "2.5.0"
 reqwest = { version = "0.12.4", features = ["rustls-tls", "gzip"] }
+actix-web = "4.6.0"
+actix-web-actors = "4.3.0"

@@ -18,10 +18,13 @@ use binan_spot::{
 };
 use clap::Parser;
 use manager::QuantState;
-use quant_api::message::{
-    KlineApiRequest,
-    NewOrderApiRequest,
-    TickerApiRequest,
+use quant_api::{
+    actor,
+    message::{
+        KlineApiRequest,
+        NewOrderApiRequest,
+        TickerApiRequest,
+    },
 };
 use quant_core::{
     model::kline::Kline,
@@ -80,6 +83,8 @@ async fn main() -> Result<(), quant_core::Error> {
         state
     });
 
+    tokio::spawn(async { actor::run_web().await });
+
     run().await
 }
 
@@ -95,99 +100,100 @@ async fn run() -> Result<(), quant_core::Error> {
     let price_slot = Arc::new(Mutex::new(dec!(1.0)));
 
     let price = price_slot.clone();
-    tokio::task::spawn(async move {
-        loop {
-            let ticker = manager
-                .get_ticker(TickerApiRequest {
-                    symbol: symbol.to_owned(),
-                })
-                .await
-                .unwrap();
-            tracing::info!("Ticker: {}: {}", ticker.symbol, ticker.price());
-            *price.lock().await = ticker.price();
-            tokio::time::sleep(Duration::from_secs(5)).await;
-        }
-    });
-
-    'out: loop {
-        let (start, end) = UtcTimeTool.get_duration(DurationInterval::Minutes1, 750);
-        match manager
-            .get_kline(KlineApiRequest {
+    // tokio::task::spawn(async move {
+    loop {
+        let ticker = manager
+            .get_ticker(TickerApiRequest {
                 symbol: symbol.to_owned(),
-                interval: KlineInterval::Minutes15,
-                start_time: start,
-                end_time: end,
-                limit: 50,
+                interval: 0,
             })
             .await
-        {
-            Ok(res) => {
-                let signal = handle_klines_with_macd(&res);
-                tracing::info!(
-                    "Signal: {}",
-                    signal.map(|s| s.to_string()).unwrap_or("Nil".to_string())
-                );
-
-                let origin_price = *price_slot.lock().await;
-                tracing::info!("Ticker of {}: {}", symbol, origin_price);
-
-                let account_info = manager.get_account_info().await?;
-                let usdt_count = account_info.query_asset(usdt);
-                let btc_count = account_info.query_asset(btc);
-                match signal {
-                    Some(Side::Buy) if usdt_count.is_some() => {
-                        if usdt_count.unwrap() >= total {
-                            let price = (origin_price + dec!(1.0)).round_dp(5);
-                            let quantity = (total / price).round_dp(5);
-
-                            let res = manager
-                                .new_order(NewOrderApiRequest {
-                                    symbol: symbol.to_owned(),
-                                    side: Side::Buy,
-                                    r#type: "LIMIT".to_owned(),
-                                    time_in_force: TimeInForce::Gtc,
-                                    quantity,
-                                    price,
-                                })
-                                .await?;
-
-                            tracing::info!("Order res: {}", res);
-                        }
-                    }
-                    Some(Side::Sell) if btc_count.is_some() => {
-                        if btc_count.unwrap() >= total / origin_price {
-                            let price = (origin_price - dec!(1.0)).round_dp(5);
-                            let quantity = (total / price).round_dp(5);
-
-                            let res = manager
-                                .new_order(NewOrderApiRequest {
-                                    symbol: symbol.to_owned(),
-                                    side: Side::Sell,
-                                    r#type: "LIMIT".to_owned(),
-                                    time_in_force: TimeInForce::Gtc,
-                                    quantity,
-                                    price,
-                                })
-                                .await?;
-
-                            tracing::info!("Order res: {}", res);
-
-                            let money = account_info.query_asset(usdt).unwrap_or_default()
-                                + account_info.query_asset(btc).unwrap_or_default() * origin_price;
-                            tracing::info!("Money: {}", money);
-                        }
-                    }
-                    _ => {}
-                }
-            }
-            Err(e) => {
-                tracing::warn!("{}", e);
-                break 'out;
-            }
-        }
-
-        tokio::time::sleep(Duration::from_secs(60 * 15)).await;
+            .unwrap();
+        tracing::info!("Ticker: {}: {}", ticker.symbol, ticker.price());
+        *price.lock().await = ticker.price();
+        tokio::time::sleep(Duration::from_secs(5)).await;
     }
+    // });
+
+    // 'out: loop {
+    //     let (start, end) = UtcTimeTool.get_duration(DurationInterval::Minutes1, 750);
+    //     match manager
+    //         .get_kline(KlineApiRequest {
+    //             symbol: symbol.to_owned(),
+    //             interval: KlineInterval::Minutes15,
+    //             start_time: start,
+    //             end_time: end,
+    //             limit: 50,
+    //         })
+    //         .await
+    //     {
+    //         Ok(res) => {
+    //             let signal = handle_klines_with_macd(&res);
+    //             tracing::info!(
+    //                 "Signal: {}",
+    //                 signal.map(|s| s.to_string()).unwrap_or("Nil".to_string())
+    //             );
+
+    //             let origin_price = *price_slot.lock().await;
+    //             tracing::info!("Ticker of {}: {}", symbol, origin_price);
+
+    //             let account_info = manager.get_account_info().await?;
+    //             let usdt_count = account_info.query_asset(usdt);
+    //             let btc_count = account_info.query_asset(btc);
+    //             match signal {
+    //                 Some(Side::Buy) if usdt_count.is_some() => {
+    //                     if usdt_count.unwrap() >= total {
+    //                         let price = (origin_price + dec!(1.0)).round_dp(5);
+    //                         let quantity = (total / price).round_dp(5);
+
+    //                         let res = manager
+    //                             .new_order(NewOrderApiRequest {
+    //                                 symbol: symbol.to_owned(),
+    //                                 side: Side::Buy,
+    //                                 r#type: "LIMIT".to_owned(),
+    //                                 time_in_force: TimeInForce::Gtc,
+    //                                 quantity,
+    //                                 price,
+    //                             })
+    //                             .await?;
+
+    //                         tracing::info!("Order res: {}", res);
+    //                     }
+    //                 }
+    //                 Some(Side::Sell) if btc_count.is_some() => {
+    //                     if btc_count.unwrap() >= total / origin_price {
+    //                         let price = (origin_price - dec!(1.0)).round_dp(5);
+    //                         let quantity = (total / price).round_dp(5);
+
+    //                         let res = manager
+    //                             .new_order(NewOrderApiRequest {
+    //                                 symbol: symbol.to_owned(),
+    //                                 side: Side::Sell,
+    //                                 r#type: "LIMIT".to_owned(),
+    //                                 time_in_force: TimeInForce::Gtc,
+    //                                 quantity,
+    //                                 price,
+    //                             })
+    //                             .await?;
+
+    //                         tracing::info!("Order res: {}", res);
+
+    //                         let money = account_info.query_asset(usdt).unwrap_or_default()
+    //                             + account_info.query_asset(btc).unwrap_or_default() * origin_price;
+    //                         tracing::info!("Money: {}", money);
+    //                     }
+    //                 }
+    //                 _ => {}
+    //             }
+    //         }
+    //         Err(e) => {
+    //             tracing::warn!("{}", e);
+    //             break 'out;
+    //         }
+    //     }
+
+    //     tokio::time::sleep(Duration::from_secs(60 * 15)).await;
+    // }
 
     Ok(())
 }

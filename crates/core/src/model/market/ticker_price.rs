@@ -2,11 +2,14 @@ use core::fmt;
 use std::str::FromStr;
 
 use rust_decimal::Decimal;
-use serde::Deserialize;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 use crate::model::DecodeFromStr;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TickerPrice {
     pub symbol: String,
     pub price: String,

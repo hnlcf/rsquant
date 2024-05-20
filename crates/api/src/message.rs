@@ -20,6 +20,10 @@ use quant_core::{
     Error,
 };
 use rust_decimal::Decimal;
+use serde::{
+    Deserialize,
+    Serialize,
+};
 
 #[derive(Message)]
 #[rtype(result = "Result<NormalResponse, quant_core::Error>")]
@@ -41,13 +45,15 @@ pub struct AccountInfoApiResponse {
     pub info: AccountInfo,
 }
 
-#[derive(Message)]
+#[derive(Message, Deserialize)]
 #[rtype(result = "Result<TickerApiResponse, quant_core::Error>")]
 pub struct TickerApiRequest {
     pub symbol: String,
+    pub interval: u64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Message)]
+#[rtype(result = "()")]
 pub struct TickerApiResponse {
     pub ticker: TickerPrice,
 }

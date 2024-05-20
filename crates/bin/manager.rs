@@ -3,7 +3,7 @@ use actix::{
     Addr,
 };
 use quant_api::{
-    actor::Api,
+    actor::BinanApi,
     message::{
         AccountInfoApiRequest,
         AccountInfoApiResponse,
@@ -33,7 +33,7 @@ use quant_db::recorder::Recorder;
 
 pub struct QuantState {
     config: QuantConfig,
-    api: Addr<Api>,
+    api: Addr<BinanApi>,
     recorder: Recorder,
     logger: Logger,
 }
@@ -51,7 +51,7 @@ impl QuantState {
             ..
         } = config.to_owned();
 
-        let api = Api::from_config(api_credentials).await.start();
+        let api = BinanApi::from_config(api_credentials).await.start();
         let recorder = Recorder::from_config(database)?;
         let logger = Logger::from_config(log);
 

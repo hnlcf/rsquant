@@ -41,7 +41,7 @@ impl ApiImpl {
         _req: AccountInfoApiRequest,
     ) -> Result<AccountInfo> {
         let request: Request = trade::account()
-            .timestamp(LocalTimeTool::get_unix_time() as i64)
+            .timestamp(LocalTimeTool::get_unix_time())
             .into();
 
         request.send_req(client).await.and_then(|ref res| {
@@ -55,7 +55,7 @@ impl ApiImpl {
         client: &HttpClient,
         req: TickerApiRequest,
     ) -> Result<TickerPrice> {
-        let TickerApiRequest { symbol } = req;
+        let TickerApiRequest { symbol, .. } = req;
         let request: Request = market::ticker_price().symbol(&symbol).into();
         request
             .send_req(client)
@@ -96,6 +96,7 @@ impl ApiImpl {
             .time_in_force(time_in_force)
             .quantity(quantity)
             .price(price)
+            .timestamp(LocalTimeTool::get_unix_time())
             .into();
 
         request.send_req(client).await

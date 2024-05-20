@@ -58,6 +58,7 @@ pub struct NewOrder {
     new_order_resp_type: Option<NewOrderResponseType>,
     recv_window: Option<u64>,
     credentials: Option<Credentials>,
+    timestamp: Option<u64>,
 }
 
 impl NewOrder {
@@ -77,6 +78,7 @@ impl NewOrder {
             new_order_resp_type: None,
             recv_window: None,
             credentials: None,
+            timestamp: None,
         }
     }
 
@@ -134,6 +136,11 @@ impl NewOrder {
         self.credentials = Some(credentials.clone());
         self
     }
+
+    pub fn timestamp(mut self, timestamp: u64) -> Self {
+        self.timestamp = Some(timestamp);
+        self
+    }
 }
 
 impl From<NewOrder> for Request {
@@ -185,6 +192,10 @@ impl From<NewOrder> for Request {
 
         if let Some(recv_window) = request.recv_window {
             params.push(("recvWindow".to_owned(), recv_window.to_string()));
+        }
+
+        if let Some(timestamp) = request.timestamp {
+            params.push(("timestamp".to_owned(), timestamp.to_string()));
         }
 
         Request {
