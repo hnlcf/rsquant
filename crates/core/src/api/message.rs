@@ -59,6 +59,21 @@ pub struct TickerApiResponse {
     pub ticker: TickerPrice,
 }
 
+#[derive(Debug, Default, Clone, Message, Deserialize)]
+#[rtype(result = "Result<MultipleTickerApiResponse, Error>")]
+pub struct MultipleTickerApiRequest {
+    pub symbols: Vec<String>,
+    pub interval: u64,
+}
+
+unsafe impl Send for MultipleTickerApiRequest {}
+
+#[derive(Debug, Message)]
+#[rtype(result = "()")]
+pub struct MultipleTickerApiResponse {
+    pub tickers: Vec<TickerPrice>,
+}
+
 #[derive(Message, Clone)]
 #[rtype(result = "Result<KlineApiResponse, Error>")]
 pub struct KlineApiRequest {
@@ -112,9 +127,4 @@ pub enum TradeRequest {
     Sell,
 }
 
-#[derive(Deserialize)]
-#[serde(untagged)]
-pub enum SubscribeTickerRequest {
-    Subscribe(TickerApiRequest),
-    Unsubscribe(String),
-}
+pub type SubscribeTickerRequest = MultipleTickerApiRequest;

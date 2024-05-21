@@ -18,6 +18,8 @@ use crate::{
             AccountInfoApiResponse,
             KlineApiRequest,
             KlineApiResponse,
+            MultipleTickerApiRequest,
+            MultipleTickerApiResponse,
             NewOrderApiRequest,
             NewOrderApiResponse,
             NormalRequest,
@@ -107,6 +109,22 @@ impl Handler<TickerApiRequest> for BinanApi {
         }
         .into_actor(self)
         .map(|res, _slf, _ctx| res.map(|ticker| TickerApiResponse { ticker }))
+        .boxed_local()
+    }
+}
+
+impl Handler<MultipleTickerApiRequest> for BinanApi {
+    type Result = ResponseActFuture<Self, Result<MultipleTickerApiResponse, Error>>;
+
+    fn handle(&mut self, msg: MultipleTickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let client = self.client.clone();
+        async move {
+            ApiImpl::get_multi_ticker_price(&client, msg)
+                .await
+                .map_err(Error::from)
+        }
+        .into_actor(self)
+        .map(|res, _slf, _ctx| res.map(|tickers| MultipleTickerApiResponse { tickers }))
         .boxed_local()
     }
 }

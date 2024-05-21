@@ -11,6 +11,7 @@ use crate::{
         message::{
             AccountInfoApiRequest,
             KlineApiRequest,
+            MultipleTickerApiRequest,
             NewOrderApiRequest,
             NormalRequest,
             TickerApiRequest,
@@ -123,6 +124,21 @@ impl QuantState {
         tracing::trace!("{:#?}", res);
 
         Ok(res.ticker)
+    }
+
+    pub async fn get_multi_ticker(
+        &self,
+        req: MultipleTickerApiRequest,
+    ) -> Result<Vec<TickerPrice>> {
+        let res = self
+            .api
+            .send(req)
+            .await
+            .map_err(|e| Error::Custom(e.to_string()))??;
+
+        tracing::trace!("{:#?}", res);
+
+        Ok(res.tickers)
     }
 
     pub async fn get_kline(&self, req: KlineApiRequest) -> Result<Vec<Kline>> {

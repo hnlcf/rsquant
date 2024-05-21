@@ -12,6 +12,7 @@ use crate::{
     api::message::{
         AccountInfoApiRequest,
         KlineApiRequest,
+        MultipleTickerApiRequest,
         NewOrderApiRequest,
         TickerApiRequest,
     },
@@ -61,6 +62,20 @@ impl ApiImpl {
             .send_req(client)
             .await
             .and_then(|ref res| TickerPrice::decode_from_str(res).map_err(Error::Serde))
+    }
+
+    pub async fn get_multi_ticker_price(
+        client: &HttpClient,
+        req: MultipleTickerApiRequest,
+    ) -> Result<Vec<TickerPrice>> {
+        let MultipleTickerApiRequest { symbols, .. } = req;
+        let request: Request = market::ticker_price()
+            .symbols(symbols.iter().map(|s| s.as_str()).collect::<Vec<_>>())
+            .into();
+        request.send_req(client).await.and_then(|ref res| {
+            <Vec<TickerPrice> as DecodeFromStr<Vec<TickerPrice>>>::decode_from_str(res)
+                .map_err(Error::Serde)
+        })
     }
 
     pub async fn get_kline(client: &HttpClient, req: KlineApiRequest) -> Result<Vec<Kline>> {

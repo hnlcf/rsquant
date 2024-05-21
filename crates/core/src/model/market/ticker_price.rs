@@ -22,6 +22,7 @@ impl TickerPrice {
 }
 
 impl DecodeFromStr<'_, TickerPrice> for TickerPrice {}
+impl DecodeFromStr<'_, Vec<TickerPrice>> for Vec<TickerPrice> {}
 
 impl fmt::Display for TickerPrice {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

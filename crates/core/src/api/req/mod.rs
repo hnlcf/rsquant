@@ -64,9 +64,10 @@ impl HttpClient {
         let req = req_builder.build().unwrap();
         tracing::debug!("Client request: {:?}", req);
 
-        let res = self.client.execute(req).await.unwrap();
-        tracing::debug!("Client response: {:?}", res);
-
-        Ok(Response::new(res))
+        self.client
+            .execute(req)
+            .await
+            .map(Response::new)
+            .map_err(|e| Error::Custom(e.to_string()))
     }
 }
