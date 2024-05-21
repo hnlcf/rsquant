@@ -1,11 +1,12 @@
-export type SubscribeTickerRequest = TickerApiRequest | string
+export type SubscribeTickerRequest = MultipleTickerApiRequest
+export type SubscribeTickerResponse = TickerPrice[]
 
-export interface TickerApiRequest {
-  symbol: string
+export interface MultipleTickerApiRequest {
+  symbols: string[]
   interval: number
 }
 
-export interface TickerApiResponse {
+export interface TickerPrice {
   symbol: string
   price: number
 }

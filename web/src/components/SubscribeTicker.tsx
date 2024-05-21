@@ -1,11 +1,11 @@
 import { Component, For, createSignal, onCleanup } from "solid-js"
 import { baseUrl } from "../utils/constants"
-import { SubscribeTickerRequest, TickerApiResponse } from "../types"
+import { SubscribeTickerRequest, SubscribeTickerResponse } from "../types"
 
 const SubscribeTicker: Component = () => {
   const [symbol, setSymbol] = createSignal("")
   const [symbolList, setSymbolList] = createSignal<string[]>([])
-  const [tickerMap, setTickerMap] = createSignal<Map<string, TickerApiResponse>>(new Map())
+  const [tickerMap, setTickerMap] = createSignal<Map<string, number>>(new Map())
 
   const ws = new WebSocket(baseUrl)
   onCleanup(() => {
@@ -13,30 +13,39 @@ const SubscribeTicker: Component = () => {
   })
 
   ws.onmessage = (event) => {
-    const data: TickerApiResponse = JSON.parse(event.data)
-    setTickerMap((prev) => {
-      const newMap = new Map(prev)
-      newMap.set(data.symbol, data)
-      return newMap
-    })
+    const data: SubscribeTickerResponse = JSON.parse(event.data)
+
+    for (const ticker of data) {
+      setTickerMap((prev) => {
+        const newMap = new Map(prev)
+        newMap.set(ticker.symbol, ticker.price)
+        return newMap
+      })
+    }
   }
 
   const subscribeTicker = (symbol: string) => {
     if (!tickerMap().has(symbol) && !symbolList().includes(symbol)) {
+      const symbols = [...symbolList(), symbol]
       const req: SubscribeTickerRequest = {
-        symbol: symbol,
+        symbols: symbols,
         interval: 5,
       }
 
       ws.send(JSON.stringify(req))
-      setSymbolList([...symbolList(), symbol])
+      setSymbolList(symbols)
     }
   }
 
   const unsubscribeTicker = (symbol: string) => {
-    const req: SubscribeTickerRequest = symbol
+    const symbols = symbolList().filter((s) => s !== symbol)
+    const req: SubscribeTickerRequest = {
+      symbols: symbols,
+      interval: 5,
+    }
     ws.send(JSON.stringify(req))
-    setSymbolList(symbolList().filter((s) => s !== symbol))
+
+    setSymbolList(symbols)
     setTickerMap((prev) => {
       const newMap = new Map(prev)
       newMap.delete(symbol)
@@ -74,7 +83,7 @@ const SubscribeTicker: Component = () => {
         {(symbol) => (
           <div>
             <p>{symbol}</p>
-            <p>{tickerMap().get(symbol)?.price}</p>
+            <p>{tickerMap().get(symbol)}</p>
           </div>
         )}
       </For>

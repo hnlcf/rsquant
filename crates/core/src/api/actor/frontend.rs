@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::sync::Arc;
 
 use actix::{
     Actor,
@@ -16,39 +16,33 @@ use actix_web::{
     HttpServer,
 };
 use actix_web_actors::ws;
-use tokio::time;
+use tokio::{
+    sync::Mutex,
+    time,
+};
 
 use crate::{
     api::message::{
+        MultipleTickerApiRequest,
+        MultipleTickerApiResponse,
         SubscribeTickerRequest,
-        TickerApiResponse,
     },
     QuantState,
 };
 
 #[derive(Debug, Default)]
 struct SubscribeTicker {
-    subscribe_table: HashMap<String, tokio::sync::oneshot::Sender<bool>>,
+    subscribe_req: Arc<Mutex<MultipleTickerApiRequest>>,
+    exit_tx: Option<tokio::sync::oneshot::Sender<()>>,
 }
 
 impl SubscribeTicker {
-    fn subscribe(&mut self, symbol: String) -> tokio::sync::oneshot::Receiver<bool> {
-        let (tx, rx) = tokio::sync::oneshot::channel();
-        self.subscribe_table.insert(symbol, tx);
-        rx
-    }
-
-    fn unsubscribe(&mut self, symbol: &str) {
-        let _ = self
-            .subscribe_table
-            .remove(symbol)
-            .map(|tx| tx.send(true).expect("Failed to send unsubscribe signal"));
-    }
-
-    fn unsubscribe_all(&mut self) {
-        for (_, tx) in self.subscribe_table.drain() {
-            let _ = tx.send(true);
-        }
+    fn update_req(&self, req: MultipleTickerApiRequest) {
+        let ref_s = self.subscribe_req.clone();
+        tokio::spawn(async move {
+            let mut guard = ref_s.lock().await;
+            *guard = req;
+        });
     }
 }
 
@@ -71,36 +65,41 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for SubscribeTicker {
             Ok(ws::Message::Ping(msg)) => ctx.pong(&msg),
             Ok(ws::Message::Binary(bin)) => ctx.binary(bin),
             Ok(ws::Message::Text(text)) => {
-                let req: SubscribeTickerRequest = serde_json::from_str(&text).unwrap();
-                match req {
-                    SubscribeTickerRequest::Subscribe(ticker_req) => {
-                        let addr = ctx.address();
-                        let req = ticker_req;
-                        let exit_rx = self.subscribe(req.symbol.clone());
+                let subscribe_req: SubscribeTickerRequest = serde_json::from_str(&text).unwrap();
+                self.update_req(subscribe_req);
 
-                        tokio::spawn(async move {
-                            let mut exit_rx = exit_rx;
+                if self.exit_tx.is_none() {
+                    let (exit_tx, exit_rx) = tokio::sync::oneshot::channel();
+                    self.exit_tx = Some(exit_tx);
 
-                            tracing::debug!("Subscribe ticker: {:?}", req);
-                            loop {
-                                tokio::select! {
-                                    _ = &mut exit_rx => break,
-                                    ticker = QuantState::get().get_ticker(req.clone()) => {
-                                        addr.send(TickerApiResponse { ticker: ticker.unwrap() }).await.unwrap();
-                                        time::sleep(time::Duration::from_secs(req.interval)).await;
+                    let req = self.subscribe_req.clone();
+                    let addr = ctx.address();
+                    tokio::spawn(async move {
+                        let mut exit_rx = exit_rx;
+                        let addr = addr;
+
+                        loop {
+                            tokio::select! {
+                                _ = &mut exit_rx => break,
+                                tickers = QuantState::get().get_multi_ticker(req.lock().await.clone()) => {
+                                    if let Ok(tickers) = tickers {
+                                        addr.send(MultipleTickerApiResponse { tickers }).await.unwrap();
+                                    }else {
+                                        tracing::error!("Failed to get tickers: {:?}", tickers);
                                     }
+                                    time::sleep(time::Duration::from_secs(req.lock().await.interval)).await;
                                 }
                             }
-                            tracing::debug!("Unsubscribe ticker: {:?}", req);
-                        });
-                    }
-                    SubscribeTickerRequest::Unsubscribe(symbol) => {
-                        self.unsubscribe(&symbol);
-                    }
+                        }
+
+                        tracing::debug!("Exit subscribe ticker loop");
+                    });
                 }
             }
             Ok(ws::Message::Close(_close)) => {
-                self.unsubscribe_all();
+                if let Some(tx) = self.exit_tx.take() {
+                    let _ = tx.send(());
+                }
                 ctx.stop();
             }
             _ => {
@@ -110,11 +109,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for SubscribeTicker {
     }
 }
 
-impl Handler<TickerApiResponse> for SubscribeTicker {
+impl Handler<MultipleTickerApiResponse> for SubscribeTicker {
     type Result = ();
 
-    fn handle(&mut self, msg: TickerApiResponse, ctx: &mut Self::Context) {
-        let data = serde_json::to_string(&msg.ticker).unwrap();
+    fn handle(&mut self, msg: MultipleTickerApiResponse, ctx: &mut Self::Context) {
+        let data = serde_json::to_string(&msg.tickers).unwrap();
         ctx.text(data);
     }
 }
