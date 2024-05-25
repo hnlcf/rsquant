@@ -20,7 +20,7 @@ pub struct HttpClient {
 }
 
 impl HttpClient {
-    pub async fn new(credentials: basic::Credentials) -> Self {
+    pub fn new(credentials: basic::Credentials) -> Self {
         let base_url = "https://api.binance.com";
 
         Self {

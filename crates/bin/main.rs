@@ -18,15 +18,14 @@ use binan_spot::{
 };
 use clap::Parser;
 use quant_core::{
-    api::{
-        actor,
-        message::{
-            KlineApiRequest,
-            NewOrderApiRequest,
-            TickerApiRequest,
-        },
-    },
+    actor,
     init_state,
+    message::{
+        KlineApiRequest,
+        NewOrderApiRequest,
+        NormalRequest,
+        TickerApiRequest,
+    },
     model::kline::Kline,
     util::{
         config::ConfigBuilder,
@@ -63,7 +62,10 @@ fn set_ctrlc_handler() {
 
         tracing::info!("Ctrl-C received, stop system");
 
-        STATE.get().unwrap().stop().await;
+        QuantState::get_addr()
+            .send(NormalRequest::Stop)
+            .await
+            .unwrap();
 
         tracing::info!("Shutdown now");
 
@@ -101,15 +103,15 @@ async fn run() -> Result<(), quant_core::Error> {
     let price = price_slot.clone();
     // tokio::task::spawn(async move {
     loop {
-        let ticker = manager
-            .get_ticker(TickerApiRequest {
-                symbol: symbol.to_owned(),
-                interval: 0,
-            })
-            .await
-            .unwrap();
-        tracing::info!("Ticker: {}: {}", ticker.symbol, ticker.price());
-        *price.lock().await = ticker.price();
+        // let ticker = manager
+        //     .get_ticker(TickerApiRequest {
+        //         symbol: symbol.to_owned(),
+        //         interval: 0,
+        //     })
+        //     .await
+        //     .unwrap();
+        // tracing::info!("Ticker: {}: {}", ticker.symbol, ticker.price());
+        // *price.lock().await = ticker.price();
         tokio::time::sleep(Duration::from_secs(5)).await;
     }
     // });

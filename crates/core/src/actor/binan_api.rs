@@ -13,62 +13,62 @@ use actix::{
 use crate::{
     api::{
         credential,
-        message::{
-            AccountInfoApiRequest,
-            AccountInfoApiResponse,
-            KlineApiRequest,
-            KlineApiResponse,
-            MultipleTickerApiRequest,
-            MultipleTickerApiResponse,
-            NewOrderApiRequest,
-            NewOrderApiResponse,
-            NormalRequest,
-            NormalResponse,
-            TickerApiRequest,
-            TickerApiResponse,
-        },
         req::{
             ApiImpl,
             HttpClient,
         },
     },
+    message::{
+        AccountInfoApiRequest,
+        AccountInfoApiResponse,
+        KlineApiRequest,
+        KlineApiResponse,
+        MultipleTickerApiRequest,
+        MultipleTickerApiResponse,
+        NewOrderApiRequest,
+        NewOrderApiResponse,
+        NormalRequest,
+        NormalResponse,
+        TickerApiRequest,
+        TickerApiResponse,
+    },
     util::config,
     Error,
 };
 
-pub struct BinanApi {
+pub struct BinanApiActor {
     client: Rc<HttpClient>,
 }
 
-impl BinanApi {
-    pub async fn from_config(credentials: config::CredentialsConfig) -> Self {
+impl BinanApiActor {
+    pub fn from_config(credentials: config::CredentialsConfig) -> Self {
         match credentials {
             config::CredentialsConfig::Binance(binan_credentials) => {
                 let credentials = credential::CredentialBuilder::from_config(binan_credentials)
                     .expect("Failed to get credentials from config file.");
 
-                let client = Rc::new(HttpClient::new(credentials.to_owned()).await);
+                let client = Rc::new(HttpClient::new(credentials.to_owned()));
 
                 Self { client }
             }
-            _ => BinanApi::default().await,
+            _ => BinanApiActor::default(),
         }
     }
 
-    pub async fn default() -> Self {
+    pub fn default() -> Self {
         let credentials = credential::CredentialBuilder::from_env()
             .expect("Failed to create credential from envs.");
         Self {
-            client: Rc::new(HttpClient::new(credentials.to_owned()).await),
+            client: Rc::new(HttpClient::new(credentials.to_owned())),
         }
     }
 }
 
-impl Actor for BinanApi {
+impl Actor for BinanApiActor {
     type Context = Context<Self>;
 }
 
-impl Handler<NormalRequest> for BinanApi {
+impl Handler<NormalRequest> for BinanApiActor {
     type Result = Result<NormalResponse, Error>;
 
     fn handle(&mut self, msg: NormalRequest, ctx: &mut Self::Context) -> Self::Result {
@@ -81,7 +81,7 @@ impl Handler<NormalRequest> for BinanApi {
     }
 }
 
-impl Handler<AccountInfoApiRequest> for BinanApi {
+impl Handler<AccountInfoApiRequest> for BinanApiActor {
     type Result = ResponseActFuture<Self, Result<AccountInfoApiResponse, Error>>;
 
     fn handle(&mut self, msg: AccountInfoApiRequest, _ctx: &mut Self::Context) -> Self::Result {
@@ -97,7 +97,7 @@ impl Handler<AccountInfoApiRequest> for BinanApi {
     }
 }
 
-impl Handler<TickerApiRequest> for BinanApi {
+impl Handler<TickerApiRequest> for BinanApiActor {
     type Result = ResponseActFuture<Self, Result<TickerApiResponse, Error>>;
 
     fn handle(&mut self, msg: TickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
@@ -113,7 +113,7 @@ impl Handler<TickerApiRequest> for BinanApi {
     }
 }
 
-impl Handler<MultipleTickerApiRequest> for BinanApi {
+impl Handler<MultipleTickerApiRequest> for BinanApiActor {
     type Result = ResponseActFuture<Self, Result<MultipleTickerApiResponse, Error>>;
 
     fn handle(&mut self, msg: MultipleTickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
@@ -129,7 +129,7 @@ impl Handler<MultipleTickerApiRequest> for BinanApi {
     }
 }
 
-impl Handler<KlineApiRequest> for BinanApi {
+impl Handler<KlineApiRequest> for BinanApiActor {
     type Result = ResponseActFuture<Self, Result<KlineApiResponse, Error>>;
 
     fn handle(&mut self, msg: KlineApiRequest, _ctx: &mut Self::Context) -> Self::Result {
@@ -151,7 +151,7 @@ impl Handler<KlineApiRequest> for BinanApi {
     }
 }
 
-impl Handler<NewOrderApiRequest> for BinanApi {
+impl Handler<NewOrderApiRequest> for BinanApiActor {
     type Result = ResponseActFuture<Self, Result<NewOrderApiResponse, Error>>;
 
     fn handle(&mut self, msg: NewOrderApiRequest, _ctx: &mut Self::Context) -> Self::Result {

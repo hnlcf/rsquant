@@ -1,6 +1,9 @@
 use std::fs;
 
-use tracing_appender::non_blocking::WorkerGuard;
+use tracing_appender::non_blocking::{
+    NonBlocking,
+    WorkerGuard,
+};
 use tracing_subscriber::{
     layer::SubscriberExt,
     util::SubscriberInitExt,
@@ -15,22 +18,27 @@ use crate::{
     Result,
 };
 
-#[derive(Default)]
 pub struct Logger {
     log_dir: String,
     guards: Vec<WorkerGuard>,
+    log_file: NonBlocking,
 }
 
 impl Logger {
     pub fn from_config(config: LogConfig) -> Self {
         let log_path = config.log_path.unwrap_or(DEFAULT_LOG_FILE.into());
+
+        let file_appender = tracing_appender::rolling::never(&log_path, DEFAULT_LOG_FILE);
+        let (log_file, guard) = tracing_appender::non_blocking(file_appender);
+
         Self {
             log_dir: log_path,
-            guards: Vec::new(),
+            guards: vec![guard],
+            log_file,
         }
     }
 
-    pub fn init(&mut self) -> Result<()> {
+    pub fn init(&self) -> Result<()> {
         self.init_log_file()?;
         self.init_logger()?;
 
@@ -43,14 +51,10 @@ impl Logger {
         Ok(())
     }
 
-    fn init_logger(&mut self) -> Result<()> {
+    fn init_logger(&self) -> Result<()> {
         let filter_layer = EnvFilter::try_from_env("QUANT_LOG_LEVEL")
             .or_else(|_| EnvFilter::try_new("info"))
             .unwrap();
-
-        let file_appender = tracing_appender::rolling::never(&self.log_dir, DEFAULT_LOG_FILE);
-        let (log_file, guard) = tracing_appender::non_blocking(file_appender);
-        self.guards.push(guard);
 
         let file_layer = tracing_subscriber::fmt::layer()
             .with_target(true)
@@ -59,7 +63,7 @@ impl Logger {
             .with_line_number(true)
             .with_thread_names(true)
             .with_thread_ids(false)
-            .with_writer(log_file);
+            .with_writer(self.log_file.clone());
 
         let tui_layer = tracing_subscriber::fmt::layer()
             .with_target(true)

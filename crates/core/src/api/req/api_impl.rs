@@ -9,7 +9,7 @@ use super::{
     HttpClient,
 };
 use crate::{
-    api::message::{
+    message::{
         AccountInfoApiRequest,
         KlineApiRequest,
         MultipleTickerApiRequest,

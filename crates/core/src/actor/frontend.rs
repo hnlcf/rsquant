@@ -3,6 +3,7 @@ use std::sync::Arc;
 use actix::{
     Actor,
     ActorContext,
+    Addr,
     AsyncContext,
     Handler,
     StreamHandler,
@@ -22,7 +23,7 @@ use tokio::{
 };
 
 use crate::{
-    api::message::{
+    message::{
         MultipleTickerApiRequest,
         MultipleTickerApiResponse,
         SubscribeTickerRequest,
@@ -31,12 +32,12 @@ use crate::{
 };
 
 #[derive(Debug, Default)]
-struct SubscribeTicker {
+pub struct SubscribeTickerActor {
     subscribe_req: Arc<Mutex<MultipleTickerApiRequest>>,
     exit_tx: Option<tokio::sync::oneshot::Sender<()>>,
 }
 
-impl SubscribeTicker {
+impl SubscribeTickerActor {
     fn update_req(&self, req: MultipleTickerApiRequest) {
         let ref_s = self.subscribe_req.clone();
         tokio::spawn(async move {
@@ -44,9 +45,39 @@ impl SubscribeTicker {
             *guard = req;
         });
     }
+
+    fn start_impl(&mut self, self_addr: Addr<SubscribeTickerActor>) {
+        let (exit_tx, mut exit_rx) = tokio::sync::oneshot::channel();
+        self.exit_tx = Some(exit_tx);
+
+        let req = self.subscribe_req.clone();
+        tokio::spawn(async move {
+            loop {
+                tokio::select! {
+                    _ = &mut exit_rx => break,
+                    tickers = QuantState::get_addr().send(req.lock().await.clone()) => {
+                        if let Ok(Ok(tickers)) = tickers {
+                            self_addr.send(tickers).await.unwrap();
+                        }else {
+                            tracing::error!("Failed to get tickers: {:?}", tickers);
+                        }
+                        time::sleep(time::Duration::from_secs(req.lock().await.interval)).await;
+                    }
+                }
+            }
+
+            tracing::debug!("Exit subscribe ticker loop");
+        });
+    }
+
+    fn stop_impl(&mut self) {
+        if let Some(tx) = self.exit_tx.take() {
+            let _ = tx.send(());
+        }
+    }
 }
 
-impl Actor for SubscribeTicker {
+impl Actor for SubscribeTickerActor {
     type Context = ws::WebsocketContext<Self>;
 }
 
@@ -59,7 +90,7 @@ impl Actor for SubscribeTicker {
 ///     1. get address by ctx
 ///     2. loop: get data, send data to address
 /// 5. Actor handle data and send to frontend
-impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for SubscribeTicker {
+impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for SubscribeTickerActor {
     fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         match msg {
             Ok(ws::Message::Ping(msg)) => ctx.pong(&msg),
@@ -69,37 +100,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for SubscribeTicker {
                 self.update_req(subscribe_req);
 
                 if self.exit_tx.is_none() {
-                    let (exit_tx, exit_rx) = tokio::sync::oneshot::channel();
-                    self.exit_tx = Some(exit_tx);
-
-                    let req = self.subscribe_req.clone();
-                    let addr = ctx.address();
-                    tokio::spawn(async move {
-                        let mut exit_rx = exit_rx;
-                        let addr = addr;
-
-                        loop {
-                            tokio::select! {
-                                _ = &mut exit_rx => break,
-                                tickers = QuantState::get().get_multi_ticker(req.lock().await.clone()) => {
-                                    if let Ok(tickers) = tickers {
-                                        addr.send(MultipleTickerApiResponse { tickers }).await.unwrap();
-                                    }else {
-                                        tracing::error!("Failed to get tickers: {:?}", tickers);
-                                    }
-                                    time::sleep(time::Duration::from_secs(req.lock().await.interval)).await;
-                                }
-                            }
-                        }
-
-                        tracing::debug!("Exit subscribe ticker loop");
-                    });
+                    self.start_impl(ctx.address());
                 }
             }
             Ok(ws::Message::Close(_close)) => {
-                if let Some(tx) = self.exit_tx.take() {
-                    let _ = tx.send(());
-                }
+                self.stop_impl();
                 ctx.stop();
             }
             _ => {
@@ -109,7 +114,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for SubscribeTicker {
     }
 }
 
-impl Handler<MultipleTickerApiResponse> for SubscribeTicker {
+impl Handler<MultipleTickerApiResponse> for SubscribeTickerActor {
     type Result = ();
 
     fn handle(&mut self, msg: MultipleTickerApiResponse, ctx: &mut Self::Context) {
@@ -119,8 +124,8 @@ impl Handler<MultipleTickerApiResponse> for SubscribeTicker {
 }
 
 async fn index(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
-    let (_, resp) =
-        ws::WsResponseBuilder::new(SubscribeTicker::default(), &req, stream).start_with_addr()?;
+    let (_, resp) = ws::WsResponseBuilder::new(SubscribeTickerActor::default(), &req, stream)
+        .start_with_addr()?;
     Ok(resp)
 }
 

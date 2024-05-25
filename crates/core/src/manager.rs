@@ -2,26 +2,35 @@ use std::sync::OnceLock;
 
 use actix::{
     Actor,
+    ActorContext,
+    ActorFutureExt,
     Addr,
+    AsyncContext,
+    Context,
+    Handler,
+    ResponseActFuture,
+    WrapFuture,
 };
 
 use crate::{
-    api::{
-        actor::BinanApi,
-        message::{
-            AccountInfoApiRequest,
-            KlineApiRequest,
-            MultipleTickerApiRequest,
-            NewOrderApiRequest,
-            NormalRequest,
-            TickerApiRequest,
-        },
+    actor::{
+        BinanApiActor,
+        EmailActor,
     },
     db::recorder::Recorder,
-    model::{
-        account_info::AccountInfo,
-        kline::Kline,
-        ticker_price::TickerPrice,
+    message::{
+        AccountInfoApiRequest,
+        AccountInfoApiResponse,
+        KlineApiRequest,
+        KlineApiResponse,
+        MultipleTickerApiRequest,
+        MultipleTickerApiResponse,
+        NewOrderApiRequest,
+        NewOrderApiResponse,
+        NormalRequest,
+        NormalResponse,
+        TickerApiRequest,
+        TickerApiResponse,
     },
     util::{
         config::QuantConfig,
@@ -31,23 +40,21 @@ use crate::{
     Result,
 };
 
-pub static STATE: OnceLock<QuantState> = OnceLock::new();
+pub static STATE: OnceLock<Addr<QuantState>> = OnceLock::new();
 
 pub async fn init_state(config: QuantConfig) {
-    let mut state = QuantState::from_config(config)
-        .await
-        .expect("Failed to create manager");
-    let _manager = STATE.get_or_init(move || {
-        let _ = state.init();
-        state
-    });
+    let state = QuantState::from_config(config)
+        .expect("Failed to create manager")
+        .start();
+    let _manager = STATE.get_or_init(move || state);
 }
 
 pub struct QuantState {
     config: QuantConfig,
-    api: Addr<BinanApi>,
-    recorder: Recorder,
-    logger: Logger,
+    api: Option<Addr<BinanApiActor>>,
+    email: Option<Addr<EmailActor>>,
+    recorder: Option<Recorder>,
+    logger: Option<Logger>,
 }
 
 unsafe impl Send for QuantState {}
@@ -55,113 +62,194 @@ unsafe impl Send for QuantState {}
 unsafe impl Sync for QuantState {}
 
 impl QuantState {
-    pub async fn from_config(config: QuantConfig) -> Result<Self> {
+    pub fn get_addr() -> Addr<QuantState> {
+        STATE.get().expect("Manager is not initialized").clone()
+    }
+}
+
+impl Actor for QuantState {
+    type Context = Context<Self>;
+
+    fn started(&mut self, _ctx: &mut Self::Context) {
         let QuantConfig {
             api_credentials,
             database,
             log,
+            email,
             ..
-        } = config.to_owned();
+        } = self.config.to_owned();
 
-        let api = BinanApi::from_config(api_credentials).await.start();
-        let recorder = Recorder::from_config(database)?;
+        let api = BinanApiActor::from_config(api_credentials).start();
+        let email = EmailActor::from_config(email).start();
+        let recorder = Recorder::from_config(database).expect("");
         let logger = Logger::from_config(log);
+        recorder.init();
+        logger.init().expect("Failed to init logger");
 
+        self.api = Some(api);
+        self.email = Some(email);
+        self.recorder = Some(recorder);
+        self.logger = Some(logger);
+    }
+}
+
+impl QuantState {
+    pub fn from_config(config: QuantConfig) -> Result<Self> {
         Ok(Self {
             config,
-            api,
-            recorder,
-            logger,
+            api: None,
+            email: None,
+            recorder: None,
+            logger: None,
         })
-    }
-
-    pub fn get() -> &'static QuantState {
-        STATE.get().expect("State is uninitialized")
     }
 
     pub fn config(&self) -> &QuantConfig {
         &self.config
     }
+}
 
-    pub fn init(&mut self) -> Result<()> {
-        self.logger.init()?;
-        self.recorder.init();
+impl Handler<NormalRequest> for QuantState {
+    type Result = ResponseActFuture<Self, Result<NormalResponse>>;
 
-        Ok(())
-    }
-
-    pub async fn stop(&self) {
-        let _ = self.api.send(NormalRequest::Stop).await;
-        tracing::debug!("Send stop signal to actor")
-    }
-
-    pub fn recorder(&self) -> &Recorder {
-        &self.recorder
+    fn handle(&mut self, msg: NormalRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let api_opt = self.api.clone();
+        let email_opt = self.email.clone();
+        async move {
+            match msg {
+                NormalRequest::Stop => {
+                    if let Some(api) = api_opt {
+                        let _ = api.send(NormalRequest::Stop).await;
+                    }
+                    if let Some(email) = email_opt {
+                        let _ = email.send(NormalRequest::Stop).await;
+                    }
+                    tracing::debug!("Send stop signal to actor");
+                    Ok(NormalResponse::Success)
+                }
+            }
+        }
+        .into_actor(self)
+        .boxed_local()
     }
 }
 
-/// Implement the API methods based on `Api` actor
-impl QuantState {
-    pub async fn get_account_info(&self) -> Result<AccountInfo> {
-        let res = self
-            .api
-            .send(AccountInfoApiRequest)
-            .await
-            .map_err(|e| Error::Custom(e.to_string()))??;
+impl Handler<TickerApiRequest> for QuantState {
+    type Result = ResponseActFuture<Self, Result<TickerApiResponse>>;
 
-        tracing::trace!("{:#?}", res);
+    fn handle(&mut self, msg: TickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let api_opt = self.api.clone();
+        async move {
+            if let Some(api) = api_opt {
+                let res = api
+                    .send(msg)
+                    .await
+                    .map_err(|e| Error::Custom(e.to_string()))??;
 
-        Ok(res.info)
+                tracing::trace!("{:#?}", res);
+
+                Ok(res)
+            } else {
+                Err(Error::Custom("API actor is not initialized".into()))
+            }
+        }
+        .into_actor(self)
+        .boxed_local()
     }
+}
 
-    pub async fn get_ticker(&self, req: TickerApiRequest) -> Result<TickerPrice> {
-        let res = self
-            .api
-            .send(req)
-            .await
-            .map_err(|e| Error::Custom(e.to_string()))??;
+impl Handler<AccountInfoApiRequest> for QuantState {
+    type Result = ResponseActFuture<Self, Result<AccountInfoApiResponse>>;
 
-        tracing::trace!("{:#?}", res);
+    fn handle(&mut self, msg: AccountInfoApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let api_opt = self.api.clone();
+        async move {
+            if let Some(api) = api_opt {
+                let res = api
+                    .send(msg)
+                    .await
+                    .map_err(|e| Error::Custom(e.to_string()))??;
 
-        Ok(res.ticker)
+                tracing::trace!("{:#?}", res);
+
+                Ok(res)
+            } else {
+                Err(Error::Custom("API actor is not initialized".into()))
+            }
+        }
+        .into_actor(self)
+        .boxed_local()
     }
+}
 
-    pub async fn get_multi_ticker(
-        &self,
-        req: MultipleTickerApiRequest,
-    ) -> Result<Vec<TickerPrice>> {
-        let res = self
-            .api
-            .send(req)
-            .await
-            .map_err(|e| Error::Custom(e.to_string()))??;
+impl Handler<MultipleTickerApiRequest> for QuantState {
+    type Result = ResponseActFuture<Self, Result<MultipleTickerApiResponse>>;
 
-        tracing::trace!("{:#?}", res);
+    fn handle(&mut self, msg: MultipleTickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let api_opt = self.api.clone();
+        async move {
+            if let Some(api) = api_opt {
+                let res = api
+                    .send(msg)
+                    .await
+                    .map_err(|e| Error::Custom(e.to_string()))??;
 
-        Ok(res.tickers)
+                tracing::trace!("{:#?}", res);
+
+                Ok(res)
+            } else {
+                Err(Error::Custom("API actor is not initialized".into()))
+            }
+        }
+        .into_actor(self)
+        .boxed_local()
     }
+}
 
-    pub async fn get_kline(&self, req: KlineApiRequest) -> Result<Vec<Kline>> {
-        let res = self
-            .api
-            .send(req)
-            .await
-            .map_err(|e| Error::Custom(e.to_string()))??;
+impl Handler<KlineApiRequest> for QuantState {
+    type Result = ResponseActFuture<Self, Result<KlineApiResponse>>;
 
-        tracing::trace!("{:#?}", res);
+    fn handle(&mut self, msg: KlineApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let api_opt = self.api.clone();
+        async move {
+            if let Some(api) = api_opt {
+                let res = api
+                    .send(msg)
+                    .await
+                    .map_err(|e| Error::Custom(e.to_string()))??;
 
-        Ok(res.klines)
+                tracing::trace!("{:#?}", res);
+
+                Ok(res)
+            } else {
+                Err(Error::Custom("API actor is not initialized".into()))
+            }
+        }
+        .into_actor(self)
+        .boxed_local()
     }
+}
 
-    pub async fn new_order(&self, req: NewOrderApiRequest) -> Result<String> {
-        let res = self
-            .api
-            .send(req)
-            .await
-            .map_err(|e| Error::Custom(e.to_string()))??;
+impl Handler<NewOrderApiRequest> for QuantState {
+    type Result = ResponseActFuture<Self, Result<NewOrderApiResponse>>;
 
-        tracing::trace!("{:#?}", res);
+    fn handle(&mut self, msg: NewOrderApiRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let api_opt = self.api.clone();
+        async move {
+            if let Some(api) = api_opt {
+                let res = api
+                    .send(msg)
+                    .await
+                    .map_err(|e| Error::Custom(e.to_string()))??;
 
-        Ok(res.res)
+                tracing::trace!("{:#?}", res);
+
+                Ok(res)
+            } else {
+                Err(Error::Custom("API actor is not initialized".into()))
+            }
+        }
+        .into_actor(self)
+        .boxed_local()
     }
 }

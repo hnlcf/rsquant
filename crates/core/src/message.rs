@@ -107,6 +107,13 @@ pub struct NewOrderApiResponse {
     pub res: String,
 }
 
+#[derive(Message)]
+#[rtype(result = "Result<(), Error>")]
+pub struct SendEmailRequest {
+    pub subject: String,
+    pub content: String,
+}
+
 pub enum SchedulerDataRequest {
     Ticker,
     Kline,
