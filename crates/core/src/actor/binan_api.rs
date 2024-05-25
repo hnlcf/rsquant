@@ -1,11 +1,14 @@
 use std::rc::Rc;
 
 use actix::{
+    dev::ToEnvelope,
     Actor,
     ActorContext,
     ActorFutureExt,
+    AsyncContext,
     Context,
     Handler,
+    Message,
     ResponseActFuture,
     WrapFuture,
 };
@@ -23,6 +26,7 @@ use crate::{
         AccountInfoApiResponse,
         KlineApiRequest,
         KlineApiResponse,
+        MessagePack,
         MultipleTickerApiRequest,
         MultipleTickerApiResponse,
         NewOrderApiRequest,
@@ -54,8 +58,10 @@ impl BinanApiActor {
             _ => BinanApiActor::default(),
         }
     }
+}
 
-    pub fn default() -> Self {
+impl Default for BinanApiActor {
+    fn default() -> Self {
         let credentials = credential::CredentialBuilder::from_env()
             .expect("Failed to create credential from envs.");
         Self {
@@ -66,6 +72,31 @@ impl BinanApiActor {
 
 impl Actor for BinanApiActor {
     type Context = Context<Self>;
+}
+
+impl<M, A> Handler<MessagePack<M, A>> for BinanApiActor
+where
+    M: Message + Send + 'static,
+    M::Result: Message + Send,
+    <M::Result as Message>::Result: Send,
+    A: Actor,
+    A: Handler<M::Result>,
+    A::Context: ToEnvelope<A, M::Result>,
+    Self: Handler<M>,
+{
+    type Result = Result<(), Error>;
+
+    fn handle(&mut self, msg: MessagePack<M, A>, ctx: &mut Self::Context) -> Self::Result {
+        let (msg, ret_addr) = msg.into_tuple();
+        let self_addr = ctx.address();
+
+        tokio::spawn(async move {
+            if let Ok(res) = self_addr.send(msg).await {
+                let _ = ret_addr.send(res).await;
+            }
+        });
+        Ok(())
+    }
 }
 
 impl Handler<NormalRequest> for BinanApiActor {

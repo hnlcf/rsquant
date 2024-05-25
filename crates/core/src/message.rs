@@ -2,7 +2,11 @@
 
 use core::fmt;
 
-use actix::Message;
+use actix::{
+    Actor,
+    Addr,
+    Message,
+};
 use binan_spot::{
     http::Credentials,
     market::klines::KlineInterval,
@@ -27,11 +31,37 @@ use crate::{
 };
 
 #[derive(Message)]
+#[rtype(result = "Result<(), Error>")]
+pub struct MessagePack<M, A>(M, Addr<A>)
+where
+    A: Actor;
+
+impl<M, A> MessagePack<M, A>
+where
+    A: Actor,
+{
+    pub fn into_tuple(self) -> (M, Addr<A>) {
+        (self.0, self.1)
+    }
+}
+
+impl<M, A> From<(M, Addr<A>)> for MessagePack<M, A>
+where
+    A: Actor,
+{
+    fn from((msg, addr): (M, Addr<A>)) -> Self {
+        MessagePack(msg, addr)
+    }
+}
+
+#[derive(Message)]
 #[rtype(result = "Result<NormalResponse, Error>")]
 pub enum NormalRequest {
     Stop,
 }
 
+#[derive(Debug, Message)]
+#[rtype(result = "()")]
 pub enum NormalResponse {
     Success,
     Failure(Error),
@@ -41,7 +71,8 @@ pub enum NormalResponse {
 #[rtype(result = "Result<AccountInfoApiResponse, Error>")]
 pub struct AccountInfoApiRequest;
 
-#[derive(Debug)]
+#[derive(Debug, Message)]
+#[rtype(result = "()")]
 pub struct AccountInfoApiResponse {
     pub info: AccountInfo,
 }
@@ -84,7 +115,8 @@ pub struct KlineApiRequest {
     pub limit: u32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Message)]
+#[rtype(result = "()")]
 pub struct KlineApiResponse {
     pub symbol: String,
     pub interval: KlineInterval,
@@ -102,7 +134,8 @@ pub struct NewOrderApiRequest {
     pub price: Decimal,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Message)]
+#[rtype(result = "()")]
 pub struct NewOrderApiResponse {
     pub res: String,
 }
