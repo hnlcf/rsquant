@@ -17,36 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Clang
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: 15
-          platform: x64
+      - name: Download build image
+        run: docker pull clux/muslrust:nightly
 
-      - name: Set up mold linker
-        uses: rui314/setup-mold@v1
-
-      - name: Setup Rust
-        uses: ATiltedTree/setup-rust@v1
-        with:
-          rust-version: nightly
-          components: clippy
-
-      - name: Install diesel
-        run: cargo install diesel_cli --force --no-default-features --features postgres
-
-      - name: Install postgresql
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libpq-dev postgresql
-          echo "host    all             all             127.0.0.1/32            md5" > sudo tee -a /etc/postgresql/10/main/pg_hba.conf
-          sudo service postgresql restart && sleep 3
-          sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
-          sudo service postgresql restart && sleep 3
-          echo "PG_DATABASE_URL=postgres://postgres:postgres@localhost/" >> $GITHUB_ENV
-          echo "DATABASE_URL=postgres://postgres:postgres@localhost/rsquant" >> $GITHUB_ENV
-
-      - name: Build
-        run: |
-          diesel database reset
-          cargo build --release --verbose --jobs `nproc`
+      - name: Lint
+        run: docker run -v $PWD:/volume --rm -t clux/muslrust:nightly bash -c 'cargo build --release'
