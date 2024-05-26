@@ -20,8 +20,8 @@ use crate::{
 
 pub struct Logger {
     log_dir: String,
-    guards: Vec<WorkerGuard>,
     log_file: NonBlocking,
+    _guards: Vec<WorkerGuard>,
 }
 
 impl Logger {
@@ -33,7 +33,7 @@ impl Logger {
 
         Self {
             log_dir: log_path,
-            guards: vec![guard],
+            _guards: vec![guard],
             log_file,
         }
     }

@@ -15,7 +15,7 @@ members = [
     "deps/binan_spot",
     # "deps/binan_spot_examples",
     "crates/core",
-    "crates/indicator",
+    "crates/trade",
 ]
 
 [workspace.dependencies]
@@ -48,7 +48,7 @@ rust_decimal = { workspace = true }
 
 binan_spot = { path = "deps/binan_spot", features = ["full"] }
 quant_core = { path = "crates/core" }
-quant_indicator = { path = "crates/indicator" }
+quant_trade = { path = "crates/trade" }
 crossbeam-channel = "0.5.11"
 futures-util = "0.3.30"
 clap = { version = "4.5.1", features = ["derive"] }

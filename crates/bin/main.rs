@@ -38,10 +38,6 @@ use quant_core::{
     Error,
     QuantState,
 };
-use quant_indicator::{
-    data_item::ToDataItem,
-    macd::MacdOutputBuilder,
-};
 use rust_decimal::prelude::Signed;
 use rust_decimal_macros::dec;
 use tokio::sync::Mutex;
@@ -195,51 +191,4 @@ async fn run() -> Result<(), quant_core::Error> {
     // }
 
     Ok(())
-}
-
-fn handle_klines_with_macd(klines: &[Kline]) -> Option<Side> {
-    if klines.len() < 3 {
-        return None;
-    }
-
-    let item = klines
-        .iter()
-        .filter_map(|k| k.to_data_item().ok())
-        .collect::<Vec<_>>();
-    let macd = MacdOutputBuilder::compute(&item).build();
-
-    let fast = macd.iter().map(|m| m.macd).collect::<Vec<_>>();
-    let slow = macd.iter().map(|m| m.signal).collect::<Vec<_>>();
-    let bar = macd.iter().map(|m| m.histogram).collect::<Vec<_>>();
-
-    let fast_point = fast.last().copied().unwrap_or_default();
-    let slow_point = slow.last().copied().unwrap_or_default();
-    let bar_point = bar.last().copied().unwrap_or_default();
-    let (last_flag, current_flag) = match bar[..] {
-        [.., a, b, c] => (b - a, c - b),
-        _ => unreachable!(),
-    };
-
-    if last_flag * current_flag < 0.0 {
-        if fast_point < 0.0
-            && slow_point < 0.0
-            && bar_point < 0.0
-            && last_flag <= 0.0
-            && current_flag >= 0.0
-        {
-            // 当出现 MACD 极小值点且快慢线均小于0
-            return Some(Side::Buy);
-        }
-        if fast_point > 0.0
-            && slow_point > 0.0
-            && bar_point > 0.0
-            && last_flag >= 0.0
-            && current_flag <= 0.0
-        {
-            // 当出现 MACD 极大值点且快慢线均大于0
-            return Some(Side::Sell);
-        }
-    }
-
-    None
 }

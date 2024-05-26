@@ -10,4 +10,8 @@ pub use binan_spot::{
     utils::sign,
 };
 
-pub trait BinanRequest {}
+pub enum TradeSide {
+    Buy,
+    Sell,
+    Nop,
+}

@@ -1,8 +1,6 @@
 use chrono::{
     DateTime,
-    FixedOffset,
     Local,
-    NaiveDateTime,
     TimeZone,
     Utc,
 };
@@ -26,24 +24,23 @@ where
     }
 
     fn convert_to_unix_time(date_time: &str) -> Option<i64> {
-        let date_time =
-            NaiveDateTime::parse_from_str(date_time, DEFAULT_DATETIME_FORMAT_STR).ok()?;
+        let date_time = DateTime::parse_from_str(date_time, DEFAULT_DATETIME_FORMAT_STR).ok()?;
         Some(date_time.timestamp_millis())
     }
 }
 
 impl TimeConverter<Local> for LocalTimeTool {
     fn to_date_time(unix_time: i64) -> Option<DateTime<Local>> {
-        let naive = NaiveDateTime::from_timestamp_millis(unix_time)?;
-        let timezone_east = FixedOffset::east_opt(8 * 60 * 60)?;
-        Some(DateTime::from_naive_utc_and_offset(naive, timezone_east))
+        let dt_utc = DateTime::from_timestamp_millis(unix_time)?;
+        let dt = dt_utc.with_timezone(&Local);
+        Some(dt)
     }
 }
 
 impl TimeConverter<Utc> for UtcTimeTool {
     fn to_date_time(unix_time: i64) -> Option<DateTime<Utc>> {
-        let naive = NaiveDateTime::from_timestamp_millis(unix_time)?;
-        Some(DateTime::from_naive_utc_and_offset(naive, Utc))
+        let dt = DateTime::from_timestamp_millis(unix_time)?;
+        Some(dt)
     }
 }
 

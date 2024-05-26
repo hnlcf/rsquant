@@ -11,7 +11,7 @@ use crate::{
 };
 
 pub struct PostgresConnection {
-    conn: PgConnection,
+    _conn: PgConnection,
 }
 
 impl PostgresConnection {
@@ -31,7 +31,7 @@ impl PostgresConnection {
         };
 
         PgConnection::establish(&pg_addr)
-            .map(|conn| Self { conn })
+            .map(|conn| Self { _conn: conn })
             .map_err(Error::from)
     }
 
@@ -41,7 +41,7 @@ impl PostgresConnection {
 impl Default for PostgresConnection {
     fn default() -> Self {
         let conn = PgConnection::establish(constants::DEFAULT_POSTGRES_ADDR).unwrap();
-        Self { conn }
+        Self { _conn: conn }
     }
 }
 

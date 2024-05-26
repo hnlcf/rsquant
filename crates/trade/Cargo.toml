@@ -1,5 +1,5 @@
 [package]
-name = "quant_indicator"
+name = "quant_trade"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,3 +11,12 @@ fast-float = { workspace = true }
 quant_core = { path = "../core" }
 
 ta = "0.5.0"
+polars = { version = "0.40.0", features = [
+    "lazy",
+    "temporal",
+    "describe",
+    "json",
+    "parquet",
+    "dtype-datetime",
+    "diff",
+] }
