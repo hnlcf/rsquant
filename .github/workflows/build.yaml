@@ -3,6 +3,8 @@ name: Build
 on:
   push:
     branches: [master]
+    tags:
+      - "**"
   pull_request:
     branches: [master, dev, fix-**, feat-**]
   workflow_run:
@@ -22,3 +24,14 @@ jobs:
 
       - name: Lint
         run: docker run -v $PWD:/volume --rm -t clux/muslrust:nightly bash -c 'cargo build --release'
+
+      - name: Create Release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          echo "Tag : ${{  github.ref_name }}"
+          cp $PWD/target/release/rsquant $PWD
+          tar cvJf rsquant-${{  github.ref_name }}.tar.xz rsquant
+          gh release create ${{ github.ref_name }} $PWD/rsquant.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
