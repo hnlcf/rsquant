@@ -12,16 +12,10 @@ name = "rsquant"
 
 [workspace]
 members = [
-    "crates/binan_spot",
-    "crates/api",
-    "crates/config",
+    "deps/binan_spot",
+    # "deps/binan_spot_examples",
     "crates/core",
-    "crates/db",
-    "crates/email",
-    "crates/indicator",
-    "crates/log",
-    "crates/model",
-    "crates/util",
+    "crates/trade",
 ]
 
 [workspace.dependencies]
@@ -32,8 +26,15 @@ serde = { version = "1.0.156", features = ["derive"] }
 serde_json = "1.0.94"
 thiserror = "1.0.56"
 actix = { version = "0.13.1", features = ["macros"] }
+actix-web = "4.6.0"
 tokio = { version = "1.26.0", features = ["time", "rt-multi-thread", "macros"] }
-
+tracing-subscriber = { version = "0.3.18", features = [
+    "env-filter",
+    "registry",
+    "tracing-log",
+] }
+rust_decimal = "1.34.3"
+fast-float = "0.2.0"
 
 [dependencies]
 tracing = { workspace = true }
@@ -41,21 +42,17 @@ tokio = { workspace = true }
 chrono = { workspace = true }
 thiserror = { workspace = true }
 actix = { workspace = true }
+actix-web = { workspace = true }
+tracing-subscriber = { workspace = true }
+rust_decimal = { workspace = true }
 
-binan_spot = { path = "crates/binan_spot", features = ["full"] }
-quant_api = { path = "crates/api" }
-quant_config = { path = "crates/config" }
+binan_spot = { path = "deps/binan_spot", features = ["full"] }
 quant_core = { path = "crates/core" }
-quant_db = { path = "crates/db" }
-quant_email = { path = "crates/email" }
-quant_indicator = { path = "crates/indicator" }
-quant_log = { path = "crates/log" }
-quant_model = { path = "crates/model" }
-quant_util = { path = "crates/util" }
-
-clokwerk = "0.4.0"
-actix-web = { version = "4.3.1", features = ["macros", "rustls"] }
+quant_trade = { path = "crates/trade" }
 crossbeam-channel = "0.5.11"
+futures-util = "0.3.30"
+clap = { version = "4.5.1", features = ["derive"] }
+rust_decimal_macros = "1.34.2"
 
 [profile.release]
 panic = 'abort'

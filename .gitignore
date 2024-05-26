@@ -16,9 +16,10 @@ log
 .venv
 __pycache__
 poetry.lock
-quant.toml
+rsquant.json
+.env
 
-crates/binan_spot_examples
+deps/binan_spot_examples
 
 ### Build and Run
 core.*
@@ -30,12 +31,12 @@ nohup.out
 *.excalidraw
 
 ### Web
-quant_view
 
 # dependencies
 node_modules
 .pnp
 .pnp.js
+pnpm-lock.yaml
 
 # testing
 coverage

@@ -2,3 +2,4 @@
 - [ ] strategy
 - [ ] trade
 - [ ] scheduler
+- [ ] refactor to actor model with `actix`

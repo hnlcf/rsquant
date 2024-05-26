@@ -30,12 +30,16 @@ The following picture is the structure diagram of the project divided by modules
 
 ![project-structure](docs/assets/project-structure.png)
 
+The following is execution flow:
+
+![exec-flow](docs/assets/exec-flow.png)
+
 ## Build in Host
 
 ### Requirements
 
 - **System**: Ubuntu 22.04
-- **Language**: Rust 1.65
+- **Language**: Rust 1.75
 - **Dependencies**: pkg-config, libssl-dev, libpq, postgresql, poetry
 
 ### Commands
@@ -86,7 +90,7 @@ smtp_addr="smtp.gmail.com"
 # https_proxy="<protocol>://<proxy-host>:<port>"
 
 [log]
-log_path="log/btc_output.log"
+log_path="log/output.log"
 
 [database.postgresql]
 pg_addr="postgres://postgres:postgres@localhost:5432/rsquant_db"

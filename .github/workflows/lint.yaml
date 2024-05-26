@@ -20,46 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Clang
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: 15
-          platform: x64
-
-      - name: Set up mold linker
-        uses: rui314/setup-mold@v1
-
-      - name: Setup Rust
-        uses: ATiltedTree/setup-rust@v1
-        with:
-          rust-version: nightly
-          components: clippy
-
-      - name: Format
-        run: cargo fmt -- --check
-
-      - name: Lint
-        run: cargo clippy --all-targets -- -D clippy::all
+      - name: Download build image
+        run: docker pull clux/muslrust:nightly
 
       - name: Test
-        run: |
-          cargo install cargo-nextest
-          cargo test
-
-  check-py:
-    needs: pre-commit
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-
-      - name: Format
-        run: |
-          pip install poetry
-          poetry install
-          poetry run black visualize
+        run: docker run -v $PWD:/volume --rm -t clux/muslrust:nightly bash -c 'cargo install cargo-nextest && cargo test'
