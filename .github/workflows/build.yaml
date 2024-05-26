@@ -25,13 +25,32 @@ jobs:
       - name: Build
         run: docker run -v $PWD:/volume --rm -t clux/muslrust:nightly bash -c 'cargo build --release --target x86_64-unknown-linux-musl'
 
-      - name: Create Release
+      - name: Package asset
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         shell: bash
         run: |
           echo "Tag : ${{  github.ref_name }}"
           cp $PWD/target/x86_64-unknown-linux-musl/release/rsquant $PWD
           tar cvJf rsquant-${{  github.ref_name }}.tar.xz rsquant
-          gh release create ${{ github.ref_name }} $PWD/rsquant-${{  github.ref_name }}.tar.xz
+          realpath rsquant-${{  github.ref_name }}.tar.xz
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
+
+      - name: Create release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release rsquant ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload asset to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: rsquant-${{  github.ref_name }}.tar.xz
+          asset_name: rsquant-${{  github.ref_name }}.tar.xz
+          tag: ${{ github.ref }}
