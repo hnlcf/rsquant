@@ -37,7 +37,6 @@ use quant_core::{
     },
     Error,
     QuantState,
-    STATE,
 };
 use quant_indicator::{
     data_item::ToDataItem,
@@ -97,7 +96,6 @@ async fn run() -> Result<(), quant_core::Error> {
     let total = dec!(100.0);
     let mut profit = dec!(0.0);
 
-    let manager = STATE.get().unwrap();
     let price_slot = Arc::new(Mutex::new(dec!(1.0)));
 
     let price = price_slot.clone();
