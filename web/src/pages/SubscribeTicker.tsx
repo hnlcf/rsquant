@@ -2,6 +2,7 @@ import { Component, For, createSignal, onCleanup } from "solid-js"
 import { SubscribeTickerRequest, SubscribeTickerResponse } from "../types"
 import { baseUrl } from "../utils/constants"
 import SymbolCard from "../components/SymbolCard"
+import Calculator from "../components/Calculator"
 
 const SubscribeTicker: Component = () => {
   const [symbol, setSymbol] = createSignal("")
@@ -67,6 +68,7 @@ const SubscribeTicker: Component = () => {
                 <form class="">
                   <input
                     type="text"
+                    class="h-11 rounded-lg text-center"
                     placeholder="BTCUSDT"
                     value={symbol()}
                     onInput={(e) => setSymbol(e.currentTarget.value)}
@@ -90,6 +92,7 @@ const SubscribeTicker: Component = () => {
                 <form class="">
                   <input
                     type="text"
+                    class="h-11 rounded-lg text-center"
                     placeholder="BTCUSDT"
                     value={symbol()}
                     onInput={(e) => setSymbol(e.currentTarget.value)}
@@ -111,7 +114,7 @@ const SubscribeTicker: Component = () => {
           </div>
           {/* Calculator */}
           <div class="w-1/2 flex items-center justify-center">
-            <p class="text-white text-xl">Right Side</p>
+            <Calculator symbol="BTCUSDT" price={67600} />
           </div>
         </div>
       </div>
