@@ -10,6 +10,7 @@ pub use binan_spot::{
     utils::sign,
 };
 
+#[derive(Debug)]
 pub enum TradeSide {
     Buy,
     Sell,

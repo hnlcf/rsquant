@@ -1,6 +1,10 @@
-use std::sync::OnceLock;
+use std::{
+    self,
+    sync::OnceLock,
+};
 
 use actix::{
+    self,
     Actor,
     ActorFutureExt,
     Addr,
@@ -14,13 +18,16 @@ use crate::{
     actor::{
         BinanApiActor,
         EmailActor,
+        StrategyActor,
     },
+    api::basic::TradeSide,
     db::recorder::Recorder,
     message::{
         AccountInfoApiRequest,
         AccountInfoApiResponse,
         KlineApiRequest,
         KlineApiResponse,
+        KlineStrategyRequest,
         MultipleTickerApiRequest,
         MultipleTickerApiResponse,
         NewOrderApiRequest,
@@ -30,6 +37,7 @@ use crate::{
         TickerApiRequest,
         TickerApiResponse,
     },
+    trade::CommonMacdAndRsiStrategy,
     util::{
         config::QuantConfig,
         log::Logger,
@@ -51,13 +59,10 @@ pub struct QuantState {
     config: QuantConfig,
     api: Option<Addr<BinanApiActor>>,
     email: Option<Addr<EmailActor>>,
+    strategy: Option<Addr<StrategyActor>>,
     recorder: Option<Recorder>,
     logger: Option<Logger>,
 }
-
-unsafe impl Send for QuantState {}
-
-unsafe impl Sync for QuantState {}
 
 impl QuantState {
     pub fn get_addr() -> Addr<QuantState> {
@@ -69,6 +74,27 @@ impl Actor for QuantState {
     type Context = Context<Self>;
 
     fn started(&mut self, _ctx: &mut Self::Context) {
+        self.init();
+    }
+}
+
+impl QuantState {
+    pub fn from_config(config: QuantConfig) -> Result<Self> {
+        Ok(Self {
+            config,
+            api: None,
+            email: None,
+            strategy: None,
+            recorder: None,
+            logger: None,
+        })
+    }
+
+    pub fn config(&self) -> &QuantConfig {
+        &self.config
+    }
+
+    fn init(&mut self) {
         let QuantConfig {
             api_credentials,
             database,
@@ -79,6 +105,8 @@ impl Actor for QuantState {
 
         let api = BinanApiActor::from_config(api_credentials).start();
         let email = EmailActor::from_config(email).start();
+        let strategy = CommonMacdAndRsiStrategy::new(12, 26, 9, 14, 30.0, 70.0);
+        let strategy = StrategyActor::new(Box::new(strategy)).start();
         let recorder = Recorder::from_config(database).expect("");
         let logger = Logger::from_config(log);
         recorder.init();
@@ -86,24 +114,9 @@ impl Actor for QuantState {
 
         self.api = Some(api);
         self.email = Some(email);
+        self.strategy = Some(strategy);
         self.recorder = Some(recorder);
         self.logger = Some(logger);
-    }
-}
-
-impl QuantState {
-    pub fn from_config(config: QuantConfig) -> Result<Self> {
-        Ok(Self {
-            config,
-            api: None,
-            email: None,
-            recorder: None,
-            logger: None,
-        })
-    }
-
-    pub fn config(&self) -> &QuantConfig {
-        &self.config
     }
 }
 
@@ -245,6 +258,30 @@ impl Handler<NewOrderApiRequest> for QuantState {
                 Ok(res)
             } else {
                 Err(Error::Custom("API actor is not initialized".into()))
+            }
+        }
+        .into_actor(self)
+        .boxed_local()
+    }
+}
+
+impl Handler<KlineStrategyRequest> for QuantState {
+    type Result = ResponseActFuture<Self, Result<TradeSide>>;
+
+    fn handle(&mut self, msg: KlineStrategyRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let strategy_opt = self.strategy.clone();
+        async move {
+            if let Some(strategy) = strategy_opt {
+                let res = strategy
+                    .send(msg)
+                    .await
+                    .map_err(|e| Error::Custom(e.to_string()))??;
+
+                tracing::trace!("{:#?}", res);
+
+                Ok(res)
+            } else {
+                Err(Error::Custom("Strategy actor is not initialized".into()))
             }
         }
         .into_actor(self)

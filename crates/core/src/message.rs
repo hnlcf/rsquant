@@ -22,11 +22,13 @@ use serde::{
 };
 
 use crate::{
+    api::basic::TradeSide,
     model::{
         account_info::AccountInfo,
         kline::Kline,
         ticker_price::TickerPrice,
     },
+    trade::ToDataItem,
     Error,
 };
 
@@ -110,8 +112,8 @@ pub struct MultipleTickerApiResponse {
 pub struct KlineApiRequest {
     pub symbol: String,
     pub interval: KlineInterval,
-    pub start_time: u64,
-    pub end_time: u64,
+    pub start_time: Option<u64>,
+    pub end_time: Option<u64>,
     pub limit: u32,
 }
 
@@ -121,6 +123,23 @@ pub struct KlineApiResponse {
     pub symbol: String,
     pub interval: KlineInterval,
     pub klines: Vec<Kline>,
+}
+
+#[derive(Message, Clone)]
+#[rtype(result = "Result<TradeSide, Error>")]
+pub struct KlineStrategyRequest {
+    pub data: Vec<ta::DataItem>,
+}
+
+impl From<KlineApiResponse> for KlineStrategyRequest {
+    fn from(kline: KlineApiResponse) -> Self {
+        let data = kline
+            .klines
+            .iter()
+            .flat_map(|k| k.to_data_item().ok())
+            .collect();
+        KlineStrategyRequest { data }
+    }
 }
 
 #[derive(Message)]

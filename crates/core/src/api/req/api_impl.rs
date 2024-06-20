@@ -86,11 +86,15 @@ impl ApiImpl {
             end_time,
             limit,
         } = req;
-        let request: Request = market::klines(&symbol, interval)
-            .start_time(start_time)
-            .end_time(end_time)
-            .limit(limit)
-            .into();
+        let mut raw_req = market::klines(&symbol, interval).limit(limit);
+        if let Some(start_time) = start_time {
+            raw_req = raw_req.start_time(start_time);
+        }
+        if let Some(end_time) = end_time {
+            raw_req = raw_req.end_time(end_time);
+        }
+
+        let request: Request = raw_req.into();
 
         request
             .send_req(client)
