@@ -36,6 +36,9 @@ pub enum Error {
     #[error("Email error by `{0}`")]
     Email(#[from] lettre::error::Error),
 
+    #[error("Decimal error by `{0}`")]
+    Decimal(#[from] rust_decimal::Error),
+
     #[error("Custom error by `{0}`")]
     Custom(String),
 }
