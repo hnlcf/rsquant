@@ -1,12 +1,13 @@
-use quant_core::api::basic::TradeSide;
-
-use super::Strategy;
-use crate::{
-    indicator::{
+use super::{
+    super::indicator::{
         macd::MacdOutputBuilder,
         rsi::RsiOutputBuilder,
         Indicator,
     },
+    Strategy,
+};
+use crate::{
+    api::basic::TradeSide,
     min,
 };
 

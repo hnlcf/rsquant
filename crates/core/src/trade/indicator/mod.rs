@@ -3,6 +3,7 @@ pub mod ema;
 pub mod macd;
 pub mod rsi;
 
+pub use data_item::ToDataItem;
 use ta::DataItem;
 
 pub trait Indicator {

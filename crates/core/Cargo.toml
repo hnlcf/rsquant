@@ -30,3 +30,13 @@ sha2 = "0.10.8"
 http = "1.1.0"
 reqwest = { version = "0.12.4", features = ["rustls-tls", "gzip"] }
 actix-web-actors = "4.3.0"
+ta = "0.5.0"
+polars = { version = "0.40.0", features = [
+    "lazy",
+    "temporal",
+    "describe",
+    "json",
+    "parquet",
+    "dtype-datetime",
+    "diff",
+] }

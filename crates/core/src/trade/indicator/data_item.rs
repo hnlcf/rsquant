@@ -1,5 +1,6 @@
-use quant_core::model::kline::Kline;
 use ta::DataItem;
+
+use crate::model::kline::Kline;
 
 pub trait ToDataItem {
     fn to_data_item(&self) -> Result<DataItem, Box<dyn std::error::Error>>;
