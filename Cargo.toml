@@ -46,7 +46,7 @@ tracing-subscriber = { workspace = true }
 rust_decimal = { workspace = true }
 
 binan_spot = { path = "deps/binan_spot", features = ["full"] }
-quant_core = { path = "crates/core" }
+rsquant_core = { path = "crates/core" }
 crossbeam-channel = "0.5.11"
 futures-util = "0.3.30"
 clap = { version = "4.5.1", features = ["derive"] }

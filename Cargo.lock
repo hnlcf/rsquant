@@ -3372,35 +3372,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "quant_core"
-version = "0.1.0"
-dependencies = [
- "actix",
- "actix-web",
- "actix-web-actors",
- "binan_spot",
- "chrono",
- "diesel",
- "fast-float",
- "http 1.1.0",
- "lettre",
- "polars",
- "reqwest",
- "rust_decimal",
- "serde",
- "serde_json",
- "sha2",
- "ta",
- "thiserror",
- "tokio",
- "toml 0.7.8",
- "tracing",
- "tracing-appender",
- "tracing-subscriber",
- "url",
-]
-
-[[package]]
 name = "quitters"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3733,13 +3704,42 @@ dependencies = [
  "clap 4.5.4",
  "crossbeam-channel",
  "futures-util",
- "quant_core",
+ "rsquant_core",
  "rust_decimal",
  "rust_decimal_macros",
  "thiserror",
  "tokio",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "rsquant_core"
+version = "0.1.0"
+dependencies = [
+ "actix",
+ "actix-web",
+ "actix-web-actors",
+ "binan_spot",
+ "chrono",
+ "diesel",
+ "fast-float",
+ "http 1.1.0",
+ "lettre",
+ "polars",
+ "reqwest",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "sha2",
+ "ta",
+ "thiserror",
+ "tokio",
+ "toml 0.7.8",
+ "tracing",
+ "tracing-appender",
+ "tracing-subscriber",
+ "url",
 ]
 
 [[package]]

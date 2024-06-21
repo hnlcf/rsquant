@@ -18,7 +18,7 @@ use binan_spot::{
     },
 };
 use clap::Parser;
-use quant_core::{
+use rsquant_core::{
     actor,
     api::basic::TradeSide,
     init_state,
