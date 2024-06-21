@@ -20,6 +20,8 @@ tokio = { workspace = true }
 
 
 binan_spot = { path = "../../deps/binan_spot", features = ["full"] }
+rsquant-derive = { path = "../rsquant-derive" }
+rsquant-tool = { path = "../rsquant-tool" }
 
 toml = "0.7.4"
 lettre = "0.10"

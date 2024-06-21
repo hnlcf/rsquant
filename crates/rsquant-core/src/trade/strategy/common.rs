@@ -1,3 +1,6 @@
+use rsquant_derive::Name;
+use rsquant_tool::Name;
+
 use super::{
     super::indicator::{
         macd::MacdOutputBuilder,
@@ -15,6 +18,7 @@ use crate::{
 ///
 /// - MACD 用于判断趋势买卖点
 /// - RSI 用于过滤噪音，判断超买超卖点
+#[derive(Debug, Clone, Name)]
 pub struct CommonMacdAndRsiStrategy {
     macd_fast_period: usize,
     macd_slow_period: usize,

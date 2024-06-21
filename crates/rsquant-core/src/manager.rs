@@ -105,8 +105,8 @@ impl QuantState {
 
         let api = BinanApiActor::from_config(api_credentials).start();
         let email = EmailActor::from_config(email).start();
-        let strategy = CommonMacdAndRsiStrategy::new(12, 26, 9, 14, 30.0, 70.0);
-        let strategy = StrategyActor::new(Box::new(strategy)).start();
+        let strategy_impl = CommonMacdAndRsiStrategy::new(12, 26, 9, 14, 30.0, 70.0);
+        let strategy = StrategyActor::new(Box::new(strategy_impl)).start();
         let recorder = Recorder::from_config(database).expect("");
         let logger = Logger::from_config(log);
         recorder.init();

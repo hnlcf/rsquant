@@ -15,7 +15,3 @@ pub use manager::{
     init_state,
     QuantState,
 };
-
-trait Name {
-    fn get_name(&self) -> String;
-}
