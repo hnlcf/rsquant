@@ -27,8 +27,13 @@ serde = { version = "1.0.156", features = ["derive"] }
 serde_json = "1.0.94"
 thiserror = "1.0.56"
 actix = { version = "0.13.1", features = ["macros"] }
-actix-web = "4.6.0"
-tokio = { version = "1.26.0", features = ["time", "rt-multi-thread", "macros"] }
+actix-web = { version = "4.8.0", features = [
+    "http2",
+    "cookies",
+    "compress-zstd",
+    "experimental-io-uring",
+] }
+tokio = { version = "1.38.0", features = ["time", "rt-multi-thread", "macros"] }
 tracing-subscriber = { version = "0.3.18", features = [
     "env-filter",
     "registry",
