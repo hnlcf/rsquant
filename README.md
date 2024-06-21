@@ -1,6 +1,6 @@
 <div align="center">
-    <img class="fit-picture" src="docs/assets/quant-trader-avatar.png" width=120px alt="Project Avatar" >
-    <h1> Quant Trader </h1>
+    <!-- <img class="fit-picture" src="docs/assets/quant-trader-avatar.png" width=120px alt="Project Avatar" > -->
+    <h1> rsquant </h1>
     <i> A quanting trade system of the cryptocurrency based on Rust. </i>
 </div>
 
@@ -18,8 +18,6 @@
   - [Examples](#examples)
   - [Description](#description)
 - [Run](#run)
-  - [Launch data server](#launch-data-server)
-  - [Launch web server](#launch-web-server)
 - [License](#license)
 
 ## Introduction
@@ -40,30 +38,24 @@ The following is execution flow:
 
 - **System**: Ubuntu 22.04
 - **Language**: Rust 1.75
-- **Dependencies**: pkg-config, libssl-dev, libpq, postgresql, poetry
+- **Dependencies**: pkg-config, libssl-dev, libpq, postgresql
 
 ### Commands
 
 ```bash
-./rsquant.sh setup
-
-./rsquant.sh build
+cargo build --release --target x86_64-unknown-linux-musl
 ```
 
 ## Build in Docker
 
 ### Requirements
 
-- **Images**: Ubuntu 22.04
+- **Images**: `clux/muslrust:nightly`
 
 ### Commands
 
 ```bash
-./rsquant.sh setup-docker
-
-./rsquant.sh setup
-
-./rsquant.sh build
+docker run -v $PWD:/volume --rm -t clux/muslrust:nightly bash -c 'cargo build --release --target x86_64-unknown-linux-musl'
 ```
 
 ## Configuration
@@ -72,51 +64,66 @@ Before using it, you need to configure it correctly in the config file.
 
 ### Examples
 
-```toml
-# File location: "$XDG_CONFIG_HOME/rsquant/config.toml"
-
-[api_credentials.binance]
-signature_type="HMAC"
-api_key="<your-api-key>"
-api_secret="<your-api-secret>"
-
-[email]
-from_email="Quant Trader <xxxx@gmail.com>"
-to_emails=["hnlcf <xxxx@gmail.com>"]
-from_passwd="xxxx"
-smtp_addr="smtp.gmail.com"
-
-[network.proxy]
-# https_proxy="<protocol>://<proxy-host>:<port>"
-
-[log]
-log_path="log/output.log"
-
-[database.postgresql]
-pg_addr="postgres://postgres:postgres@localhost:5432/rsquant_db"
-
+```json
+{
+  "basic": {
+    "symbol": "BTCUSDT",
+    "interval": "Minutes30", // kline interval
+    "total_currency": 100, // USDT
+    "duration": 300 // seconds, polling interval of kline data
+  },
+  "api_credentials": {
+    "type": "binance",
+    "signature_type": "HMAC",
+    "api_key": "<API-KEY>",
+    "api_secret": "<API-SECRET>"
+  },
+  "email": {
+    "from_email": "XXXX <XXX@gmail.com>",
+    "to_emails": ["YYYY <YYY@gmail.com>"],
+    "from_passwd": "<SMTP_GMAIL_PASSWD>",
+    "smtp_addr": "smtp.gmail.com"
+  },
+  "network": {
+    "proxy": {
+      "https_proxy": "xxxx"
+    }
+  },
+  "log": {
+    "log_path": "log/"
+  },
+  "database": {
+    "type": "postgresql",
+    "pg_addr": "postgres://postgres:postgres@localhost:5432/rsquant"
+  },
+  "market": {
+    "data": {
+      "type": "kline"
+    }
+  },
+  "strategy": {
+    "signal": {
+      "type": "macd"
+    }
+  }
+}
 ```
 
 ### Description
 
-1. `api_credentials`: It is your credentials manually generated in Binance account, and currently only supports HMAC.
-2. `email`: You can set the sender's email account(`from_email`), password(`from_passwd`), server address(`smtp_addr`) and subscriber's email list(`to_emails`).
-3. `network.proxy` **(Optional)**: You can set the address of the network proxy.
-4. `log`: You need to set the path of log file **(The path must be exists)**.
-5. `database.postgresql`: You need to set the address of postgresql database.
+1. `basic`: Provide basic trade informations.
+2. `api_credentials`: It is your credentials manually generated in Binance account, and currently only supports HMAC.
+3. `email`: You can set the sender's email account(`from_email`), password(`from_passwd`), server address(`smtp_addr`) and subscriber's email list(`to_emails`).
+4. `network.proxy` **(Optional)**: You can set the address of the network proxy.
+5. `log`: You need to set the path of log file **(The path must be exists)**.
+6. `database.postgresql`: You need to set the address of postgresql database.
 
 ## Run
 
-### Launch data server
-
 ```bash
-./rsquant.sh run
-```
+docker-compose up -d
 
-### Launch web server
-
-```bash
-./rsquant.sh web
+QUANT_LOG_LEVEL=debug ./target/x86_64-unknown-linux-musl/release/rsquant --config ./rsquant.json
 ```
 
 ## License
