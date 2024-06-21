@@ -34,6 +34,7 @@ use crate::{
         NewOrderApiResponse,
         NormalRequest,
         NormalResponse,
+        SendEmailRequest,
         TickerApiRequest,
         TickerApiResponse,
     },
@@ -282,6 +283,28 @@ impl Handler<KlineStrategyRequest> for QuantState {
                 Ok(res)
             } else {
                 Err(Error::Custom("Strategy actor is not initialized".into()))
+            }
+        }
+        .into_actor(self)
+        .boxed_local()
+    }
+}
+
+impl Handler<SendEmailRequest> for QuantState {
+    type Result = ResponseActFuture<Self, Result<()>>;
+
+    fn handle(&mut self, msg: SendEmailRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let email_opt = self.email.clone();
+        async move {
+            if let Some(email) = email_opt {
+                email
+                    .send(msg)
+                    .await
+                    .map_err(|e| Error::Custom(e.to_string()))??;
+
+                Ok(())
+            } else {
+                Err(Error::Custom("Email actor is not initialized".into()))
             }
         }
         .into_actor(self)
