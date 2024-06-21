@@ -23,6 +23,7 @@ use crate::{
         },
         kline::Kline,
         market::ticker_price::TickerPrice,
+        order::OrderResponse,
         DecodeFromStr,
         IntoTarget,
     },
@@ -102,7 +103,7 @@ impl ApiImpl {
             .and_then(|ref res| Vec::decode_from_str(res).map_err(Error::Serde))
     }
 
-    pub async fn new_order(client: &HttpClient, req: NewOrderApiRequest) -> Result<String> {
+    pub async fn new_order(client: &HttpClient, req: NewOrderApiRequest) -> Result<OrderResponse> {
         let NewOrderApiRequest {
             symbol,
             side,
@@ -118,6 +119,9 @@ impl ApiImpl {
             .timestamp(LocalTimeTool::get_unix_time())
             .into();
 
-        request.send_req(client).await
+        request
+            .send_req(client)
+            .await
+            .and_then(|ref res| OrderResponse::decode_from_str(res).map_err(Error::Serde))
     }
 }

@@ -21,7 +21,8 @@ use crate::{
         StrategyActor,
     },
     api::basic::TradeSide,
-    db::recorder::Recorder,
+    db::service::DBService,
+    entity,
     message::{
         AccountInfoApiRequest,
         AccountInfoApiResponse,
@@ -34,6 +35,7 @@ use crate::{
         NewOrderApiResponse,
         NormalRequest,
         NormalResponse,
+        RecordOrderRequest,
         SendEmailRequest,
         TickerApiRequest,
         TickerApiResponse,
@@ -51,6 +53,7 @@ pub static STATE: OnceLock<Addr<QuantState>> = OnceLock::new();
 
 pub async fn init_state(config: QuantConfig) {
     let state = QuantState::from_config(config)
+        .await
         .expect("Failed to create manager")
         .start();
     let _manager = STATE.get_or_init(move || state);
@@ -61,8 +64,8 @@ pub struct QuantState {
     api: Option<Addr<BinanApiActor>>,
     email: Option<Addr<EmailActor>>,
     strategy: Option<Addr<StrategyActor>>,
-    recorder: Option<Recorder>,
-    logger: Option<Logger>,
+    db_service: Option<Addr<DBService>>,
+    _logger: Option<Logger>,
 }
 
 impl QuantState {
@@ -73,51 +76,38 @@ impl QuantState {
 
 impl Actor for QuantState {
     type Context = Context<Self>;
-
-    fn started(&mut self, _ctx: &mut Self::Context) {
-        self.init();
-    }
 }
 
 impl QuantState {
-    pub fn from_config(config: QuantConfig) -> Result<Self> {
-        Ok(Self {
-            config,
-            api: None,
-            email: None,
-            strategy: None,
-            recorder: None,
-            logger: None,
-        })
-    }
-
-    pub fn config(&self) -> &QuantConfig {
-        &self.config
-    }
-
-    fn init(&mut self) {
+    pub async fn from_config(config: QuantConfig) -> Result<Self> {
         let QuantConfig {
             api_credentials,
             database,
             log,
             email,
             ..
-        } = self.config.to_owned();
+        } = config.to_owned();
 
         let api = BinanApiActor::from_config(api_credentials).start();
         let email = EmailActor::from_config(email).start();
         let strategy_impl = CommonMacdAndRsiStrategy::new(12, 26, 9, 14, 30.0, 70.0);
         let strategy = StrategyActor::new(Box::new(strategy_impl)).start();
-        let recorder = Recorder::from_config(database).expect("");
+        let recorder = DBService::from_config(database).await?.start();
         let logger = Logger::from_config(log);
-        recorder.init();
         logger.init().expect("Failed to init logger");
 
-        self.api = Some(api);
-        self.email = Some(email);
-        self.strategy = Some(strategy);
-        self.recorder = Some(recorder);
-        self.logger = Some(logger);
+        Ok(Self {
+            config,
+            api: Some(api),
+            email: Some(email),
+            strategy: Some(strategy),
+            db_service: Some(recorder),
+            _logger: Some(logger),
+        })
+    }
+
+    pub fn config(&self) -> &QuantConfig {
+        &self.config
     }
 }
 
@@ -283,6 +273,28 @@ impl Handler<KlineStrategyRequest> for QuantState {
                 Ok(res)
             } else {
                 Err(Error::Custom("Strategy actor is not initialized".into()))
+            }
+        }
+        .into_actor(self)
+        .boxed_local()
+    }
+}
+
+impl Handler<RecordOrderRequest> for QuantState {
+    type Result = ResponseActFuture<Self, Result<entity::order::ActiveModel>>;
+
+    fn handle(&mut self, msg: RecordOrderRequest, _ctx: &mut Self::Context) -> Self::Result {
+        let db_service_opt = self.db_service.clone();
+        async move {
+            if let Some(db_service) = db_service_opt {
+                let res = db_service
+                    .send(msg)
+                    .await
+                    .map_err(|e| Error::Custom(e.to_string()))??;
+
+                Ok(res)
+            } else {
+                Err(Error::Custom("DB service actor is not initialized".into()))
             }
         }
         .into_actor(self)

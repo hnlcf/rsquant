@@ -15,9 +15,11 @@ use serde::Deserialize;
 
 use crate::{
     api::basic::TradeSide,
+    entity::order,
     model::{
         account_info::AccountInfo,
         kline::Kline,
+        order::OrderResponse,
         ticker_price::TickerPrice,
     },
     trade::ToDataItem,
@@ -148,7 +150,7 @@ pub struct NewOrderApiRequest {
 #[derive(Debug, Message)]
 #[rtype(result = "()")]
 pub struct NewOrderApiResponse {
-    pub res: String,
+    pub res: OrderResponse,
 }
 
 #[derive(Message)]
@@ -156,6 +158,12 @@ pub struct NewOrderApiResponse {
 pub struct SendEmailRequest {
     pub subject: String,
     pub content: String,
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<order::ActiveModel, Error>")]
+pub struct RecordOrderRequest {
+    pub model: order::Model,
 }
 
 pub enum SchedulerDataRequest {

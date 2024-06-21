@@ -1,4 +1,1 @@
-pub mod pgsql;
-pub mod recorder;
-
-pub trait DBConnection {}
+pub mod service;

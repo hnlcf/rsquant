@@ -23,9 +23,7 @@ binan_spot = { path = "../../deps/binan_spot", features = ["full"] }
 rsquant-derive = { path = "../rsquant-derive" }
 rsquant-tool = { path = "../rsquant-tool" }
 
-toml = "0.7.4"
-lettre = "0.10"
-diesel = { version = "2.1.0", features = ["postgres", "chrono"] }
+lettre = "0.11.7"
 tracing-appender = "0.2.3"
 url = "2.5.0"
 sha2 = "0.10.8"
@@ -42,3 +40,4 @@ polars = { version = "0.40.0", features = [
     "dtype-datetime",
     "diff",
 ] }
+sea-orm = { version = "0.12.15", features = ["macros", "sqlx-postgres", "debug-print", "runtime-tokio-native-tls"] }

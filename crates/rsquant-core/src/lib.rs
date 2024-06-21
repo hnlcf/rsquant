@@ -1,6 +1,7 @@
 pub mod actor;
 pub mod api;
 pub mod db;
+pub mod entity;
 mod error;
 mod manager;
 pub mod message;
@@ -34,11 +35,13 @@ pub use util::config::ConfigBuilder;
 
 use crate::{
     api::basic::TradeSide,
+    entity::order,
     message::{
         KlineApiRequest,
         KlineStrategyRequest,
         NewOrderApiRequest,
         NormalRequest,
+        RecordOrderRequest,
         SendEmailRequest,
         TickerApiRequest,
     },
@@ -145,12 +148,31 @@ async fn run_impl(symbol: &str, currency: u64) -> Result<()> {
             .await
             .map_err(|e| Error::Custom(e.to_string()))??;
 
-        tracing::debug!("{}", order_res.res);
+        let order_res = order_res.res;
+        tracing::debug!("{:?}", order_res);
+
+        let record_req = RecordOrderRequest {
+            model: order::Model {
+                order_id: order_res.order_id,
+                symbol: symbol.into(),
+                price,
+                quantity,
+                side: signal,
+                time_in_force: order_res.time_in_force,
+                r#type: order_res.r#type,
+                ..Default::default()
+            },
+        };
+
+        let record_res = QuantState::get_addr()
+            .send(record_req)
+            .await
+            .map_err(|e| Error::Custom(e.to_string()))??;
 
         QuantState::get_addr()
             .send(SendEmailRequest {
-                subject: "Trade Signal".into(),
-                content: format!("{:?}: {}", signal, order_res.res),
+                subject: format!("Trade Signal for {}", symbol),
+                content: format!("Record:\n{:?}", record_res),
             })
             .await
             .map_err(|e| Error::Custom(e.to_string()))??;

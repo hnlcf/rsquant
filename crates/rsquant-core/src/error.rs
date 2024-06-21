@@ -24,14 +24,8 @@ pub enum Error {
     #[error("IO error by `{0}`")]
     IO(#[from] std::io::Error),
 
-    #[error("Db connect error by `{0}`")]
-    DbConnect(#[from] diesel::ConnectionError),
-
-    #[error("Db execute error by `{0}`")]
-    DbExecute(#[from] diesel::result::Error),
-
-    #[error("Config parse error by `{0}`")]
-    ParseConfig(#[from] toml::de::Error),
+    #[error("Failed to connect to database by `{0}`")]
+    Database(#[from] sea_orm::error::DbErr),
 
     #[error("Email error by `{0}`")]
     Email(#[from] lettre::error::Error),

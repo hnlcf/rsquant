@@ -82,12 +82,8 @@ pub struct LogConfig {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
-pub enum DatabaseConfig {
-    Postgresql(PostgresqlConfig),
-    Sqlite(SqliteConfig),
-    #[default]
-    None,
+pub struct DatabaseConfig {
+    pub db_url: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
