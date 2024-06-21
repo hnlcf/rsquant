@@ -3,6 +3,7 @@ use std::{
     path,
 };
 
+use binan_spot::market::klines::KlineInterval;
 use serde::{
     Deserialize,
     Serialize,
@@ -24,6 +25,7 @@ impl ConfigBuilder {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct QuantConfig {
+    pub basic: BasicConfig,
     pub api_credentials: CredentialsConfig,
     pub email: EmailConfig,
     pub network: NetworkConfig,
@@ -31,6 +33,14 @@ pub struct QuantConfig {
     pub database: DatabaseConfig,
     pub market: MarketConfig,
     pub strategy: StrategyConfig,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct BasicConfig {
+    pub symbol: String,
+    pub interval: KlineInterval,
+    pub total_currency: u64,
+    pub duration: u64,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]

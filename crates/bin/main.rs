@@ -31,7 +31,10 @@ use quant_core::{
     },
     model::kline::Kline,
     util::{
-        config::ConfigBuilder,
+        config::{
+            BasicConfig,
+            ConfigBuilder,
+        },
         time::{
             DurationInterval,
             GetDuration,
@@ -83,9 +86,10 @@ async fn main() -> Result<()> {
     let args: Cli = Cli::parse();
     let config = ConfigBuilder::build(args.config)?;
 
-    init_state(config).await;
+    init_state(config.clone()).await;
     set_ctrlc_handler();
 
+    run_trade(config.basic).await?;
     actor::run_web()
         .await
         .map_err(|e| Error::Custom(e.to_string()))?;
@@ -93,24 +97,24 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn run_trade() -> Result<()> {
+async fn run_trade(config: BasicConfig) -> Result<()> {
     tokio::spawn(async {
+        let config = config;
         loop {
-            let res = run_impl().await;
+            let res = run_impl(&config.symbol, config.total_currency).await;
             if let Err(e) = res {
                 tracing::error!("{:?}", e);
             }
 
-            time::sleep(Duration::from_secs(60)).await;
+            time::sleep(Duration::from_secs(config.duration)).await;
         }
     });
 
     Ok(())
 }
 
-async fn run_impl() -> Result<()> {
-    let symbol = "BTCUSDT";
-    let total_currency = dec!(100);
+async fn run_impl(symbol: &str, currency: u64) -> Result<()> {
+    let total_currency = Decimal::from(currency);
 
     // 1. Get data
     let data_req = KlineApiRequest {
@@ -141,7 +145,7 @@ async fn run_impl() -> Result<()> {
         .await
         .map_err(|e| Error::Custom(e.to_string()))??;
     let price = Decimal::from_str(&ticker_price.ticker.price)?;
-    let quantity = total_currency / price;
+    let quantity = (total_currency / price).round_dp(5);
 
     let order_req_opt = match signal {
         TradeSide::Buy => {
