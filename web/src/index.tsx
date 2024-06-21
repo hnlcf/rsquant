@@ -2,8 +2,8 @@
 import { render } from "solid-js/web"
 import { Router, Route, A } from "@solidjs/router"
 
-import Home from "./components/Home"
-import SubscribeTicker from "./components/SubscribeTicker"
+import Home from "./pages/Home"
+import SubscribeTicker from "./pages/SubscribeTicker"
 
 import "./index.css"
 

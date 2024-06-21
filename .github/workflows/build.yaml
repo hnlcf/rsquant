@@ -4,7 +4,7 @@ on:
   push:
     branches: [master]
     tags:
-      - "**"
+      - "v[0-9]+.[0-9]+.[0-9]+"
   pull_request:
     branches: [master, dev, fix-**, feat-**]
   workflow_run:
@@ -32,12 +32,32 @@ jobs:
           echo "Tag : ${{  github.ref_name }}"
           cp $PWD/target/x86_64-unknown-linux-musl/release/rsquant $PWD
           tar cvJf rsquant-${{  github.ref_name }}.tar.xz rsquant
-          realpath rsquant-${{  github.ref_name }}.tar.xz
+          realpath ${{ github.workspace }}/rsquant-${{  github.ref_name }}.tar.xz
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
 
-      - name: Create release
+      - name: Upload artifact
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: rsquant-${{  github.ref_name }}.tar.xz
+          path: ${{ github.workspace }}/rsquant-${{  github.ref_name }}.tar.xz
+          overwrite: true
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build-rs
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: rsquant-${{  github.ref_name }}.tar.xz
+
+      - name: Create release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

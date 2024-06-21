@@ -1,0 +1,44 @@
+[package]
+name = "rsquant_core"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+rust_decimal = { workspace = true }
+fast-float = { workspace = true }
+thiserror = { workspace = true }
+serde_json = { workspace = true }
+actix = { workspace = true }
+actix-web = { workspace = true }
+tokio = { workspace = true }
+
+
+binan_spot = { path = "../../deps/binan_spot", features = ["full"] }
+rsquant-derive = { path = "../rsquant-derive" }
+rsquant-tool = { path = "../rsquant-tool" }
+
+toml = "0.7.4"
+lettre = "0.10"
+diesel = { version = "2.1.0", features = ["postgres", "chrono"] }
+tracing-appender = "0.2.3"
+url = "2.5.0"
+sha2 = "0.10.8"
+http = "1.1.0"
+reqwest = { version = "0.12.4", features = ["rustls-tls", "gzip"] }
+actix-web-actors = "4.3.0"
+ta = "0.5.0"
+polars = { version = "0.40.0", features = [
+    "lazy",
+    "temporal",
+    "describe",
+    "json",
+    "parquet",
+    "dtype-datetime",
+    "diff",
+] }

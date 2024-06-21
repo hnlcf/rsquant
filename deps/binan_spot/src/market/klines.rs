@@ -1,3 +1,7 @@
+use serde::{
+    Deserialize,
+    Serialize,
+};
 use strum::Display;
 
 use crate::http::{
@@ -5,8 +9,9 @@ use crate::http::{
     Method,
 };
 
-#[derive(Debug, Copy, Clone, Display)]
+#[derive(Debug, Default, Copy, Clone, Display, Serialize, Deserialize)]
 pub enum KlineInterval {
+    #[default]
     #[strum(serialize = "1m")]
     Minutes1,
     #[strum(serialize = "3m")]

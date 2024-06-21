@@ -1,6 +1,6 @@
 [package]
 name = "rsquant"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = ["Changfeng Lou<louchangfeng@outlook.com>"]
 
@@ -14,8 +14,9 @@ name = "rsquant"
 members = [
     "deps/binan_spot",
     # "deps/binan_spot_examples",
-    "crates/core",
-    "crates/trade",
+    "crates/rsquant-core",
+    "crates/rsquant-derive",
+    "crates/rsquant-tool",
 ]
 
 [workspace.dependencies]
@@ -47,8 +48,7 @@ tracing-subscriber = { workspace = true }
 rust_decimal = { workspace = true }
 
 binan_spot = { path = "deps/binan_spot", features = ["full"] }
-quant_core = { path = "crates/core" }
-quant_trade = { path = "crates/trade" }
+rsquant_core = { path = "crates/rsquant-core" }
 crossbeam-channel = "0.5.11"
 futures-util = "0.3.30"
 clap = { version = "4.5.1", features = ["derive"] }
