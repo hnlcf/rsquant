@@ -1,12 +1,7 @@
-#![allow(dead_code, unused)]
 use std::{
-    collections::VecDeque,
+    self,
     path,
     str::FromStr,
-    sync::{
-        Arc,
-        OnceLock,
-    },
     time::Duration,
 };
 
@@ -29,31 +24,16 @@ use rsquant_core::{
         NormalRequest,
         TickerApiRequest,
     },
-    model::kline::Kline,
-    util::{
-        config::{
-            BasicConfig,
-            ConfigBuilder,
-        },
-        time::{
-            DurationInterval,
-            GetDuration,
-            UtcTimeTool,
-        },
+    util::config::{
+        BasicConfig,
+        ConfigBuilder,
     },
     Error,
     QuantState,
     Result,
 };
-use rust_decimal::{
-    prelude::Signed,
-    Decimal,
-};
-use rust_decimal_macros::dec;
-use tokio::{
-    sync::Mutex,
-    time,
-};
+use rust_decimal::Decimal;
+use tokio::time;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -70,10 +50,9 @@ fn set_ctrlc_handler() {
 
         tracing::info!("Ctrl-C received, stop system");
 
-        QuantState::get_addr()
-            .send(NormalRequest::Stop)
-            .await
-            .unwrap();
+        if let Err(e) = QuantState::get_addr().send(NormalRequest::Stop).await {
+            tracing::error!("Failed to send stop signal to state by: {:?}", e);
+        }
 
         tracing::info!("Shutdown now");
 

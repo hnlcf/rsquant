@@ -29,7 +29,7 @@ impl Handler<KlineStrategyRequest> for StrategyActor {
 
     fn handle(&mut self, msg: KlineStrategyRequest, _ctx: &mut Self::Context) -> Self::Result {
         let res = self.inner.check(&msg.data);
-        tracing::debug!("[strategy:{}]: {:?}", self.inner.get_name(), res);
+        tracing::info!("[strategy:{}]: {:?}", self.inner.get_name(), res);
         Ok(res)
     }
 }

@@ -10,10 +10,14 @@ use syn::{
 
 #[proc_macro_derive(Name)]
 pub fn derive(input: TokenStream) -> TokenStream {
-    let DeriveInput { ident, .. } = parse_macro_input!(input);
+    let DeriveInput {
+        ident, generics, ..
+    } = parse_macro_input!(input);
+    let (impl_generics, type_generics, where_clause) = generics.split_for_impl();
+
     let ident_str = ident.to_string();
     let output = quote! {
-        impl Name for #ident {
+        impl #impl_generics Name for #ident #type_generics #where_clause {
             fn get_name(&self) -> String {
                 #ident_str.into()
             }

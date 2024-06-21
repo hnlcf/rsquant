@@ -1,14 +1,9 @@
-#![allow(unused)]
-
-use core::fmt;
-
 use actix::{
     Actor,
     Addr,
     Message,
 };
 use binan_spot::{
-    http::Credentials,
     market::klines::KlineInterval,
     trade::order::{
         Side,
@@ -16,10 +11,7 @@ use binan_spot::{
     },
 };
 use rust_decimal::Decimal;
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::Deserialize;
 
 use crate::{
     api::basic::TradeSide,
