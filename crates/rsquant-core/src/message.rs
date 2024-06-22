@@ -14,8 +14,10 @@ use rust_decimal::Decimal;
 use serde::Deserialize;
 
 use crate::{
-    api::basic::TradeSide,
-    entity::order,
+    entity::{
+        order,
+        side,
+    },
     model::{
         account_info::AccountInfo,
         kline::Kline,
@@ -120,7 +122,7 @@ pub struct KlineApiResponse {
 }
 
 #[derive(Message, Clone)]
-#[rtype(result = "Result<TradeSide, Error>")]
+#[rtype(result = "Result<side::TradeSide, Error>")]
 pub struct KlineStrategyRequest {
     pub data: Vec<ta::DataItem>,
 }

@@ -10,7 +10,7 @@ use super::{
     Strategy,
 };
 use crate::{
-    api::basic::TradeSide,
+    entity::side,
     min,
 };
 
@@ -49,7 +49,7 @@ impl CommonMacdAndRsiStrategy {
 }
 
 impl Strategy for CommonMacdAndRsiStrategy {
-    fn check(&self, data: &[ta::DataItem]) -> TradeSide {
+    fn check(&self, data: &[ta::DataItem]) -> side::TradeSide {
         assert!(
             data.len()
                 >= min!(
@@ -123,13 +123,13 @@ impl Strategy for CommonMacdAndRsiStrategy {
 
         // 信号判断
         if extreme_min && low_pos && rsi_buy_signal {
-            return TradeSide::Buy;
+            return side::TradeSide::Buy;
         }
 
         if extreme_max && high_pos && rsi_sell_signal {
-            return TradeSide::Sell;
+            return side::TradeSide::Sell;
         }
 
-        TradeSide::Nop
+        side::TradeSide::Nop
     }
 }

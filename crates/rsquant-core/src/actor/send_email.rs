@@ -34,6 +34,10 @@ impl EmailActor {
 
 impl Actor for EmailActor {
     type Context = Context<Self>;
+
+    fn started(&mut self, _ctx: &mut Self::Context) {
+        tracing::info!("[email]: email actor started");
+    }
 }
 
 impl Handler<SendEmailRequest> for EmailActor {

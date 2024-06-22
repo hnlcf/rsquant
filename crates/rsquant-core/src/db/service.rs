@@ -39,6 +39,15 @@ impl DBService {
 
 impl Actor for DBService {
     type Context = actix::Context<Self>;
+
+    fn started(&mut self, _ctx: &mut Self::Context) {
+        // let conn = self.conn.clone();
+        // actix::spawn(async move {
+        //     init_db(&conn).await;
+        // });
+
+        tracing::info!("[db]: db actor started");
+    }
 }
 
 async fn insert_order_record(

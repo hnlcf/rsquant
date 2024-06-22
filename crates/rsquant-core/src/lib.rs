@@ -34,8 +34,10 @@ use tokio::time;
 pub use util::config::ConfigBuilder;
 
 use crate::{
-    api::basic::TradeSide,
-    entity::order,
+    entity::{
+        order,
+        side,
+    },
     message::{
         KlineApiRequest,
         KlineStrategyRequest,
@@ -117,7 +119,7 @@ async fn run_impl(symbol: &str, currency: u64) -> Result<()> {
     let quantity = (total_currency / price).round_dp(5);
 
     let order_req_opt = match signal {
-        TradeSide::Buy => {
+        side::TradeSide::Buy => {
             let req = NewOrderApiRequest {
                 symbol: symbol.into(),
                 side: Side::Buy,
@@ -128,7 +130,7 @@ async fn run_impl(symbol: &str, currency: u64) -> Result<()> {
             };
             Some(req)
         }
-        TradeSide::Sell => {
+        side::TradeSide::Sell => {
             let req = NewOrderApiRequest {
                 symbol: symbol.into(),
                 side: Side::Sell,
@@ -139,7 +141,7 @@ async fn run_impl(symbol: &str, currency: u64) -> Result<()> {
             };
             Some(req)
         }
-        TradeSide::Nop => None,
+        side::TradeSide::Nop => None,
     };
 
     if let Some(order_req) = order_req_opt {

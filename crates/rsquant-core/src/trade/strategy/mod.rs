@@ -1,12 +1,12 @@
 use rsquant_tool::Name;
 use ta::DataItem;
 
-use crate::api::basic::TradeSide;
+use crate::entity::side;
 
 mod common;
 
 pub use common::CommonMacdAndRsiStrategy;
 
 pub trait Strategy: Name {
-    fn check(&self, data: &[DataItem]) -> TradeSide;
+    fn check(&self, data: &[DataItem]) -> side::TradeSide;
 }

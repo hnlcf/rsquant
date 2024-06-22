@@ -20,7 +20,6 @@ use crate::{
         EmailActor,
         StrategyActor,
     },
-    api::basic::TradeSide,
     db::service::DBService,
     entity,
     message::{
@@ -257,7 +256,7 @@ impl Handler<NewOrderApiRequest> for QuantState {
 }
 
 impl Handler<KlineStrategyRequest> for QuantState {
-    type Result = ResponseActFuture<Self, Result<TradeSide>>;
+    type Result = ResponseActFuture<Self, Result<entity::side::TradeSide>>;
 
     fn handle(&mut self, msg: KlineStrategyRequest, _ctx: &mut Self::Context) -> Self::Result {
         let strategy_opt = self.strategy.clone();

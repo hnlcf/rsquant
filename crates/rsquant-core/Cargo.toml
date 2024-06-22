@@ -1,5 +1,5 @@
 [package]
-name = "rsquant_core"
+name = "rsquant-core"
 version = "0.1.0"
 edition = "2021"
 
@@ -40,4 +40,9 @@ polars = { version = "0.40.0", features = [
     "dtype-datetime",
     "diff",
 ] }
-sea-orm = { version = "0.12.15", features = ["macros", "sqlx-postgres", "debug-print", "runtime-tokio-native-tls"] }
+sea-orm = { version = "0.12.15", features = [
+    "macros",
+    "sqlx-postgres",
+    "debug-print",
+    "runtime-tokio-native-tls",
+] }

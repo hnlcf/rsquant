@@ -15,6 +15,7 @@ members = [
     "deps/binan_spot",
     # "deps/binan_spot_examples",
     "crates/rsquant-core",
+    "crates/rsquant-core/migration",
     "crates/rsquant-derive",
     "crates/rsquant-tool",
 ]
@@ -53,7 +54,7 @@ tracing-subscriber = { workspace = true }
 rust_decimal = { workspace = true }
 
 binan_spot = { path = "deps/binan_spot", features = ["full"] }
-rsquant_core = { path = "crates/rsquant-core" }
+rsquant-core = { path = "crates/rsquant-core" }
 clap = { version = "4.5.1", features = ["derive"] }
 
 [profile.release]

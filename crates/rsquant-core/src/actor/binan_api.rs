@@ -72,6 +72,10 @@ impl Default for BinanApiActor {
 
 impl Actor for BinanApiActor {
     type Context = Context<Self>;
+
+    fn started(&mut self, _ctx: &mut Self::Context) {
+        tracing::info!("[api]: api actor started");
+    }
 }
 
 impl<M, A> Handler<MessagePack<M, A>> for BinanApiActor

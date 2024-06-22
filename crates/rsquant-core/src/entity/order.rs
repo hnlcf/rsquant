@@ -13,12 +13,12 @@ use serde::{
     Serialize,
 };
 
-use crate::api::basic::TradeSide;
+use super::side::TradeSide;
 
 #[derive(Default, Clone, Debug, PartialEq, Eq, DeriveEntityModel, Deserialize, Serialize)]
 #[sea_orm(table_name = "orders")]
 pub struct Model {
-    #[sea_orm(primary_key)]
+    #[sea_orm(primary_key, auto_increment = true)]
     #[serde(skip_deserializing)]
     pub id: i32,
 
