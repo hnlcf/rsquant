@@ -31,7 +31,7 @@ actix-web = { version = "4.8.0", features = [
     "http2",
     "cookies",
     "compress-zstd",
-    "experimental-io-uring",
+    # "experimental-io-uring",
 ] }
 tokio = { version = "1.38.0", features = ["time", "rt-multi-thread", "macros"] }
 tracing-subscriber = { version = "0.3.18", features = [
