@@ -1,0 +1,3 @@
+[submodule "deps/barter-rs"]
+	path = deps/barter-rs
+	url = git@github.com:hnlcf/barter-rs.git

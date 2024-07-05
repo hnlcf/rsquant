@@ -10,6 +10,17 @@ bench = false
 path = "crates/bin/main.rs"
 name = "rsquant"
 
+
+[[bin]]
+bench = false
+path = "crates/bin/crawler.rs"
+name = "crawler"
+
+[[bin]]
+bench = false
+path = "crates/bin/bt.rs"
+name = "backtest"
+
 [workspace]
 members = [
     "deps/binan_spot",
@@ -18,6 +29,7 @@ members = [
     "crates/rsquant-core/migration",
     "crates/rsquant-derive",
     "crates/rsquant-tool",
+    "crates/rsquant-bt",
 ]
 
 [workspace.dependencies]
@@ -52,10 +64,13 @@ actix = { workspace = true }
 actix-web = { workspace = true }
 tracing-subscriber = { workspace = true }
 rust_decimal = { workspace = true }
+serde_json = { workspace = true }
 
 binan_spot = { path = "deps/binan_spot", features = ["full"] }
 rsquant-core = { path = "crates/rsquant-core" }
+rsquant-bt = { path = "crates/rsquant-bt" }
 clap = { version = "4.5.1", features = ["derive"] }
+barter-data = "0.7.0"
 
 [profile.release]
 panic = 'abort'

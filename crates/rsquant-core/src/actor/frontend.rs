@@ -133,6 +133,6 @@ pub async fn run_web() -> Result<(), Error> {
     let app = || App::new().route("/", web::get().to(index));
     tracing::info!("Start to run web server");
 
-    HttpServer::new(app).bind("127.0.0.1:8000")?.run().await?;
+    HttpServer::new(app).bind("0.0.0.0:8000")?.run().await?;
     Ok(())
 }

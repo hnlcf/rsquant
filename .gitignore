@@ -48,6 +48,7 @@ out/
 # production
 build
 _build
+dist
 
 # misc
 .DS_Store
