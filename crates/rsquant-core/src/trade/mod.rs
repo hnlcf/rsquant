@@ -8,5 +8,6 @@ pub use indicator::{
 };
 pub use strategy::{
     CommonMacdAndRsiStrategy,
+    DoubleEmaStrategy,
     Strategy,
 };

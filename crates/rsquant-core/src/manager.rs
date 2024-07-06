@@ -39,7 +39,7 @@ use crate::{
         TickerApiRequest,
         TickerApiResponse,
     },
-    trade::CommonMacdAndRsiStrategy,
+    trade::Strategy,
     util::{
         config::QuantConfig,
         log::Logger,
@@ -50,8 +50,14 @@ use crate::{
 
 pub static STATE: OnceLock<Addr<QuantState>> = OnceLock::new();
 
-pub async fn init_state(config: QuantConfig) {
-    let state = QuantState::from_config(config)
+pub async fn init_state<F, S>(config: QuantConfig, f: F)
+where
+    F: Fn() -> S,
+    S: Strategy + 'static,
+{
+    let strategy_impl = f();
+
+    let state = QuantState::from_config(config, strategy_impl)
         .await
         .expect("Failed to create manager")
         .start();
@@ -78,7 +84,10 @@ impl Actor for QuantState {
 }
 
 impl QuantState {
-    pub async fn from_config(config: QuantConfig) -> Result<Self> {
+    pub async fn from_config(
+        config: QuantConfig,
+        strategy_impl: impl Strategy + 'static,
+    ) -> Result<Self> {
         let QuantConfig {
             api_credentials,
             database,
@@ -89,7 +98,6 @@ impl QuantState {
 
         let api = BinanApiActor::from_config(api_credentials).start();
         let email = EmailActor::from_config(email).start();
-        let strategy_impl = CommonMacdAndRsiStrategy::new(12, 26, 9, 14, 30.0, 70.0);
         let strategy = StrategyActor::new(Box::new(strategy_impl)).start();
         let recorder = DBService::from_config(database).await?.start();
         let logger = Logger::from_config(log);

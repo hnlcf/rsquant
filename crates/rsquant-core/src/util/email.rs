@@ -8,12 +8,44 @@ use lettre::{
     SmtpTransport,
     Transport,
 };
+use once_cell::sync::Lazy;
+use serde::Serialize;
+use tera::{
+    Context,
+    Tera,
+};
 
 use super::config::EmailConfig;
 use crate::{
     Error,
     Result,
 };
+
+static EMAIL_TEMPLATE: Lazy<Tera> =
+    Lazy::new(
+        || match Tera::new("crates/rsquant-core/template/**/*.html") {
+            Ok(t) => t,
+            Err(e) => {
+                println!("Parsing tera template error(s): {}", e);
+                ::std::process::exit(1);
+            }
+        },
+    );
+
+#[derive(Serialize)]
+pub struct EmailMonitorReportContext {
+    pub(crate) datetime: String,
+    pub(crate) interval: String,
+    pub(crate) headers: Vec<String>,
+    pub(crate) buy_symbols: Vec<String>,
+    pub(crate) sell_symbols: Vec<String>,
+}
+
+pub fn generate_monitor_report(ctx: EmailMonitorReportContext) -> Result<String> {
+    let ctx = Context::from_serialize(&ctx)?;
+    let s = EMAIL_TEMPLATE.render("email/monitor.html", &ctx)?;
+    Ok(s)
+}
 
 pub struct EmailManager {
     from_email: Mailbox,

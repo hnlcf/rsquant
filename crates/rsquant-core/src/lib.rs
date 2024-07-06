@@ -6,6 +6,7 @@ mod error;
 mod manager;
 pub mod message;
 pub mod model;
+mod monitor;
 pub mod trade;
 pub mod util;
 
@@ -29,10 +30,15 @@ pub use manager::{
     init_state,
     QuantState,
 };
+pub use monitor::run_monitor;
 use rust_decimal::Decimal;
 use tokio::time;
 pub use util::config::ConfigBuilder;
 
+pub use crate::trade::{
+    CommonMacdAndRsiStrategy,
+    DoubleEmaStrategy,
+};
 use crate::{
     entity::{
         order,
@@ -40,6 +46,7 @@ use crate::{
     },
     message::{
         KlineApiRequest,
+        KlineApiResponse,
         KlineStrategyRequest,
         NewOrderApiRequest,
         NormalRequest,
@@ -72,7 +79,7 @@ pub async fn run_trade(config: BasicConfig) -> Result<()> {
     tokio::spawn(async {
         let config = config;
         loop {
-            let res = run_impl(&config.symbol, config.total_currency).await;
+            let res = run_trade_impl(&config.symbol, config.total_currency).await;
             if let Err(e) = res {
                 tracing::error!("{:?}", e);
             }
@@ -84,7 +91,7 @@ pub async fn run_trade(config: BasicConfig) -> Result<()> {
     Ok(())
 }
 
-async fn run_impl(symbol: &str, currency: u64) -> Result<()> {
+async fn run_trade_impl(symbol: &str, currency: u64) -> Result<()> {
     let total_currency = Decimal::from(currency);
 
     // 1. Get data

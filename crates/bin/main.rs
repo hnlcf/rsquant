@@ -17,7 +17,8 @@ async fn main() -> Result<()> {
     let args: Cli = Cli::parse();
     let config = ConfigBuilder::build(args.config)?;
 
-    rsquant_core::init_state(config.clone()).await;
+    let gen_strategy = || rsquant_core::CommonMacdAndRsiStrategy::new(12, 26, 9, 14, 30.0, 70.0);
+    rsquant_core::init_state(config.clone(), gen_strategy).await;
     rsquant_core::set_ctrlc_handler();
     rsquant_core::run_trade(config.basic).await?;
     rsquant_core::run_web()

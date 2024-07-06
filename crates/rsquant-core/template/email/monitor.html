@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      .email-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .email-table th,
+      .email-table td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+      .email-table th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>{{ datetime }} {{ interval }} 趋势跟踪</h2>
+    <p></p>
+    <h3>买多</h3>
+    <table class="email-table">
+      <thead>
+        <tr>
+          {% for header in headers %}
+          <th>{{ header }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in buy_symbols %}
+        <tr>
+          <td>{{ s }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p></p>
+    <h3>卖空</h3>
+    <table class="email-table">
+      <thead>
+        <tr>
+          {% for header in headers %}
+          <th>{{ header }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in sell_symbols %}
+        <tr>
+          <td>{{ s }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p></p>
+  </body>
+</html>

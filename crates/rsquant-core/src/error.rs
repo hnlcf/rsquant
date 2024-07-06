@@ -30,6 +30,9 @@ pub enum Error {
     #[error("Email error by `{0}`")]
     Email(#[from] lettre::error::Error),
 
+    #[error("Tera template error by `{0}`")]
+    Template(#[from] tera::Error),
+
     #[error("Decimal error by `{0}`")]
     Decimal(#[from] rust_decimal::Error),
 

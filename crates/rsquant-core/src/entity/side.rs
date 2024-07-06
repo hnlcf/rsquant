@@ -8,7 +8,7 @@ use serde::{
 };
 
 #[derive(
-    Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, EnumIter, DeriveActiveEnum,
+    Debug, Copy, Default, Clone, PartialEq, Eq, Serialize, Deserialize, EnumIter, DeriveActiveEnum,
 )]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "trade_side")]
 pub enum TradeSide {
