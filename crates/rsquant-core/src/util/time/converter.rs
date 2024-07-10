@@ -53,7 +53,7 @@ mod tests {
 
     #[test]
     fn test_time_converter() {
-        let expect_date_time = "2023-05-20 15:00:00";
+        let expect_date_time = "2023-05-20 23:00:00 +0800";
         let expect_unix_time = LocalTimeTool::convert_to_unix_time(expect_date_time).unwrap_or(0);
         let actual_date_time =
             LocalTimeTool::convert_to_date_time(expect_unix_time).unwrap_or("".into());
