@@ -8,7 +8,9 @@ use actix::{
     Handler,
     StreamHandler,
 };
+use actix_cors::Cors;
 use actix_web::{
+    middleware::Logger,
     web,
     App,
     Error,
@@ -130,7 +132,17 @@ async fn index(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, E
 }
 
 pub async fn run_web() -> Result<(), Error> {
-    let app = || App::new().route("/", web::get().to(index));
+    let app = || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .send_wildcard()
+            .max_age(3600);
+
+        App::new()
+            .wrap(cors)
+            .wrap(Logger::default())
+            .route("/", web::get().to(index))
+    };
     tracing::info!("Start to run web server");
 
     HttpServer::new(app).bind("0.0.0.0:8000")?.run().await?;
