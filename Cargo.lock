@@ -4638,6 +4638,7 @@ dependencies = [
  "chrono",
  "clokwerk",
  "fast-float",
+ "futures",
  "http 1.1.0",
  "itertools",
  "lettre",

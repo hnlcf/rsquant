@@ -6,6 +6,7 @@ use clokwerk::{
     Job,
     TimeUnits,
 };
+use futures::future::join_all;
 use itertools::Itertools;
 
 use crate::{
@@ -43,7 +44,10 @@ async fn send_kline_req(symbol: &str, interval: KlineInterval) -> Result<KlineAp
     Ok(kline_resp)
 }
 
-async fn compute_trend_signal_impl(symbol: &str, interval: KlineInterval) -> Result<TradeSide> {
+async fn compute_trend_signal_impl(
+    symbol: &str,
+    interval: KlineInterval,
+) -> Result<(String, TradeSide)> {
     let kline_resp = send_kline_req(symbol, interval).await?;
 
     let kline_data: KlineStrategyRequest = kline_resp.into();
@@ -52,15 +56,18 @@ async fn compute_trend_signal_impl(symbol: &str, interval: KlineInterval) -> Res
         .await
         .map_err(|e| Error::Custom(e.to_string()))??;
 
-    Ok(signal)
+    Ok((symbol.to_string(), signal))
 }
 
 async fn check_trend_signals(symbols: &[String], interval: KlineInterval) -> Result<()> {
-    let mut res = vec![];
-    for symbol in symbols {
-        let signal = compute_trend_signal_impl(symbol, interval).await?;
-        res.push((symbol.to_string(), signal));
-    }
+    let jobs = symbols
+        .iter()
+        .map(|s| compute_trend_signal_impl(s, interval));
+    let res = join_all(jobs)
+        .await
+        .into_iter()
+        .filter_map(|r| r.ok())
+        .collect::<Vec<_>>();
 
     let mut buy_symbols = vec![];
     let mut sell_symbols = vec![];

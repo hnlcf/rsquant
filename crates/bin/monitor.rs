@@ -1,6 +1,7 @@
 use clap::Parser;
 use rsquant_core::{
     ConfigBuilder,
+    Error,
     Result,
 };
 
@@ -37,13 +38,27 @@ async fn main() -> Result<()> {
             "MATICUSDT".into(),
             "LTCUSDT".into(),
             "ETCUSDT".into(),
+            "PEOPLE".into(),
+            "TON".into(),
+            "NOT".into(),
+            "ONDO".into(),
+            "AXL".into(),
+            "AEVO".into(),
+            "WIF".into(),
         ]
     };
     let gen_strategy = || rsquant_core::DoubleEmaStrategy::new(20, 60);
 
     rsquant_core::init_state(config.clone(), gen_strategy).await;
     rsquant_core::set_ctrlc_handler();
-    rsquant_core::run_monitor(gen_symbols).await?;
+    tokio::spawn(async move {
+        rsquant_core::run_monitor(gen_symbols)
+            .await
+            .expect("Failed to run monitor");
+    });
+    rsquant_core::run_web()
+        .await
+        .map_err(|e| Error::Custom(e.to_string()))?;
 
     Ok(())
 }
