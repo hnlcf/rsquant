@@ -62,27 +62,20 @@ fn is_downward(target: impl Iterator<Item = bool>) -> bool {
     let mut prefix_true = false;
     let mut suffix_false = false;
 
-    let mut check_prefix = true;
-    let mut check_suffix = false;
-
     for i in target {
-        check_prefix = i;
-        check_suffix = !i;
+        let check_prefix = i;
+        let check_suffix = !i;
 
         if suffix_false && i {
             return false;
         }
 
-        if i {
-            if check_prefix && !check_suffix {
-                prefix_true = true;
-            }
+        if check_prefix && !check_suffix {
+            prefix_true = true;
         }
 
-        if !i {
-            if check_suffix && !check_prefix {
-                suffix_false = true;
-            }
+        if check_suffix && !check_prefix {
+            suffix_false = true;
         }
     }
 
@@ -93,27 +86,20 @@ fn is_upward(target: impl Iterator<Item = bool>) -> bool {
     let mut prefix_false = false;
     let mut suffix_true = false;
 
-    let mut check_prefix = false;
-    let mut check_suffix = true;
-
     for i in target {
-        check_prefix = !i;
-        check_suffix = i;
+        let check_prefix = !i;
+        let check_suffix = i;
 
         if suffix_true && !i {
             return false;
         }
 
-        if !i {
-            if check_prefix && !check_suffix {
-                prefix_false = true;
-            }
+        if check_prefix && !check_suffix {
+            prefix_false = true;
         }
 
-        if i {
-            if check_suffix && !check_prefix {
-                suffix_true = true;
-            }
+        if check_suffix && !check_prefix {
+            suffix_true = true;
         }
     }
 
