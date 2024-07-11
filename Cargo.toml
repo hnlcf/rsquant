@@ -12,11 +12,6 @@ name = "rsquant"
 
 [[bin]]
 bench = false
-path = "crates/bin/monitor.rs"
-name = "monitor"
-
-[[bin]]
-bench = false
 path = "crates/bin/crawler.rs"
 name = "crawler"
 
