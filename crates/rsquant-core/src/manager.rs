@@ -1,5 +1,6 @@
 use std::{
     self,
+    collections::HashMap,
     sync::OnceLock,
 };
 
@@ -50,17 +51,21 @@ use crate::{
 
 pub static STATE: OnceLock<Addr<QuantState>> = OnceLock::new();
 
-pub async fn init_state<F, S>(config: QuantConfig, f: F)
-where
-    F: Fn() -> S,
-    S: Strategy + 'static,
+pub async fn init_state<T>(
+    config: QuantConfig,
+    strategies: impl IntoIterator<Item = (T, Box<dyn Strategy>)>,
+) where
+    T: Into<String>,
 {
-    let strategy_impl = f();
-
-    let state = QuantState::from_config(config, strategy_impl)
+    let mut state = QuantState::from_config(config)
         .await
-        .expect("Failed to create manager")
-        .start();
+        .expect("Failed to create manager");
+
+    for (t, s) in strategies {
+        state = state.register_strategy(t.into(), s);
+    }
+
+    let state = state.start();
     let _manager = STATE.get_or_init(move || state);
 }
 
@@ -68,7 +73,7 @@ pub struct QuantState {
     config: QuantConfig,
     api: Option<Addr<BinanApiActor>>,
     email: Option<Addr<EmailActor>>,
-    strategy: Option<Addr<StrategyActor>>,
+    strategies: HashMap<String, Addr<StrategyActor>>,
     db_service: Option<Addr<DBService>>,
     _logger: Option<Logger>,
 }
@@ -84,10 +89,7 @@ impl Actor for QuantState {
 }
 
 impl QuantState {
-    pub async fn from_config(
-        config: QuantConfig,
-        strategy_impl: impl Strategy + 'static,
-    ) -> Result<Self> {
+    pub async fn from_config(config: QuantConfig) -> Result<Self> {
         let QuantConfig {
             api_credentials,
             database,
@@ -98,7 +100,6 @@ impl QuantState {
 
         let api = BinanApiActor::from_config(api_credentials).start();
         let email = EmailActor::from_config(email).start();
-        let strategy = StrategyActor::new(Box::new(strategy_impl)).start();
         let recorder = DBService::from_config(database).await?.start();
         let logger = Logger::from_config(log);
         logger.init().expect("Failed to init logger");
@@ -107,10 +108,16 @@ impl QuantState {
             config,
             api: Some(api),
             email: Some(email),
-            strategy: Some(strategy),
+            strategies: HashMap::new(),
             db_service: Some(recorder),
             _logger: Some(logger),
         })
+    }
+
+    pub fn register_strategy(mut self, topic: String, strategy: Box<dyn Strategy>) -> Self {
+        let strategy = StrategyActor::new(strategy).start();
+        self.strategies.insert(topic, strategy);
+        self
     }
 
     pub fn config(&self) -> &QuantConfig {
@@ -267,7 +274,7 @@ impl Handler<KlineStrategyRequest> for QuantState {
     type Result = ResponseActFuture<Self, Result<entity::side::TradeSide>>;
 
     fn handle(&mut self, msg: KlineStrategyRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let strategy_opt = self.strategy.clone();
+        let strategy_opt = self.strategies.get(&msg.strategy_topic).cloned();
         async move {
             if let Some(strategy) = strategy_opt {
                 let res = strategy

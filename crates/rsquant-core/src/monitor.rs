@@ -50,7 +50,7 @@ async fn compute_trend_signal_impl(
 ) -> Result<(String, TradeSide)> {
     let kline_resp = send_kline_req(symbol, interval).await?;
 
-    let kline_data: KlineStrategyRequest = kline_resp.into();
+    let kline_data = KlineStrategyRequest::from_klines("double_ema", kline_resp);
     let signal = QuantState::get_addr()
         .send(kline_data)
         .await
@@ -106,11 +106,22 @@ async fn check_trend_signals(symbols: &[String], interval: KlineInterval) -> Res
 
 pub async fn run_monitor<F>(gen_symbols: F) -> Result<()>
 where
-    F: Fn() -> Vec<String> + Send,
+    F: Fn() -> Vec<String> + Send + 'static,
 {
+    let symbols = gen_symbols();
+    tokio::spawn(async move {
+        run_monitor_impl(symbols)
+            .await
+            .expect("Failed to run monitor");
+    });
+
+    Ok(())
+}
+
+async fn run_monitor_impl(symbols: Vec<String>) -> Result<()> {
     tracing::info!("Start monitor");
 
-    let symbols = Box::leak(Box::new(gen_symbols()));
+    let symbols = Box::leak(Box::new(symbols));
     // Create a new scheduler
     let mut scheduler = AsyncScheduler::new();
 

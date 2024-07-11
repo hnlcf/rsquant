@@ -124,17 +124,21 @@ pub struct KlineApiResponse {
 #[derive(Message, Clone)]
 #[rtype(result = "Result<side::TradeSide, Error>")]
 pub struct KlineStrategyRequest {
+    pub strategy_topic: String,
     pub data: Vec<ta::DataItem>,
 }
 
-impl From<KlineApiResponse> for KlineStrategyRequest {
-    fn from(kline: KlineApiResponse) -> Self {
+impl KlineStrategyRequest {
+    pub fn from_klines(strategy_topic: &str, kline: KlineApiResponse) -> Self {
         let data = kline
             .klines
             .iter()
             .flat_map(|k| k.to_data_item().ok())
             .collect();
-        KlineStrategyRequest { data }
+        KlineStrategyRequest {
+            strategy_topic: strategy_topic.into(),
+            data,
+        }
     }
 }
 

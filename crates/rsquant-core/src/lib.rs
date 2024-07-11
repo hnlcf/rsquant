@@ -108,7 +108,7 @@ async fn run_trade_impl(symbol: &str, currency: u64) -> Result<()> {
         .map_err(|e| Error::Custom(e.to_string()))??;
 
     // 2. Analyze signal
-    let kline_data: KlineStrategyRequest = kline_resp.into();
+    let kline_data = KlineStrategyRequest::from_klines("common", kline_resp);
     let signal = QuantState::get_addr()
         .send(kline_data)
         .await
