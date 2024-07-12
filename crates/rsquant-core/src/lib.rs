@@ -38,6 +38,7 @@ pub use util::config::ConfigBuilder;
 pub use crate::trade::{
     CommonMacdAndRsiStrategy,
     DoubleEmaStrategy,
+    Strategy,
 };
 use crate::{
     entity::{

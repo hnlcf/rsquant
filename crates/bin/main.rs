@@ -1,9 +1,9 @@
 use clap::Parser;
 use rsquant_core::{
-    trade::Strategy,
     ConfigBuilder,
     Error,
     Result,
+    Strategy,
 };
 
 #[derive(Parser)]
