@@ -104,11 +104,7 @@ async fn check_trend_signals(symbols: &[String], interval: KlineInterval) -> Res
     Ok(())
 }
 
-pub async fn run_monitor<F>(gen_symbols: F) -> Result<()>
-where
-    F: Fn() -> Vec<String> + Send + 'static,
-{
-    let symbols = gen_symbols();
+pub async fn run_monitor(symbols: Vec<String>) -> Result<()> {
     tokio::spawn(async move {
         run_monitor_impl(symbols)
             .await
