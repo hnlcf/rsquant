@@ -11,7 +11,7 @@ use ta::{
 
 use super::Indicator;
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct MacdOutputBuilder {
     macd: Macd,
 }
