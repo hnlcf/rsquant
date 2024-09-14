@@ -1,5 +1,4 @@
 use std::{
-    self,
     collections::HashMap,
     sync::OnceLock,
 };
@@ -46,6 +45,7 @@ use crate::{
         log::Logger,
     },
     Error,
+    FlattenErr,
     Result,
 };
 
@@ -154,23 +154,16 @@ impl Handler<TickerApiRequest> for QuantState {
     type Result = ResponseActFuture<Self, Result<TickerApiResponse>>;
 
     fn handle(&mut self, msg: TickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let api_opt = self.api.clone();
-        async move {
-            if let Some(api) = api_opt {
-                let res = api
-                    .send(msg)
-                    .await
-                    .map_err(|e| Error::Custom(e.to_string()))??;
-
-                tracing::trace!("{:#?}", res);
-
-                Ok(res)
-            } else {
-                Err(Error::Custom("API actor is not initialized".into()))
-            }
+        if let Some(api) = self.api.clone() {
+            api.send(msg)
+                .into_actor(self)
+                .map(|res, _slf, _ctx| res.flatten_err())
+                .boxed_local()
+        } else {
+            async move { Err(Error::Custom("API actor is not initialized".into())) }
+                .into_actor(self)
+                .boxed_local()
         }
-        .into_actor(self)
-        .boxed_local()
     }
 }
 
@@ -178,23 +171,16 @@ impl Handler<AccountInfoApiRequest> for QuantState {
     type Result = ResponseActFuture<Self, Result<AccountInfoApiResponse>>;
 
     fn handle(&mut self, msg: AccountInfoApiRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let api_opt = self.api.clone();
-        async move {
-            if let Some(api) = api_opt {
-                let res = api
-                    .send(msg)
-                    .await
-                    .map_err(|e| Error::Custom(e.to_string()))??;
-
-                tracing::trace!("{:#?}", res);
-
-                Ok(res)
-            } else {
-                Err(Error::Custom("API actor is not initialized".into()))
-            }
+        if let Some(api) = self.api.clone() {
+            api.send(msg)
+                .into_actor(self)
+                .map(|res, _slf, _ctx| res.flatten_err())
+                .boxed_local()
+        } else {
+            async move { Err(Error::Custom("API actor is not initialized".into())) }
+                .into_actor(self)
+                .boxed_local()
         }
-        .into_actor(self)
-        .boxed_local()
     }
 }
 
@@ -202,23 +188,16 @@ impl Handler<MultipleTickerApiRequest> for QuantState {
     type Result = ResponseActFuture<Self, Result<MultipleTickerApiResponse>>;
 
     fn handle(&mut self, msg: MultipleTickerApiRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let api_opt = self.api.clone();
-        async move {
-            if let Some(api) = api_opt {
-                let res = api
-                    .send(msg)
-                    .await
-                    .map_err(|e| Error::Custom(e.to_string()))??;
-
-                tracing::trace!("{:#?}", res);
-
-                Ok(res)
-            } else {
-                Err(Error::Custom("API actor is not initialized".into()))
-            }
+        if let Some(api) = self.api.clone() {
+            api.send(msg)
+                .into_actor(self)
+                .map(|res, _slf, _ctx| res.flatten_err())
+                .boxed_local()
+        } else {
+            async move { Err(Error::Custom("API actor is not initialized".into())) }
+                .into_actor(self)
+                .boxed_local()
         }
-        .into_actor(self)
-        .boxed_local()
     }
 }
 
@@ -226,23 +205,16 @@ impl Handler<KlineApiRequest> for QuantState {
     type Result = ResponseActFuture<Self, Result<KlineApiResponse>>;
 
     fn handle(&mut self, msg: KlineApiRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let api_opt = self.api.clone();
-        async move {
-            if let Some(api) = api_opt {
-                let res = api
-                    .send(msg)
-                    .await
-                    .map_err(|e| Error::Custom(e.to_string()))??;
-
-                tracing::trace!("{:#?}", res);
-
-                Ok(res)
-            } else {
-                Err(Error::Custom("API actor is not initialized".into()))
-            }
+        if let Some(api) = self.api.clone() {
+            api.send(msg)
+                .into_actor(self)
+                .map(|res, _slf, _ctx| res.flatten_err())
+                .boxed_local()
+        } else {
+            async move { Err(Error::Custom("API actor is not initialized".into())) }
+                .into_actor(self)
+                .boxed_local()
         }
-        .into_actor(self)
-        .boxed_local()
     }
 }
 
@@ -250,23 +222,16 @@ impl Handler<NewOrderApiRequest> for QuantState {
     type Result = ResponseActFuture<Self, Result<NewOrderApiResponse>>;
 
     fn handle(&mut self, msg: NewOrderApiRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let api_opt = self.api.clone();
-        async move {
-            if let Some(api) = api_opt {
-                let res = api
-                    .send(msg)
-                    .await
-                    .map_err(|e| Error::Custom(e.to_string()))??;
-
-                tracing::trace!("{:#?}", res);
-
-                Ok(res)
-            } else {
-                Err(Error::Custom("API actor is not initialized".into()))
-            }
+        if let Some(api) = self.api.clone() {
+            api.send(msg)
+                .into_actor(self)
+                .map(|res, _slf, _ctx| res.flatten_err())
+                .boxed_local()
+        } else {
+            async move { Err(Error::Custom("API actor is not initialized".into())) }
+                .into_actor(self)
+                .boxed_local()
         }
-        .into_actor(self)
-        .boxed_local()
     }
 }
 
@@ -274,23 +239,17 @@ impl Handler<KlineStrategyRequest> for QuantState {
     type Result = ResponseActFuture<Self, Result<entity::side::TradeSide>>;
 
     fn handle(&mut self, msg: KlineStrategyRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let strategy_opt = self.strategies.get(&msg.strategy_topic).cloned();
-        async move {
-            if let Some(strategy) = strategy_opt {
-                let res = strategy
-                    .send(msg)
-                    .await
-                    .map_err(|e| Error::Custom(e.to_string()))??;
-
-                tracing::trace!("{:#?}", res);
-
-                Ok(res)
-            } else {
-                Err(Error::Custom("Strategy actor is not initialized".into()))
-            }
+        if let Some(strategy) = self.strategies.get(&msg.strategy_topic).cloned() {
+            strategy
+                .send(msg)
+                .into_actor(self)
+                .map(|res, _slf, _ctx| res.flatten_err())
+                .boxed_local()
+        } else {
+            async move { Err(Error::Custom("Strategy actor is not initialized".into())) }
+                .into_actor(self)
+                .boxed_local()
         }
-        .into_actor(self)
-        .boxed_local()
     }
 }
 
@@ -298,21 +257,17 @@ impl Handler<RecordOrderRequest> for QuantState {
     type Result = ResponseActFuture<Self, Result<entity::order::ActiveModel>>;
 
     fn handle(&mut self, msg: RecordOrderRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let db_service_opt = self.db_service.clone();
-        async move {
-            if let Some(db_service) = db_service_opt {
-                let res = db_service
-                    .send(msg)
-                    .await
-                    .map_err(|e| Error::Custom(e.to_string()))??;
-
-                Ok(res)
-            } else {
-                Err(Error::Custom("DB service actor is not initialized".into()))
-            }
+        if let Some(db_service) = self.db_service.clone() {
+            db_service
+                .send(msg)
+                .into_actor(self)
+                .map(|res, _slf, _ctx| res.flatten_err())
+                .boxed_local()
+        } else {
+            async move { Err(Error::Custom("DB service actor is not initialized".into())) }
+                .into_actor(self)
+                .boxed_local()
         }
-        .into_actor(self)
-        .boxed_local()
     }
 }
 
@@ -320,20 +275,16 @@ impl Handler<SendEmailRequest> for QuantState {
     type Result = ResponseActFuture<Self, Result<()>>;
 
     fn handle(&mut self, msg: SendEmailRequest, _ctx: &mut Self::Context) -> Self::Result {
-        let email_opt = self.email.clone();
-        async move {
-            if let Some(email) = email_opt {
-                email
-                    .send(msg)
-                    .await
-                    .map_err(|e| Error::Custom(e.to_string()))??;
-
-                Ok(())
-            } else {
-                Err(Error::Custom("Email actor is not initialized".into()))
-            }
+        if let Some(email) = self.email.as_ref() {
+            email
+                .send(msg)
+                .into_actor(self)
+                .map(|res, _slf, _ctx| res.flatten_err())
+                .boxed_local()
+        } else {
+            async move { Err(Error::Custom("Email actor is not initialized".into())) }
+                .into_actor(self)
+                .boxed_local()
         }
-        .into_actor(self)
-        .boxed_local()
     }
 }

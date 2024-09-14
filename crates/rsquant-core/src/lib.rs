@@ -25,7 +25,10 @@ use binan_spot::{
         TimeInForce,
     },
 };
-pub use error::Error;
+pub use error::{
+    Error,
+    FlattenErr,
+};
 pub use manager::{
     init_state,
     QuantState,

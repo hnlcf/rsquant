@@ -39,3 +39,25 @@ pub enum Error {
     #[error("Custom error by `{0}`")]
     Custom(String),
 }
+
+pub trait FlattenErr {
+    type Error;
+    type T;
+
+    fn flatten_err(self) -> core::result::Result<Self::T, Self::Error>;
+}
+
+impl<T, E1: std::error::Error, E2: std::error::Error> FlattenErr
+    for core::result::Result<core::result::Result<T, E1>, E2>
+{
+    type Error = Error;
+    type T = T;
+
+    fn flatten_err(self) -> core::result::Result<T, Error> {
+        match self {
+            Ok(Ok(t)) => Ok(t),
+            Ok(Err(e)) => Err(Error::Custom(e.to_string())),
+            Err(e) => Err(Error::Custom(e.to_string())),
+        }
+    }
+}
