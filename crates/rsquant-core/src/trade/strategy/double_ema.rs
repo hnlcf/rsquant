@@ -27,7 +27,7 @@ impl DoubleEmaStrategy {
 }
 
 impl Strategy for DoubleEmaStrategy {
-    fn check(&self, data: &[ta::DataItem]) -> side::TradeSide {
+    fn check(&mut self, data: &[ta::DataItem]) -> side::TradeSide {
         assert!(data.len() >= self.long_period, "data length is too short");
 
         let short_ema = EmaOutputBuilder::new(self.short_period)

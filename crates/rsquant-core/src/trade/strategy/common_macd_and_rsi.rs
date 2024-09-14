@@ -49,7 +49,7 @@ impl CommonMacdAndRsiStrategy {
 }
 
 impl Strategy for CommonMacdAndRsiStrategy {
-    fn check(&self, data: &[ta::DataItem]) -> side::TradeSide {
+    fn check(&mut self, data: &[ta::DataItem]) -> side::TradeSide {
         assert!(
             data.len()
                 >= min!(
